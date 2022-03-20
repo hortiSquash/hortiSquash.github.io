@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Warframe Melee DPS</title>
+		<link rel="stylesheet" href="design.css" />
+		<link rel="shortcut icon" href="icon.png">
+
+        <script src="plotly-2.9.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.2.0/papaparse.js"></script>
+    </head>
+    
+	<body>
+        <div>
+            <p>bite</p>
+            <input type="number" id="input" min="10" max="100">
+            <p id="output">bite</p>
+            <button onclick="changeStats()">Update Stats</button>
+        </div>
+
+        <p id="demo"></p>
+        
+        <!--
+        <div id="plotly" style="width:600px;height:400px;"></div>
+        <script>
+            TESTER = document.getElementById('plotly');
+            var data = [{
+                x: [1, 2, 3, 4, 5],
+                y: [1, 2, 4, 8, 16],
+                mode: 'markers'
+            }];
+            var layout = {
+                xaxis: {
+                    type: 'log',
+                    autorange: true
+                },
+                yaxis: {
+                    type: 'log',
+                    autorange: true
+                }
+            };
+            Plotly.newPlot(TESTER, data);
+            //Plotly.newPlot(TESTER, data, layout);
+        </script>
+        -->
+
+        <canvas id="chartjs" width="600" height="400"></canvas>
+        <script>
+            function csv_To_Array(str, delimiter = ",") {
+                const header_cols = str.slice(0, str.indexOf("\n")).split(delimiter);
+                const row_data = str.slice(str.indexOf("\n") + 1).split("\n");
+                const arr = row_data.map(function (row) {
+                    const values = row.split(delimiter);
+                    const el = header_cols.reduce(function (object, header, index) {
+                    object[header] = values[index];
+                    return object;
+                    }, {});
+                    return el;
+                });
+                return arr;
+            }
+
+            //var file = './data.csv';
+
+            //var file = "0,2791474   0.02,81670    0.03,81670    0.05,81670  0.07,81670  0.08,81670  0.1,81670   0.12,81670  0.13,81670  0.15,81670";
+            var data_damage = Papa.parse('./data.csv', {
+                download: true,
+                complete: function(result) {
+                    console.log(result.data)
+                }
+            })
+
+            const ctx = document.getElementById('chartjs');
+            const chartjs = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Array.from(Array(40).keys()),
+                    datasets: [{
+                        label: 'damage',
+                        //data: Array.from({length: 40}, () => Math.floor(Math.random() * 5000000)),
+                        data: data_damage,
+                        borderWidth: 0,
+                        barPercentage: 1.25,
+                        backgroundColor: 'grey',
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    responsive: false
+                }
+            });
+        </script>
+
+        <%
+        std::string user = request.getParameter("user");
+        if(user.empty()==false){
+            response.write("your input is = ");
+            response.write(user.c_str());
+        }
+        %>
+
+        <form name="input" action="exer2.csp" method="post">
+            Username: <input type="text" name="user">
+            <input type="submit" value="Submit">
+        </form>
+
+		<script>
+            function $(id) {
+                return document.querySelector(id);
+            }
+
+			function changeStats() {
+                $`#output`.textContent = $`#input`.value;
+            }
+		</script>
+    </body>
+</html>
