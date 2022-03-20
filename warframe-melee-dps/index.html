@@ -7,7 +7,9 @@
 		<link rel="stylesheet" href="design.css" />
 		<link rel="shortcut icon" href="icon.png">
 
+        <!--
         <script src="plotly-2.9.0.min.js"></script>
+        -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.2.0/papaparse.js"></script>
     </head>
@@ -62,21 +64,32 @@
                 return arr;
             }
 
-            //var file = './data.csv';
-
             //var file = "0,2791474   0.02,81670    0.03,81670    0.05,81670  0.07,81670  0.08,81670  0.1,81670   0.12,81670  0.13,81670  0.15,81670";
+            //var file = './data.csv';
+            /*
             var data = Papa.parse('./data.csv', {
                 download: true,
                 complete: function(result) {
                     console.log(result.data)
                 }
             })
-            var x;
-            var y;
-            for(v in data){
-                x.push(v[0]);
-                y.push(v[1])
+            */
+
+            const CSVToArray = (data, delimiter = ',') =>
+                data
+                    .slice(0)
+                    .split('\n')
+                    .map(v => v.split(","));
+            
+            data = CSVToArray('./data.csv');
+            var x = new Array(data.length);
+            var y = new Array(data.length);
+            for(let i=0; i<data.length; i++){
+                x[i] = data[i][0];
+                y[i] = data[i][1];
             }
+            console.log(x);
+            console.log(y);
 
             const ctx = document.getElementById('chartjs');
             const chartjs = new Chart(ctx, {
