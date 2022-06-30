@@ -7,11 +7,8 @@
 		<link rel="stylesheet" href="design.css" />
 		<link rel="shortcut icon" href="icon.png">
 
-        <!--
-        <script src="plotly-2.9.0.min.js"></script>
-        -->
+        <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.2.0/papaparse.js"></script>
     </head>
     
 	<body>
@@ -24,94 +21,104 @@
 
         <p id="demo"></p>
         
-        <!--
-        <div id="plotly" style="width:600px;height:400px;"></div>
+        <input type="file" id="file-selector" single accept=".csv">
+
+        <div id="plotly" style="width:1500px;height:600px;"></div>
         <script>
-            TESTER = document.getElementById('plotly');
-            var data = [{
-                x: [1, 2, 3, 4, 5],
-                y: [1, 2, 4, 8, 16],
-                mode: 'markers'
-            }];
-            var layout = {
-                xaxis: {
-                    type: 'log',
-                    autorange: true
-                },
-                yaxis: {
-                    type: 'log',
-                    autorange: true
-                }
+            const colors = {
+                "gas":          "rgb(25, 120, 50)",
+                "toxin":        "rgb(130, 200, 90)",
+                "electricity":  "rgb(40, 190, 250)",
+                "heat":         "rgb(240, 130, 40)",
+                "slash":        "rgb(150, 0, 0)",
+                "damage":       "rgb(120, 120, 120)",
             };
-            Plotly.newPlot(TESTER, data);
-            //Plotly.newPlot(TESTER, data, layout);
-        </script>
-        -->
 
-        <canvas id="chartjs" width="600" height="400"></canvas>
-        <script>
-            function csv_To_Array(str, delimiter = ",") {
-                const header_cols = str.slice(0, str.indexOf("\n")).split(delimiter);
-                const row_data = str.slice(str.indexOf("\n") + 1).split("\n");
-                const arr = row_data.map(function (row) {
-                    const values = row.split(delimiter);
-                    const el = header_cols.reduce(function (object, header, index) {
-                    object[header] = values[index];
-                    return object;
-                    }, {});
-                    return el;
-                });
-                return arr;
-            }
+            const labels = {
+                slash:"slash DoT", 
+                heat:"heat DoT", electricity:"electricity DoT",
+                toxin: "toxin DoT", gas: "gas DoT"
+            };
 
-            //var file = "0,2791474   0.02,81670    0.03,81670    0.05,81670  0.07,81670  0.08,81670  0.1,81670   0.12,81670  0.13,81670  0.15,81670";
-            //var file = './data.csv';
-            /*
-            var data = Papa.parse('./data.csv', {
-                download: true,
-                complete: function(result) {
-                    console.log(result.data)
+            /**
+             * @param {string} str 
+             */
+            function CSVToColumnar(str, delimiter = ",") {
+                //first line -> headers, rest -> data
+                const [header_cols, ...row_data] = str.split(/\r?\n/).map(l => l.split(delimiter))
+                const ret = {};
+                for (let i = header_cols.length - 1;0<=i; i--) {
+                    ret[header_cols[i]] = row_data.map(row => row[i]);
                 }
-            })
-            */
-
-            const CSVToArray = (data, delimiter = ',') =>
-                data
-                    .slice(0)
-                    .split('\n')
-                    .map(v => v.split(","));
-            
-            data = CSVToArray('./data.csv');
-            var x = new Array(data.length);
-            var y = new Array(data.length);
-            for(let i=0; i<data.length; i++){
-                x[i] = data[i][0];
-                y[i] = data[i][1];
+                return ret;
             }
-            console.log(x);
-            console.log(y);
+        
+            /**
+             * @type {HTMLInputElement}
+             */
+            const fileSelector = document.getElementById('file-selector');
+            fileSelector.addEventListener('change', async (event) => {
+                const fileList = event.target.files;
+                const file = fileList[0];
+                //console.log(file);
+                const file_content = await file.text();
 
-            const ctx = document.getElementById('chartjs');
-            const chartjs = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: x,
-                    datasets: [{
-                        label: 'damage',
-                        data: y,
-                        borderWidth: 0,
-                        barPercentage: 1.25,
-                        backgroundColor: 'grey',
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true
-                        }
+                const data = CSVToColumnar(file_content);
+
+                for (const key in data) {
+                    data[key] = data[key].map(datum => Number(datum) || undefined);
+                }
+
+                const time = data.time;
+                delete data.time;
+                console.log(data);
+                
+                const chart = document.getElementById('plotly');
+                const configDefault = {
+                    x: time,
+                    type: 'histogram', //line //scatter
+                    histfunc: 'sum', //count
+                    xbins: {size: 1.0},
+                    fill: 'none', //tonexty //tozerox
+                    stackgroup: 'one',
+                    hovertemplate: '%{x:.0f}s - %{y:.3s}'
+                    /*
+                    transforms: [{
+                        type: 'filter',
+                        target: 'y',
+                        operation: '>',
+                        value: 0
+                    }],
+                    */
+                }
+                // creates an object for each column of the CSV
+                const plotlyData = Object.entries(data).map(([name, data]) => ({
+                    y: data,
+                    name: labels[name] ?? name, //if not found, use the header
+                    marker: {color: colors[name]},
+                    /*
+                    error_y: {
+                        type: 'data',
+                        array: data_error[name],
+                        visible: true
                     },
-                    responsive: false
-                }
+                    */
+                    ...configDefault,
+                }));
+
+                const layout = {
+                    xaxis: {
+                        //type: 'log',
+                        //autorange: true
+                    },
+                    yaxis: {
+                        range: [0, "auto"]
+                        //type: 'log',
+                        //autorange: true
+                    },
+                    barmode: "stack",
+                };
+                Plotly.newPlot(chart, plotlyData, layout, {displaylogo: false});
             });
         </script>
 
