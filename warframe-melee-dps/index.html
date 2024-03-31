@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="design.css" />
 		<link rel="shortcut icon" href="icon.png">
 
-        <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
+        <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         
         <script src="Warframe_Melee_DPS.js"></script>
@@ -15,15 +15,8 @@
     
 	<body>
         <div>
-            <p>bite</p>
-            <input type="number" id="input" min="10" max="100">
             <button onclick="changeStats()">Update Stats</button>
-            <p id="output">blank output</p>
         </div>
-
-        <p id="demo"></p>
-        
-        <input type="file" id="file-selector" single accept=".csv">
 
         <div id="plotly" style="width:1500px;height:600px;"></div>
         <script>
@@ -42,29 +35,21 @@
                 toxin: "toxin DoT", gas: "gas DoT"
             };
 
-            /**
-             * @param {string} str 
-             */
-            function CSVToColumnar(str, delimiter = ",") {
-                //first line -> headers, rest -> data
-                const [header_cols, ...row_data] = str.split(/\r?\n/).map(l => l.split(delimiter))
+            function CppToColumnar(dataraw) {
+                //convert to JS array
+                const data = new Array(dataraw.size()).fill(0).map((_, id) => dataraw.get(id))
+
+                //transpose into a dictionnary with arrays on each key
+                const header_cols = ["time", "damage", "slash", "heat", "electricity", "toxin", "gas"];
                 const ret = {};
                 for (let i = header_cols.length - 1;0<=i; i--) {
-                    ret[header_cols[i]] = row_data.map(row => row[i]);
+                    ret[header_cols[i]] = data.map(row => row[i]);
                 }
                 return ret;
             }
         
-            /**
-             * @type {HTMLInputElement}
-             */
-            const fileSelector = document.getElementById('file-selector');
-            fileSelector.addEventListener('change', async (event) => {
-                const fileList = event.target.files;
-                const file = fileList[0];
-                const file_content = await file.text();
-
-                const data = CSVToColumnar(file_content);
+			function changeStats() {
+                const data = CppToColumnar(Module.stats());
 
                 for (const key in data) {
                     data[key] = data[key].map(datum => Number(datum));// || undefined);
@@ -72,7 +57,6 @@
 
                 const time = data.time;
                 delete data.time;
-                // console.log(data);
                 
                 const chart = document.getElementById('plotly');
                 const configDefault = {
@@ -83,15 +67,13 @@
                     //xbins: {size: 1.0},
                     //fill: 'none', //tonexty //tozerox
                     //stackgroup: 'one',
-                    hovertemplate: '%{x:.3f}s - %{y:.3s}'
-                    /*
+                    hovertemplate: '%{x:.3f}s - %{y:.3s}',
                     transforms: [{
                         type: 'filter',
                         target: 'y',
                         operation: '>',
                         value: 0
-                    }],
-                    */
+                    }]
                 }
                 // creates an object for each column of the CSV
                 const plotlyData = Object.entries(data).map(([name, data]) => ({
@@ -123,24 +105,7 @@
                     //barmode: "stack",
                 };
                 Plotly.newPlot(chart, plotlyData, layout, {displaylogo: false});
-            });
+            };
         </script>
-
-        <!-- <form name="input" action="exer2.csp" method="post">
-            Username: <input type="text" name="user">
-            <input type="submit" value="Submit">
-        </form> -->
-
-		<script>
-            function $(id) {
-                return document.querySelector(id);
-            }
-
-			function changeStats() {
-                //$`#output`.textContent = 'lerp result: ' + UTF8ToString( Module.lerp(1, parseInt($`#input`.value), 0.5) );
-                var data = Module.stats();
-                console.log(data.get(60), data.get(61));
-            }
-		</script>
     </body>
 </html>
