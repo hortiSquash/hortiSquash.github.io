@@ -9,14 +9,16 @@
 
         <script src="https://cdn.plot.ly/plotly-2.12.1.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
+        <script src="Warframe_Melee_DPS.js"></script>
     </head>
     
 	<body>
         <div>
             <p>bite</p>
             <input type="number" id="input" min="10" max="100">
-            <p id="output">bite</p>
             <button onclick="changeStats()">Update Stats</button>
+            <p id="output">blank output</p>
         </div>
 
         <p id="demo"></p>
@@ -60,28 +62,28 @@
             fileSelector.addEventListener('change', async (event) => {
                 const fileList = event.target.files;
                 const file = fileList[0];
-                //console.log(file);
                 const file_content = await file.text();
 
                 const data = CSVToColumnar(file_content);
 
                 for (const key in data) {
-                    data[key] = data[key].map(datum => Number(datum) || undefined);
+                    data[key] = data[key].map(datum => Number(datum));// || undefined);
                 }
 
                 const time = data.time;
                 delete data.time;
-                console.log(data);
+                // console.log(data);
                 
                 const chart = document.getElementById('plotly');
                 const configDefault = {
                     x: time,
-                    type: 'histogram', //line //scatter
-                    histfunc: 'sum', //count
-                    xbins: {size: 1.0},
-                    fill: 'none', //tonexty //tozerox
-                    stackgroup: 'one',
-                    hovertemplate: '%{x:.0f}s - %{y:.3s}'
+                    type: 'scatter', //line //scatter //histogram
+                    //mode: 'lines',
+                    //histfunc: 'sum', //count
+                    //xbins: {size: 1.0},
+                    //fill: 'none', //tonexty //tozerox
+                    //stackgroup: 'one',
+                    hovertemplate: '%{x:.3f}s - %{y:.3s}'
                     /*
                     transforms: [{
                         type: 'filter',
@@ -96,6 +98,8 @@
                     y: data,
                     name: labels[name] ?? name, //if not found, use the header
                     marker: {color: colors[name]},
+                    //mode: 'lines+markers',
+                    mode: 'markers',
                     /*
                     error_y: {
                         type: 'data',
@@ -116,24 +120,16 @@
                         //type: 'log',
                         //autorange: true
                     },
-                    barmode: "stack",
+                    //barmode: "stack",
                 };
                 Plotly.newPlot(chart, plotlyData, layout, {displaylogo: false});
             });
         </script>
 
-        <%
-        std::string user = request.getParameter("user");
-        if(user.empty()==false){
-            response.write("your input is = ");
-            response.write(user.c_str());
-        }
-        %>
-
-        <form name="input" action="exer2.csp" method="post">
+        <!-- <form name="input" action="exer2.csp" method="post">
             Username: <input type="text" name="user">
             <input type="submit" value="Submit">
-        </form>
+        </form> -->
 
 		<script>
             function $(id) {
@@ -141,7 +137,9 @@
             }
 
 			function changeStats() {
-                $`#output`.textContent = $`#input`.value;
+                //$`#output`.textContent = 'lerp result: ' + UTF8ToString( Module.lerp(1, parseInt($`#input`.value), 0.5) );
+                var data = Module.stats();
+                console.log(data.get(60), data.get(61));
             }
 		</script>
     </body>
