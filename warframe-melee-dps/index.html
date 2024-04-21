@@ -11,6 +11,8 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         
         <script src="Warframe_Melee_DPS.js"></script>
+
+        </head>
     </head>
     
 	<body>
@@ -61,10 +63,10 @@
                 const chart = document.getElementById('plotly');
                 const configDefault = {
                     x: time,
-                    type: 'scatter', //line //scatter //histogram
+                    type: 'histogram', //line //scatter //histogram
                     //mode: 'lines',
-                    //histfunc: 'sum', //count
-                    //xbins: {size: 1.0},
+                    histfunc: 'sum', //count
+                    xbins: {size: 1.0},
                     //fill: 'none', //tonexty //tozerox
                     //stackgroup: 'one',
                     hovertemplate: '%{x:.3f}s - %{y:.3s}',
@@ -81,7 +83,7 @@
                     name: labels[name] ?? name, //if not found, use the header
                     marker: {color: colors[name]},
                     //mode: 'lines+markers',
-                    mode: 'markers',
+                    //mode: 'markers',
                     /*
                     error_y: {
                         type: 'data',
@@ -102,10 +104,19 @@
                         //type: 'log',
                         //autorange: true
                     },
-                    //barmode: "stack",
+                    barmode: "stack",
                 };
-                Plotly.newPlot(chart, plotlyData, layout, {displaylogo: false});
+                Plotly.newPlot(chart, plotlyData, layout, {
+                    displaylogo: false,
+                    displayModeBar: true,
+                });
             };
         </script>
     </body>
+    
+    <style>
+        a.modebar-btn {
+            font-size: 30px;
+        }
+    </style>
 </html>

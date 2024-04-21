@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enemies List</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+    .wrapper {
+        width: 400px;
+        height: 200px;
+        border: 2px solid #ccc;
+        overflow-y: auto;
+        position: relative;
+        scrollbar-gutter: stable;
+    }
+    .add-enemy-btn button {
+        padding: 5px 10px;
+        margin: 5px;
+        margin-left: 25px;
+    }
+    .mean {
+        text-align: right;
+    }
+    .std {
+        text-align: right;
+    }
+    .pen-button {
+        cursor: pointer;
+        padding: 0;
+        border: none;
+        background-color: transparent;
+        font-size: 20px;
+        line-height: 1;
+    }
+    .pen-button:hover {
+        color: blue;
+    }
+    .custom-name-dialog {
+        background-color: #fff;
+        padding: 20px;
+    }
+    tr:nth-child(even) {background-color: #f2f2f2;}
+    thead tr {
+        position: sticky;
+        background-color: #fff;
+        top: 0;
+        z-index: 1;
+    }
+    tfoot tr:nth-child(even) {
+        position: sticky;
+        background-color: #fff;
+        bottom: 0;
+        z-index: 1;
+    }
+</style>
+
+<datalist id="enemy list"></datalist>
+
+<script type="module">
+    import data from "./loadjson.js";
+    // const response = await fetch('./modified Enemies.json');
+    // export const data = await response.json();
+    window.data = data;
+    
+    //update the datalist for the select
+    var list = document.getElementById('enemy list');
+    data.forEach(function(enemy){
+        var option = document.createElement('option');
+        option.value = enemy["name"];
+        list.appendChild(option);
+    });
+</script>
+
+</head>
+
+<body>
+
+    <!-- style="border: none; background: transparent" -->
+
+<div class="wrapper">
+    <table style="width: 100%;">
+        <thead style="position: sticky;">
+            <tr>
+                <th style="width: 20px;"></th>
+                <th>Enemy</th>
+                <th style="width: 50px;">Mean</th>
+                <th style="width: 50px;">SD</th>
+            </tr>
+        </thead>
+        <tbody class="enemy-container" id="enemyInputs"></tbody>
+        <tfoot>
+            <tr>
+                <td></td>
+                <td class="container add-enemy-btn">
+                    <button onclick="addEnemy()">+</button>
+                </td>
+            </tr>
+            <tr class="average" style="background-color: #ccc;">
+                <th></th>
+                <th style="text-align: right;">Average</th>
+                <td class="mean" id="averageMean">0</td>
+                <td class="std" id="averageStdDev">0</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+
+<!--
+TODO
+add enemy deletion
+also this
+https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog#closing_a_dialog_with_a_required_form_input
+-->
+<dialog id="enemy_edit_dialog">
+    <form id="editEnemy" class="custom-name-dialog" method="dialog">
+        <input type="text" list="enemy list" class="enemy-select" id="enemy_name_input" onchange="loadEnemyStats()" size="22" required>
+        <br>
+        <label>Faction:</label>
+        <select id="faction">
+            <option selected value="Neutral">Neutral</option>
+            <option value="Grineer">Grineer</option>
+            <option value="Corpus">Corpus</option>
+            <option value="Infested">Infested</option>
+            <option value="Sentient">Sentient</option>
+        </select>
+        <br>
+        <label>Base level:</label>
+        <input type="number" value="1" id="level_base" size="6">
+        <label>Current level:</label>
+        <input type="number" value="1" id="level_current" size="6">
+        <table id="editEnemyTable">
+            <tr>
+                <td>Health:</td>
+                <td><input type="number" value="100" id="health" size="6"></td>
+                <td><select id="health_type">
+                    <option selected value="Tenno Flesh">Tenno Flesh (neutral)</option>
+                    <option value="Cloned Flesh">Cloned Flesh</option>
+                    <option value="Machinery">Machinery</option>
+                    <option value="Flesh">Flesh</option>
+                    <option value="Robotic">Robotic</option>
+                    <option value="Infested">Infested</option>
+                    <option value="Infested flesh">Fnfested flesh</option>
+                    <option value="Fossilized">Fossilized</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td>Armor:</td>
+                <td><input type="number" value="0" id="armor" size="6"></td>
+                <td><select id="armor_type">
+                    <option selected value="Tenno Armor">Tenno Armor (neutral)</option>
+                    <option value="Infested Sinew">Infested Sinew</option>
+                    <option value="Alloy Armor">Alloy Armor</option>
+                    <option value="Ferrite Armor">Ferrite Armor</option>
+                </select></td>
+            </tr>
+            <tr>
+                <td>Shield:</td>
+                <td><input type="number" value="0" id="shield" size="6"></td>
+                <td><select id="shield_type">
+                    <option selected value="Tenno Shield">Tenno Shield (neutral)</option>
+                    <option value="Proto Shield">Proto Shield</option>
+                    <option value="Shield">Shield</option>
+                </select></td>
+            </tr>
+        </table>
+        <!-- <button onclick="saveEnemy()" style="float:right;">Save</button> -->
+        <input type="submit" onclick="saveEnemy()" style="float:right;" value="Sumbit vesrion">
+    </form>
+</dialog>
+
+<script>
+    var enemies = [];
+    var current_row = 0;
+   
+    const enemy_edit_dialog = document.getElementById("enemy_edit_dialog");
+    //const jsCloseBtn = dialog.querySelector("#js-close");
+
+    // jsCloseBtn.addEventListener("click", (e) => {
+    //     //e.preventDefault();
+    //     enemy_edit_dialog.close();
+    // });
+
+    function addEnemy() {
+        enemies.push({});
+
+        const penButton = document.createElement('button');
+        penButton.classList.add('pen-button');
+        penButton.textContent = '\u270E'; // Pen symbol unicode
+
+        const enemyInputs = document.getElementById('enemyInputs');
+
+        // Get the index of the current row
+        const rowIndex = enemyInputs.children.length;
+
+        const enemyDetails = document.createElement('tr');
+
+        const enemy = document.createElement('td');
+        enemy.id = "enemy_name";
+        // enemy.textContent = "unnamed enemy";
+
+        const mean = document.createElement('td');
+        mean.classList.add('mean');
+        mean.textContent = '0';
+
+        const stdDev = document.createElement('td');
+        stdDev.classList.add('std');
+        stdDev.textContent = '0';
+
+        enemyDetails.appendChild(penButton);
+        enemyDetails.appendChild(enemy);
+        enemyDetails.appendChild(mean);
+        enemyDetails.appendChild(stdDev);
+
+        enemyInputs.appendChild(enemyDetails);
+
+        penButton.addEventListener('click', function() {
+            editEnemy(rowIndex);
+        });
+
+        //and force open the dialog to edit instantly
+        editEnemy(rowIndex);
+    }
+
+    function editEnemy(rowIndex) {
+        current_row = rowIndex;
+        const enemy = enemies[current_row];
+
+        if(Object.keys(enemy).length !== 0) {
+            // load saved fields in the dialog if enemy exists
+            document.getElementById("enemy_name_input").value = enemy["name"];
+            document.getElementById("health").value = enemy["health"];
+            document.getElementById("health_type").value = enemy["health_type"];
+            document.getElementById("armor").value = enemy["armor"];
+            document.getElementById("armor_type").value = enemy["armor_type"];
+            document.getElementById("shield").value = enemy["shield"];
+            document.getElementById("shield_type").value = enemy["shield_type"];
+            // document.getElementById("level_base").value = enemy[""];
+            // document.getElementById("level_current").value = enemy[""];
+            document.getElementById("faction").value = enemy["faction"];
+        }
+        else{
+            // reset all fields in the dialog if placeholder
+            document.getElementById("editEnemy").reset()
+            // document.getElementById("health").value = enemy["health"];
+            // document.getElementById("health_type").value = enemy["resistances"][2]["type"];
+            // document.getElementById("armor").value = enemy["armor"];
+            // document.getElementById("armor_type").value = enemy["resistances"][1]["type"];
+            // document.getElementById("shield").value = enemy["shield"];
+            // document.getElementById("shield_type").value = enemy["resistances"][0]["type"];
+            // // document.getElementById("level_base").value = enemy[""];
+            // // document.getElementById("level_current").value = enemy[""];
+            // document.getElementById("faction").value = enemy["type"];
+        }
+
+        enemy_edit_dialog.showModal();
+    }
+
+    function loadEnemyStats() {
+        // retrieve all enemies' data
+        const data = window.data;
+        
+        enemySelect = document.getElementById('enemy_name_input').value;
+        document.getElementById('enemyInputs').rows[current_row].cells[0].innerText = enemySelect;
+
+        // retrieve enemy data
+        let enemy;
+        data.some(element => {
+            if(element.name == enemySelect){
+                enemy = element;
+                return true;
+            }
+        });
+
+        // yes its hardcoded but shut up
+        document.getElementById("health").value = enemy["health"];
+        document.getElementById("health_type").value = enemy["resistances"][2]["type"];
+        document.getElementById("armor").value = enemy["armor"];
+        document.getElementById("armor_type").value = enemy["resistances"][1]["type"];
+        document.getElementById("shield").value = enemy["shield"];
+        document.getElementById("shield_type").value = enemy["resistances"][0]["type"];
+        // document.getElementById("level_base").value = enemy[""];
+        // document.getElementById("level_current").value = enemy[""];
+        document.getElementById("faction").value = enemy["type"];
+    }
+
+    function saveEnemy() {
+        enemies[current_row] = {
+            "name" : document.getElementById("enemy_name").innerText,
+            "health" : document.getElementById("health").value,
+            "health_type" : document.getElementById("health_type").value,
+            "armor" : document.getElementById("armor").value,
+            "armor_type" : document.getElementById("armor_type").value,
+            "shield" : document.getElementById("shield").value,
+            "shield_type" : document.getElementById("shield_type").value,
+            "level_base" : document.getElementById("level_base").value,
+            "level_current" : document.getElementById("level_current").value,
+            "faction" : document.getElementById("faction").value,
+        };
+
+        //document.getElementById('editEnemy').style.display = 'none';
+    }
+</script>
+
+</body>
+</html>
