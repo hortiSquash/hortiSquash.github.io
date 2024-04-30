@@ -1,5 +1,62 @@
-#drop_zone {
-    border: 5px solid blue;
-    width:  200px;
-    height: 100px;
+body {
+    font-family: Arial, sans-serif;
+    /* margin: 0; */
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* height: 100vh; */
+}
+
+.enemy_wrapper {
+    width: 400px;
+    height: 200px;
+    border: 2px solid #ccc;
+    overflow-y: auto;
+    position: relative;
+    scrollbar-gutter: stable;
+}
+
+.add-enemy button {
+    padding: 5px 10px;
+    margin: 5px;
+    margin-left: 25px;
+}
+
+.TTK_mean, .TTK_std {
+    text-align: right;
+}
+
+.pen-button {
+    cursor: pointer;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    font-size: 18px;
+    line-height: 1;
+}
+
+.pen-button:hover {
+    color: blue;
+}
+
+tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+thead tr {
+    position: sticky;
+    background-color: #fff;
+    top: 0;
+    z-index: 1;
+}
+
+tfoot tr:nth-child(even) {
+    position: sticky;
+    background-color: #fff;
+    bottom: 0;
+    z-index: 1;
+}
+
+a.modebar-btn {
+    font-size: 30px;
 }

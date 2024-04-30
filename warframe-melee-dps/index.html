@@ -1,122 +1,133 @@
 <!DOCTYPE html>
-
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Warframe Melee DPS</title>
-		<link rel="stylesheet" href="design.css" />
-		<link rel="shortcut icon" href="icon.png">
 
-        <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        
-        <script src="Warframe_Melee_DPS.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warframe Melee DPS</title>
+    <link rel="shortcut icon" href="icon.png">
 
-        </head>
-    </head>
-    
-	<body>
-        <div>
-            <button onclick="changeStats()">Update Stats</button>
-        </div>
+    <link rel="stylesheet" href="design.css">
+    <script src="scripts.js"></script>
+    <script src="Warframe_Melee_DPS.js"></script>
 
-        <div id="plotly" style="width:1500px;height:600px;"></div>
-        <script>
-            const colors = {
-                "gas":          "rgb(25, 120, 50)",
-                "toxin":        "rgb(130, 200, 90)",
-                "electricity":  "rgb(40, 190, 250)",
-                "heat":         "rgb(240, 130, 40)",
-                "slash":        "rgb(150, 0, 0)",
-                "damage":       "rgb(120, 120, 120)",
-            };
+    <script src="https://cdn.plot.ly/plotly-2.31.1.min.js"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
-            const labels = {
-                slash:"slash DoT", 
-                heat:"heat DoT", electricity:"electricity DoT",
-                toxin: "toxin DoT", gas: "gas DoT"
-            };
+    <script type="module">
+        import data_enemies from "./loadjson.js";
+        // const response = await fetch('./modified Enemies.json');
+        // export const data = await response.json();
+        window.data_enemies = data_enemies;
 
-            function CppToColumnar(dataraw) {
-                //convert to JS array
-                const data = new Array(dataraw.size()).fill(0).map((_, id) => dataraw.get(id))
+        //update the datalist for the select
+        var list = document.getElementById('enemy_list');
+        data_enemies.forEach(function (enemy) {
+            var option = document.createElement('option');
+            option.value = enemy.name;
+            list.appendChild(option);
+        });
+    </script>
 
-                //transpose into a dictionnary with arrays on each key
-                const header_cols = ["time", "damage", "slash", "heat", "electricity", "toxin", "gas"];
-                const ret = {};
-                for (let i = header_cols.length - 1;0<=i; i--) {
-                    ret[header_cols[i]] = data.map(row => row[i]);
-                }
-                return ret;
-            }
-        
-			function changeStats() {
-                const data = CppToColumnar(Module.stats());
+    <datalist id="enemy_list"></datalist>
+</head>
 
-                for (const key in data) {
-                    data[key] = data[key].map(datum => Number(datum));// || undefined);
-                }
+<body>
+    <!--
+    TODO
+    add enemy deletion
+    -->
+    <!-- hidden input : style="border: none; background: transparent" -->
+    <dialog id="enemy_edit_dialog">
+        <form id="editEnemy" method="dialog">
+            <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" size="22" required>
+            <br>
+            <label>Faction:</label>
+            <select id="faction">
+                <option selected value="Neutral">Neutral</option>
+                <option value="Grineer">Grineer</option>
+                <option value="Corpus">Corpus</option>
+                <option value="Infested">Infested</option>
+                <option value="Sentient">Sentient</option>
+            </select>
+            <br>
+            <label>Base level:</label>
+            <input type="number" id="level_base" size="6" value="1" min="1" max="9999">
+            <label>Current level:</label>
+            <input type="number" id="level_current" size="6" value="1" min="1" max="9999">
+            <table id="editEnemyTable">
+                <tr>
+                    <td>Health:</td>
+                    <td><input type="number" id="health" size="6" value="100" min="0"></td>
+                    <td><select id="health_type">
+                            <option selected value="Tenno Flesh">Tenno Flesh (neutral)</option>
+                            <option value="Cloned Flesh">Cloned Flesh</option>
+                            <option value="Machinery">Machinery</option>
+                            <option value="Flesh">Flesh</option>
+                            <option value="Robotic">Robotic</option>
+                            <option value="Infested">Infested</option>
+                            <option value="Infested Flesh">Infested Flesh</option>
+                            <option value="Fossilized">Fossilized</option>
+                        </select></td>
+                </tr>
+                <tr>
+                    <td>Armor:</td>
+                    <td><input type="number" id="armor" size="6" value="0" min="0"></td>
+                    <td><select id="armor_type">
+                            <option selected value="Tenno Armor">Tenno Armor (neutral)</option>
+                            <option value="Infested Sinew">Infested Sinew</option>
+                            <option value="Alloy Armor">Alloy Armor</option>
+                            <option value="Ferrite Armor">Ferrite Armor</option>
+                        </select></td>
+                </tr>
+                <tr>
+                    <td>Shield:</td>
+                    <td><input type="number" id="shield" size="6" value="0" min="0"></td>
+                    <td><select id="shield_type">
+                            <option selected value="Neutral Shield">Neutral Shield</option>
+                            <option value="Tenno Shield">Tenno Shield</option>
+                            <option value="Proto Shield">Proto Shield</option>
+                            <option value="Shield">Shield</option>
+                        </select></td>
+                </tr>
+            </table>
+            <input type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
+        </form>
+    </dialog>
 
-                const time = data.time;
-                delete data.time;
-                
-                const chart = document.getElementById('plotly');
-                const configDefault = {
-                    x: time,
-                    type: 'histogram', //line //scatter //histogram
-                    //mode: 'lines',
-                    histfunc: 'sum', //count
-                    xbins: {size: 1.0},
-                    //fill: 'none', //tonexty //tozerox
-                    //stackgroup: 'one',
-                    hovertemplate: '%{x:.3f}s - %{y:.3s}',
-                    transforms: [{
-                        type: 'filter',
-                        target: 'y',
-                        operation: '>',
-                        value: 0
-                    }]
-                }
-                // creates an object for each column of the CSV
-                const plotlyData = Object.entries(data).map(([name, data]) => ({
-                    y: data,
-                    name: labels[name] ?? name, //if not found, use the header
-                    marker: {color: colors[name]},
-                    //mode: 'lines+markers',
-                    //mode: 'markers',
-                    /*
-                    error_y: {
-                        type: 'data',
-                        array: data_error[name],
-                        visible: true
-                    },
-                    */
-                    ...configDefault,
-                }));
+    <div class="enemy_wrapper">
+        <table style="width: 100%;">
+            <thead style="position: sticky;">
+                <tr>
+                    <th style="width: 18px;"></th>
+                    <th>Enemy</th>
+                    <th style="width: 50px;">Mean</th>
+                    <th style="width: 50px;">SD</th>
+                </tr>
+            </thead>
+            <tbody id="enemy_container"></tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td class="container add-enemy">
+                        <button onclick="addEnemy()">+</button>
+                    </td>
+                </tr>
+                <tr style="background-color: #ccc;">
+                    <th></th>
+                    <th style="text-align: right;">Average</th>
+                    <td class="TTK_mean" id="TTK_average_mean">0</td>
+                    <td class="TTK_std" id="TTK_average_std">0</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
 
-                const layout = {
-                    xaxis: {
-                        //type: 'log',
-                        //autorange: true
-                    },
-                    yaxis: {
-                        range: [0, "auto"]
-                        //type: 'log',
-                        //autorange: true
-                    },
-                    barmode: "stack",
-                };
-                Plotly.newPlot(chart, plotlyData, layout, {
-                    displaylogo: false,
-                    displayModeBar: true,
-                });
-            };
-        </script>
-    </body>
-    
-    <style>
-        a.modebar-btn {
-            font-size: 30px;
-        }
-    </style>
+    <div>
+        <button onclick="changeStats()">Update Stats</button>
+    </div>
+
+    <div id="plotly" style="width:1500px;height:600px;"></div>
+</body>
+
 </html>

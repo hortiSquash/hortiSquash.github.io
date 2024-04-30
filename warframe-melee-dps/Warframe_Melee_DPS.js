@@ -4486,6 +4486,73 @@ var ASM_CONSTS = {
       });
     }
 
+  var structRegistrations = {};
+  function __embind_finalize_value_object(structType) {
+      var reg = structRegistrations[structType];
+      delete structRegistrations[structType];
+  
+      var rawConstructor = reg.rawConstructor;
+      var rawDestructor = reg.rawDestructor;
+      var fieldRecords = reg.fields;
+      var fieldTypes = fieldRecords.map((field) => field.getterReturnType).
+                concat(fieldRecords.map((field) => field.setterArgumentType));
+      whenDependentTypesAreResolved([structType], fieldTypes, (fieldTypes) => {
+        var fields = {};
+        fieldRecords.forEach((field, i) => {
+          var fieldName = field.fieldName;
+          var getterReturnType = fieldTypes[i];
+          var getter = field.getter;
+          var getterContext = field.getterContext;
+          var setterArgumentType = fieldTypes[i + fieldRecords.length];
+          var setter = field.setter;
+          var setterContext = field.setterContext;
+          fields[fieldName] = {
+            read: (ptr) => {
+              return getterReturnType['fromWireType'](
+                  getter(getterContext, ptr));
+            },
+            write: (ptr, o) => {
+              var destructors = [];
+              setter(setterContext, ptr, setterArgumentType['toWireType'](destructors, o));
+              runDestructors(destructors);
+            }
+          };
+        });
+  
+        return [{
+          name: reg.name,
+          'fromWireType': function(ptr) {
+            var rv = {};
+            for (var i in fields) {
+              rv[i] = fields[i].read(ptr);
+            }
+            rawDestructor(ptr);
+            return rv;
+          },
+          'toWireType': function(destructors, o) {
+            // todo: Here we have an opportunity for -O3 level "unsafe" optimizations:
+            // assume all fields are present without checking.
+            for (var fieldName in fields) {
+              if (!(fieldName in o)) {
+                throw new TypeError('Missing field:  "' + fieldName + '"');
+              }
+            }
+            var ptr = rawConstructor();
+            for (fieldName in fields) {
+              fields[fieldName].write(ptr, o[fieldName]);
+            }
+            if (destructors !== null) {
+              destructors.push(rawDestructor, ptr);
+            }
+            return ptr;
+          },
+          'argPackAdvance': 8,
+          'readValueFromPointer': simpleReadValueFromPointer,
+          destructorFunction: rawDestructor,
+        }];
+      });
+    }
+
   function __embind_register_bigint(primitiveType, name, size, minRange, maxRange) {}
 
   function getShiftFromSize(size) {
@@ -6034,6 +6101,45 @@ var ASM_CONSTS = {
       });
     }
 
+  function __embind_register_value_object(
+      rawType,
+      name,
+      constructorSignature,
+      rawConstructor,
+      destructorSignature,
+      rawDestructor
+    ) {
+      structRegistrations[rawType] = {
+        name: readLatin1String(name),
+        rawConstructor: embind__requireFunction(constructorSignature, rawConstructor),
+        rawDestructor: embind__requireFunction(destructorSignature, rawDestructor),
+        fields: [],
+      };
+    }
+
+  function __embind_register_value_object_field(
+      structType,
+      fieldName,
+      getterReturnType,
+      getterSignature,
+      getter,
+      getterContext,
+      setterArgumentType,
+      setterSignature,
+      setter,
+      setterContext
+    ) {
+      structRegistrations[structType].fields.push({
+        fieldName: readLatin1String(fieldName),
+        getterReturnType: getterReturnType,
+        getter: embind__requireFunction(getterSignature, getter),
+        getterContext: getterContext,
+        setterArgumentType: setterArgumentType,
+        setter: embind__requireFunction(setterSignature, setter),
+        setterContext: setterContext,
+      });
+    }
+
   function __embind_register_void(rawType, name) {
       name = readLatin1String(name);
       registerType(rawType, {
@@ -6814,6 +6920,7 @@ var asmLibraryArg = {
   "__syscall_ioctl": ___syscall_ioctl,
   "__syscall_openat": ___syscall_openat,
   "_embind_finalize_value_array": __embind_finalize_value_array,
+  "_embind_finalize_value_object": __embind_finalize_value_object,
   "_embind_register_bigint": __embind_register_bigint,
   "_embind_register_bool": __embind_register_bool,
   "_embind_register_class": __embind_register_class,
@@ -6828,6 +6935,8 @@ var asmLibraryArg = {
   "_embind_register_std_wstring": __embind_register_std_wstring,
   "_embind_register_value_array": __embind_register_value_array,
   "_embind_register_value_array_element": __embind_register_value_array_element,
+  "_embind_register_value_object": __embind_register_value_object,
+  "_embind_register_value_object_field": __embind_register_value_object_field,
   "_embind_register_void": __embind_register_void,
   "_emscripten_date_now": __emscripten_date_now,
   "_emscripten_get_now_is_monotonic": __emscripten_get_now_is_monotonic,
@@ -6853,6 +6962,9 @@ var asm = createWasm();
 var ___wasm_call_ctors = Module["___wasm_call_ctors"] = createExportWrapper("__wasm_call_ctors");
 
 /** @type {function(...*):?} */
+var _malloc = Module["_malloc"] = createExportWrapper("malloc");
+
+/** @type {function(...*):?} */
 var _main = Module["_main"] = createExportWrapper("main");
 
 /** @type {function(...*):?} */
@@ -6866,9 +6978,6 @@ var ___errno_location = Module["___errno_location"] = createExportWrapper("__err
 
 /** @type {function(...*):?} */
 var _fflush = Module["_fflush"] = createExportWrapper("fflush");
-
-/** @type {function(...*):?} */
-var _malloc = Module["_malloc"] = createExportWrapper("malloc");
 
 /** @type {function(...*):?} */
 var _free = Module["_free"] = createExportWrapper("free");

@@ -1,4 +1,4 @@
 const response = await fetch('./modified Enemies.json');
-const data = await response.json();
+const data_enemies = await response.json();
 
-export default data
+export default data_enemies
