@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stance Edit</title>
+    <link rel="shortcut icon" href="icon.png">
+
+    <link rel="stylesheet" href="design.css">
+
+    <template id="templateForcedProc">
+        <tr>
+            <td>
+                <input name="inputForcedProc" type="number" size=3 min=0 value=1>
+            </td>
+            <td>
+                <select>
+                    <option>impact</option>
+                    <option>puncture</option>
+                    <option>slash</option>
+                    <option>cold</option>
+                    <option>electricity</option>
+                    <option>heat</option>
+                    <option>toxin</option>
+                    <option>blast</option>
+                    <option>corrosive</option>
+                    <option>gas</option>
+                    <option>magnetic</option>
+                    <option>radiation</option>
+                    <option>viral</option>
+                    <option>void</option>
+                    <option>knockdown</option>
+                    <option>lifted</option>
+                </select>
+            </td>
+        </tr>
+    </template>
+
+    <template id="templateBonusDamage">
+        <tr>
+            <td class="input-decoration">
+                <label>
+                    +
+                    <input name="inputBonusDamage" type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?"
+                        size=2.5>
+                    <!-- title="Positive decimal number, can also be Scientific Notation or %" -->
+                    <!--
+                        \d+(?:[.,]\d+)?(?:%|e\d+)?          ℚ+
+                        -?\d+(?:[.,]\d+)?(?:%|e\d+)?        ℚ
+                    -->
+                    %
+                </label>
+            </td>
+            <td>
+                <select>
+                    <option>impact</option>
+                    <option>puncture</option>
+                    <option>slash</option>
+                    <option>cold</option>
+                    <option>electricity</option>
+                    <option>heat</option>
+                    <option>toxin</option>
+                    <option>blast</option>
+                    <option>corrosive</option>
+                    <option>gas</option>
+                    <option>magnetic</option>
+                    <option>radiation</option>
+                    <option>viral</option>
+                    <option>void</option>
+                </select>
+            </td>
+        </tr>
+    </template>
+
+    <template id="templateHit">
+        <tr>
+            <td class="containerTime">
+                <label>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" size=4>
+                    s
+                </label>
+            </td>
+            <td class="containerDamage">
+                <label>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" size=3 value=100>
+                    %
+                </label>
+            </td>
+            <td>
+                <table class="containerForcedProc" style="width: 100%;">
+                    <tfoot>
+                        <tr>
+                            <td colspan=2 class="containerAddStat" style="background-color: revert;">
+                                <button name="buttonAddForcedProc" type="button">+</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </td>
+            <td>
+                <table class="containerBonusDamage" style="width: 100%;">
+                    <tfoot>
+                        <tr>
+                            <td colspan=2 class="containerAddStat" style="background-color: revert;">
+                                <button name="buttonAddBonusDamage" type="button">+</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </td>
+        </tr>
+    </template>
+</head>
+
+<body>
+    <!-- hidden input : style="border: none; background: transparent" -->
+    <div style="margin: 20px;">
+        <select required>
+            <option value="" disabled selected>select a stance</option>
+            <option>Carving Mantis</option>
+        </select>
+        <label for="combo_type">combo type:</label>
+        <select id="combo_type" required>
+            <option value="" disabled selected>select an attack</option>
+            <option>neutral</option>
+            <option>forward</option>
+            <option>block</option>
+            <option>forward block</option>
+            <option>heavy</option>
+        </select>
+        <label for="combo_type">Rapid Incisions</label>
+    </div>
+
+    <dialog id="stance_edit_dialog">
+        <div id="stance_wrapper">
+            <form method="dialog">
+                <table id="hits_table">
+                    <thead>
+                        <tr style="background-color: #ccc;">
+                            <th width=63px>time</th>
+                            <th width=63px>damage</th>
+                            <th width=143px>forced procs</th>
+                            <th width=163px>bonus damage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="hits_wrapper"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan=4>
+                                <button type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
+                                <button type="button" onclick="addHit()">Add a hit</button>
+                                <button type="submit" onclick="saveStance()" style="float: right;">Save</button>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </form>
+        </div>
+    </dialog>
+
+    <div>
+        <button onclick="editStance()">Update Stats</button>
+    </div>
+</body>
+
+<script>
+    /**
+     * STANCE
+     */
+
+    var stance = {};
+
+    function editStance() {
+        // document.getElementById("stance_wrapper").querySelector("form").reset();
+        document.getElementById('hits_wrapper').innerHTML = "";
+
+        const combo_type = document.getElementById("combo_type").value;
+
+        hits = stance[combo_type];
+        if (hits) { //if not NULL
+            for (hit of hits) {
+                addHit();
+                const hit_html = document.getElementById('hits_wrapper').lastElementChild; //the last one that got added, in other words this one
+
+                const time = hit_html.querySelector(".containerTime");
+                time.querySelector("input").value = hit.time;
+
+                const damage = hit_html.querySelector(".containerDamage");
+                damage.querySelector("input").value = hit.damage;
+
+                const forcedProcs = hit_html.querySelector(".containerForcedProc");
+                for (let e of Object.entries(hit.forced_procs)) {
+                    const forcedProc = document.getElementById("templateForcedProc").content.cloneNode(true);
+                    forcedProc.querySelector("select").value = e[0];
+                    forcedProc.querySelector("input").value = e[1];
+                    forcedProcs.appendChild(forcedProc);
+                }
+
+                const bonusDamages = hit_html.querySelector(".containerBonusDamage");
+                for (let e of Object.entries(hit.bonus_damage)) {
+                    const bonusDamage = document.getElementById("templateBonusDamage").content.cloneNode(true);
+                    bonusDamage.querySelector("select").value = e[0];
+                    bonusDamage.querySelector("input").value = e[1];
+                    bonusDamages.appendChild(bonusDamage);
+                }
+            }
+        } else {
+            console.log("the attack type hasnt been found in the stance");
+        }
+        document.getElementById("stance_edit_dialog").showModal();
+    }
+
+    function addHit() {
+        const hits_wrapper = document.getElementById('hits_wrapper');
+        const hitDetailsGrid = document.getElementById("templateHit").content.cloneNode(true);
+        hits_wrapper.appendChild(hitDetailsGrid);
+        //TODO return?
+    }
+
+    function removeHit() {
+        document.getElementById('hits_wrapper').lastElementChild?.remove(); // ?. https://javascript.info/optional-chaining
+    }
+
+    function incrementCounter(array, key, value) {
+        array[key] = (array[key] ?? 0) + value; // add if exists, otherwise initialize it
+    }
+
+    function saveStance() {
+        const hits_rows = document.getElementById('hits_wrapper').rows;
+        hits = [];
+        for (const hit of hits_rows) {
+            const time = Number(hit.cells[0].querySelector("input").value);
+            const damage = Number(hit.cells[1].querySelector("input").value);
+            const forced_procs_rows = hit.cells[2].querySelector("table").rows;
+            const bonus_damage_rows = hit.cells[3].querySelector("table").rows;
+
+            const forced_procs = {};
+            const bonus_damage = {};
+
+            for (var i = 0; i < forced_procs_rows.length - 1; i++) {
+                const r = forced_procs_rows[i].cells;
+                incrementCounter(forced_procs, r[1].querySelector("select").value, Number(r[0].querySelector("input").value));
+            }
+            for (var i = 0; i < bonus_damage_rows.length - 1; i++) {
+                const r = bonus_damage_rows[i].cells;
+                incrementCounter(bonus_damage, r[1].querySelector("select").value, Number(r[0].querySelector("input").value));
+            }
+
+            hits.push({
+                time: time,
+                damage: damage,
+                forced_procs: forced_procs,
+                bonus_damage: bonus_damage,
+            })
+        }
+        stance[document.getElementById("combo_type").value] = hits;
+    }
+
+    function convertStance(){
+        let combo_type = document.getElementById("combo_type").value;
+        let hits = stance[combo_type];
+        for (e of hits){
+            e.damage /= 100;
+
+        }
+        //TODO everything
+        return {
+            "name": combo_type,
+            "hits": hits
+        }
+    }
+
+    document.getElementById("hits_wrapper").addEventListener('click', function (event) {
+        if (event.target.name == 'buttonAddForcedProc') {
+            const forcedProc = document.getElementById("templateForcedProc").content.cloneNode(true);
+            event.target.closest('table').appendChild(forcedProc);
+        }
+        else if (event.target.name == 'buttonAddBonusDamage') {
+            const bonusDamage = document.getElementById("templateBonusDamage").content.cloneNode(true);
+            event.target.closest('table').appendChild(bonusDamage);
+        }
+    });
+
+    document.getElementById("hits_wrapper").addEventListener('change', function (event) {
+        if (event.target.value == 0) {
+            if (event.target.name == 'inputForcedProc') {
+                event.target.closest('tr').remove();
+            }
+            else if (event.target.name == 'inputBonusDamage') {
+                event.target.closest('tr').remove();
+            }
+        }
+    });
+</script>
+
+</html>

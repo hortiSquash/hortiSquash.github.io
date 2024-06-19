@@ -8,35 +8,52 @@
     <link rel="shortcut icon" href="icon.png">
 
     <link rel="stylesheet" href="design.css">
-    <script src="scripts.js"></script>
+    <script src="scripts.js" defer></script>
     <script src="Warframe_Melee_DPS.js"></script>
 
-    <script src="https://cdn.plot.ly/plotly-2.31.1.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
     <script type="module">
-        import data_enemies from "./loadjson.js";
-        // const response = await fetch('./modified Enemies.json');
-        // export const data = await response.json();
+        let response;
+
+        response = await fetch('./modified Enemies.json');
+        const data_enemies = await response.json();
         window.data_enemies = data_enemies;
 
-        //update the datalist for the select
-        var list = document.getElementById('enemy_list');
-        data_enemies.forEach(function (enemy) {
+        const enemy_list = document.getElementById('enemy_list');
+        data_enemies.forEach(function (e) {
+            const option = document.createElement('option');
+            option.value = e.name;
+            enemy_list.appendChild(option);
+        });
+
+        response = await fetch('./modified Melee.json');
+        const data_weapons_melee = await response.json();
+        window.data_weapons_melee = data_weapons_melee;
+    
+        const melee_weapon_list = document.getElementById('weapon_list');
+        data_weapons_melee.forEach(function (e) {
             var option = document.createElement('option');
-            option.value = enemy.name;
-            list.appendChild(option);
+            option.value = e.name;
+            melee_weapon_list.appendChild(option);
         });
     </script>
 
     <datalist id="enemy_list"></datalist>
+    <datalist id="weapon_list"></datalist>
+
+    <template id="templateEnemyRow">
+        <tr>
+            <td><button class="pen-button">✎</button></td>
+            <td class="enemy_name"></td>
+            <td class="TTK_mean">0</td>
+            <td class="TTK_std">0</td>
+        </tr>
+    </template>
 </head>
 
 <body>
-    <!--
-    TODO
-    add enemy deletion
-    -->
     <!-- hidden input : style="border: none; background: transparent" -->
     <dialog id="enemy_edit_dialog">
         <form id="editEnemy" method="dialog">
@@ -91,43 +108,322 @@
                         </select></td>
                 </tr>
             </table>
+            <input type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
             <input type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
         </form>
     </dialog>
 
-    <div class="enemy_wrapper">
-        <table style="width: 100%;">
-            <thead style="position: sticky;">
-                <tr>
-                    <th style="width: 18px;"></th>
-                    <th>Enemy</th>
-                    <th style="width: 50px;">Mean</th>
-                    <th style="width: 50px;">SD</th>
-                </tr>
-            </thead>
-            <tbody id="enemy_container"></tbody>
-            <tfoot>
+    <div class="grid">
+        <div class="mods">mods menu placeholder</div>
+        <div id="plot"></div>
+        <div class="stats_wrapper">
+            <table>
+                <thead style="position: sticky;">
+                    <tr>
+                        <th style="width: 100px;"></th>
+                        <th style="width: 65px;">base</th>
+                        <th style="width: 65px;">modded</th>
+                        <th style="width: 40px;"></th>
+                    </tr>
+                </thead>
+                <colgroup>
+                    <col />
+                    <col class="weapon_stats_base" />
+                    <col class="weapon_stats_modded" />
+                </colgroup>
+    
+                <tbody id="stats">
+                    <tr id="attack_speed">
+                        <td>attack speed</td>
+                        <td>1.0</td>
+                        <td></td>
+                        <td rowspan="2" colspan="3" style="text-align: center; background-color: #ccc;"> <input
+                                type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
+                                placeholder="Weapon select" onchange="loadWeaponStats()"
+                                style="font-size: large; font-weight: bold;" size="17"> </td>
+                    </tr>
+                    <tr id="wind_up" class="separate">
+                        <td class="indented">wind up</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr id="critical_chance">
+                        <td>critical</td>
+                        <td>0%</td>
+                        <td></td>
+                        <td>+100%ₚₜ</td>
+                        <td>
+                            <div class="tooltip">🛈<span class="tooltiptext">per combo multiplier</span></div>
+                        </td>
+                        <td rowspan="6" style="border-left: 2px solid #ccc;">
+                            <!-- <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input" placeholder="Weapon select" onchange="loadWeaponStats()"
+                        style="font-size: large; font-weight: bold;" size="17">
+                    <br><br> -->
+                            <select id="weapon_type">
+                                <option value="melee">Melee</option>
+                                <option value="secondary">Secondary</option>
+                                <option value="primary">Primary</option>
+                                <option value="archgun">Archgun</option>
+                            </select>
+                            <br><br>
+    
+                            <!-- TODO -->
+                            <select id="weapon_subclass"> <!-- could add bow/shotgun/sniper/etc but fuck it -->
+                                <option value="Two-Handed Nikana">Two-Handed Nikana</option>
+                                <option value="Nikana">Nikana</option>
+                                <option value="Sword">Sword</option>
+                            </select>
+                            <br><br>
+    
+                            <label for="riven_disposition_input">Riven disposition</label>
+                            <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6"
+                                onchange="saveWeapon()">
+                            <br>
+                            <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11"
+                                optimum="1.6" style="width: 100%;" value="1.5"></meter>
+    
+                        </td>
+                    </tr>
+                    <tr id="critical_damage" class="separate">
+                        <td class="indented">damage</td>
+                        <td>2.0×</td>
+                        <td></td>
+                    </tr>
+                    <tr id="status" class="separate">
+                        <td>status</td>
+                        <td>0%</td>
+                        <td></td>
+                        <td>+0%ₚₜ</td>
+                        <td>
+                            <div class="tooltip">🛈<span class="tooltiptext">per combo multiplier</span></div>
+                        </td>
+                    </tr>
+                    <tr id="initial_combo">
+                        <td>combo</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr id="combo_efficiency">
+                        <td class="indented">efficiency</td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    <tr id="combo_duration" class="separate">
+                        <td class="indented">duration</td>
+                        <td>5s</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+                    </tr>
+                </tbody>
+    
                 <tr>
                     <td></td>
-                    <td class="container add-enemy">
-                        <button onclick="addEnemy()">+</button>
+                    <th>
+                        <div class="tooltip">🛈
+                            <span class="tooltiptext">base stats are editable</span>
+                        </div>
+                    </th>
+                    <th>
+                        <div class="tooltip">🛈
+                            <span class="tooltiptext">can be affected by external factors (stance, etc)</span>
+                        </div>
+                    </th>
+                    <td colspan="3" style="width: 275px;"><label for="plotly">average count of status stacks</label>
                     </td>
                 </tr>
-                <tr style="background-color: #ccc;">
-                    <th></th>
-                    <th style="text-align: right;">Average</th>
-                    <td class="TTK_mean" id="TTK_average_mean">0</td>
-                    <td class="TTK_std" id="TTK_average_std">0</td>
-                </tr>
-            </tfoot>
-        </table>
+    
+                <tbody class="stats_damage_table" id="stats_damage">
+                    <!-- <input type="number" style="border: none; background: transparent; width: 100%;"/> -->
+                    <tr id="impact">
+                        <td>impact</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="puncture">
+                        <td>puncture</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="slash">
+                        <td>slash</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+    
+                    <tr id="cold">
+                        <td>cold</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="electricity">
+                        <td>electricity</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="heat">
+                        <td>heat</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="toxin">
+                        <td>toxin</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+    
+                    <tr id="blast">
+                        <td>blast</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="corrosive">
+                        <td>corrosive</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="gas">
+                        <td>gas</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="magnetic">
+                        <td>magnetic</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="radiation">
+                        <td>radiation</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr id="viral">
+                        <td>viral</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+    
+                    <tr id="void">
+                        <td>void</td>
+                        <td>0</td>
+                        <td></td>
+                        <td colspan="3" class="tooltip">
+                            <div class="graph_bar">
+                                <span class="tooltiptext">0</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- space for the axis of the graph -->
+                    <tr style="height:15px;">
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td colspan=4 style="padding: 0px;">
+                            <div class="axis" id="axis"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="other">
+            <div class="enemy_wrapper">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="position: sticky;">
+                        <tr>
+                            <th style="width: 18px;"></th>
+                            <th>Enemy</th>
+                            <th style="width: 50px;">Mean</th>
+                            <th style="width: 50px;">SD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enemy_container"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan=4 class="container add-enemy">
+                                <button onclick="addEnemy()">+</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th colspan=2 style="text-align: right;">Average</th>
+                            <td class="TTK_mean" id="TTK_average_mean">0</td>
+                            <td class="TTK_std" id="TTK_average_std">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div>
+                <button onclick="changeStats()">Simulate</button>
+                <button onclick="status_proportion_graph()">Status Proportion</button>
+                <button onclick="hideEmptyRows()">Hide Empty Rows</button>
+                <button onclick="displayAllRows()">Display All Rows</button>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <button onclick="changeStats()">Update Stats</button>
-    </div>
-
-    <div id="plotly" style="width:1500px;height:600px;"></div>
 </body>
-
 </html>

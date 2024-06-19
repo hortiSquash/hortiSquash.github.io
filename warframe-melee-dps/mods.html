@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="shortcut icon" href="icon.png">
+
+    <!-- <link rel="stylesheet" href="design.css"> -->
+    <style>
+        :root {
+            --mod-width: 240px;
+            --mod-margin-horizontal: 10px;
+            --mod-margin-vertical: 10px;
+        }
+
+        *, *::after, *::before{
+            box-sizing: border-box;
+        }
+
+        #mod_wrapper {
+            display: grid;
+            gap: calc(2 * var(--mod-margin-vertical)) calc(2 * var(--mod-margin-horizontal));
+            grid-auto-flow: column;
+            grid-template-areas:
+                "stance exilus buffs_wrapper buffs_wrapper buffs_wrapper"
+                ". . . . ."
+                ". . . . .";
+            /* grid-auto-rows: 120px; */
+
+            border: 2px solid #ccc;
+            padding: 10px;
+            width: fit-content;
+        }
+
+        .mod {
+            background-color: white;
+            z-index: 0;
+            width: var(--mod-width);
+            /* height: 120px; */
+            height: 120px;
+            /* min-height: 120px; */
+            /* border: 2px dashed #ccc; */
+            /* overflow-y: auto;
+            scrollbar-width: none; */
+            /* transition: width 0.3s, height 0.3s, ; */
+            /* transition: all 0.3s cubic-bezier(.68,-0.55,.27,1.55); */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .mod:hover {
+            z-index: 1;
+            /* height: max-content; */
+            /* height: 240px; */
+            /* transform: scale(1.1); */
+            /* transform: scale(1.1); */
+            /* overflow: visible; */
+        }
+
+        .mod_real {
+            position: relative;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            height: inherit;
+            transition: height 0.3s cubic-bezier(.68,-0.55,.27,1.55);
+
+            &:hover {
+                height: 240px;
+            }
+        }
+
+        .mod_amalgam{
+            border-image: linear-gradient(to bottom, white, lightblue) 1;
+            /* border-color: greenyellow; */
+            border-width: 2px;
+            border-style: solid;
+            /* transition: z-index 80ms step-start; */
+
+            &::after {
+                pointer-events: none;
+                content: "";
+                background-image: url(https://static.wikia.nocookie.net/warframe/images/f/f9/AmalgamFrameTop.png);
+                height: 100%;
+                width: 125%;
+                background-size: 90%;
+                position: absolute;
+                z-index: 9;
+                top: -15px;
+                background-repeat: no-repeat;
+                background-position: top;
+            }
+            &::before {
+                pointer-events: none;
+                content: "";
+                background-image: url(https://static.wikia.nocookie.net/warframe/images/a/ac/AmalgamFrameBottom.png);
+                height: 100%;
+                width: 135%;
+                background-size: 90%;
+                position: absolute;
+                z-index: 9;
+                bottom: -15px;
+                background-repeat: no-repeat;
+                background-position: bottom;
+            }
+        }
+
+        .mod:empty {
+            border: 2px dashed #ccc;
+
+            &::before {
+                content: '+';
+                position: absolute;
+                font-size: 64px;
+                color: black;
+            }
+        }
+
+        .mod#exilus:empty::after {
+            white-space: pre;
+            content: "exilus";
+            position: absolute;
+            font-size: 24px;
+            color: black;
+            transform: translateY(-150%);
+        }
+        .mod.arcane:empty::after {
+            white-space: pre;
+            content: "arcane";
+            position: absolute;
+            font-size: 24px;
+            color: black;
+            transform: translateY(-150%);
+        }
+        #stance {
+            grid-area: stance;
+        }
+        #exilus {
+            grid-area: exilus;
+        }
+
+        #buffs_wrapper {
+            grid-area: buffs_wrapper;
+
+            display: grid;
+            gap: 10px;
+            grid-auto-flow: column;
+            justify-content: start;
+
+            overflow-x: scroll;
+            width: 752px;
+            /* 3 mods + 2 gaps + 6 borders = 3*240 + 2*10 + 6*2 = 752 */
+        }
+
+        *:invalid {
+            background-color: rgba(255, 0, 0, 0.4);
+        }
+    </style>
+
+    <datalist id="buffs_types">
+        <option value="critical chance from combo multiplier">critical chance from combo multiplier</option>
+        <option value="coco">Coconut</option>
+    </datalist>
+
+    <datalist id="stances_list">
+        <option value="Defiled Snapdragon"></option>
+        <option value="Cleaving Whirlwind"></option>
+        <option value="Wise Razor"></option>
+    </datalist>
+
+    <template id="template_mod">
+        <div style="overflow: visible; height: inherit;">
+            <div class="mod_real mod_amalgam">
+                <form style="background-color: white; overflow: hidden; height: inherit; padding: 2px;">
+                    <table width=100% style="border-spacing: 0;">
+                        <thead>
+                            <tr>
+                                <th colspan=2 style="font-size: 20px;">Primed Rubedo-Lined Barrel</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td width=45px>
+                                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0%" style="width: 90%; padding: 0;">
+                                </td>
+                                <td width=187px>
+                                    <input list="buffs_types" placeholder="select buff" style="width: 98%; padding: 0;"></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0%" style="width: 90%; padding: 0;">
+                                </td>
+                                <td><input list="buffs_types" placeholder="select buff" style="width: 98%; padding: 0;"></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0%" style="width: 90%; padding: 0;">
+                                </td>
+                                <td><input list="buffs_types" placeholder="select buff" style="width: 98%; padding: 0;"></td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0%" style="width: 90%; padding: 0;">
+                                </td>
+                                <td><input list="buffs_types" placeholder="select buff" style="width: 98%; padding: 0;"></td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan=2>
+                                    <div style="padding: 0; display: flex; justify-content: space-between; display: flex; align-items: center;">
+                                        <div>
+                                            <button type="reset">x</button>
+                                        </div>
+                                        <!-- TODO -->
+                                        <div>
+                                            <button type="button" name="button_level_decrease">-</button>
+                                            <span>5</span>
+                                            <button type="button" name="button_level_increase">+</button></th>
+                                        </div>
+                                    
+                                        <div style="display: flex; align-items: center;">
+                                            <span>9</span>
+                                            <svg viewBox="0 0 32 32" class="icon wf-icon-madurai" style="width: 16px; height: 16px;">
+                                                <path d="M6.375 8.438l-1.641-0.734t-2.578-1.047q4.031-1.344 6.031-2.516l2-1.172-0.156 1.875q-0.125 1.875-0.203 4.203t0.016 4.359q0.094 2.063 0.594 2.406 1.625-0.156 3.844-1.625 2.188-1.5 4.266-3.25t3.641-3.281 1.906-1.781q0.469-0.281 1.438-0.031t1.922 0.719 1.703 1q0.719 0.5 0.688 0.75-2.719 0.375-6.25 2.156-3.563 1.75-7.125 4.516t-6.75 6.391q-3.188 3.594-5.125 7.656 0.813-3.875 1.188-7.563 0.375-3.719 0.5-6.609t0.125-4.672l-0.031-1.75z"></path>
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </template>
+</head>
+
+<body>
+    <div id="mod_wrapper">
+        <div class="mod" id="stance">
+            <div style="z-index: 1; background-color: white;">
+                <input type="text" id="stance_name" placeholder="stance name" list="stances_list">
+                <button class="pen-button">✎</button>
+                <br>
+                <select id="combo_type" required>
+                    <option value="" disabled selected>select an attack</option>
+                    <option>neutral</option>
+                    <option>forward</option>
+                    <option>block</option>
+                    <option>forward block</option>
+                    <option>heavy</option>
+                </select>
+                <br>
+                <label for="combo_type">Rapid Incisions</label>
+            </div>
+        </div>
+        <div class="mod" id="exilus"></div>
+        <div id="buffs_wrapper">
+            <div class="mod"></div>
+        </div>
+
+        <div class="mod"></div>
+        <div class="mod"></div>
+        <div class="mod"></div>
+        <div class="mod"></div>
+        <div class="mod"></div>
+        <div class="mod"></div>
+        <div class="mod"></div>
+        <div class="mod"></div>
+        <div class="mod arcane"></div>
+        <div class="mod arcane"></div>
+    </div>
+</body>
+
+<script>
+    function createElement(type, options) {
+        const element = document.createElement(type);
+        for(const [key, value] of Object.entries(options)) {
+            element.setAttribute(key, value);
+        }
+        return element;
+    }
+
+    document.getElementById("mod_wrapper").addEventListener('click', function (event) {
+        if (event.target.classList.contains("mod") && event.target.childElementCount == 0) {
+            const template = document.getElementById("template_mod").content.cloneNode(true);
+            event.target.appendChild(template);
+            // event.target.style.border = "solid 2px grey";
+
+            event.target.closest("#buffs_wrapper")?.append(
+                createElement('div', {class: 'mod'})
+            )
+
+            // const buffs_wrapper = event.target.closest("#buffs_wrapper");
+            // if(buffs_wrapper) {
+            //     const mod = document.createElement('div', );
+            //     mod.className = "mod";
+            //     buffs_wrapper.appendChild(mod);
+            // }
+        }
+
+        if (event.target.classList.contains("mod") && event.target.childElementCount == 0) {
+            const template = document.getElementById("template_mod").content.cloneNode(true);
+            event.target.appendChild(template);
+        }
+
+        if (event.target.type == "reset") {
+            const selected_mod = event.target.closest(".mod");
+            selected_mod.style = "";
+
+            // each time you add a mod, an empty one gets added to the buffs_wrapper, so it needs to be deleted not emptied, otherwise you get two empty mods
+            const buffs_wrapper = event.target.closest("#buffs_wrapper");
+            if(buffs_wrapper) {
+                buffs_wrapper.removeChild(selected_mod)
+            }
+            else{
+                selected_mod.replaceChildren(); // empty the mod
+            }
+        }
+    });
+
+    // document.getElementById("mod_wrapper").addEventListener('click', function (event) {
+    //     if (event.target.name == 'button_level_decrease') {
+    //         let v = Number(event.target.parentElement.querySelector("span").innerText);
+    //         v = Math.max(0, v);
+    //     }
+    //     if (event.target.name == 'button_level_increase') {
+    //         let v = Number(event.target.parentElement.querySelector("span").innerText);
+    //         v = Math.min(10, v);
+    //     }
+    // });
+</script>
+
+</html>

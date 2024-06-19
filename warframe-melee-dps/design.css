@@ -1,25 +1,19 @@
 body {
     font-family: Arial, sans-serif;
-    /* margin: 0; */
-    /* display: flex; */
-    /* justify-content: center; */
-    /* align-items: center; */
-    /* height: 100vh; */
 }
 
 .enemy_wrapper {
+    border: 2px solid #ccc;
     width: 400px;
     height: 200px;
-    border: 2px solid #ccc;
     overflow-y: auto;
-    position: relative;
     scrollbar-gutter: stable;
 }
 
 .add-enemy button {
     padding: 5px 10px;
     margin: 5px;
-    margin-left: 25px;
+    margin-left: 50px;
 }
 
 .TTK_mean, .TTK_std {
@@ -31,7 +25,7 @@ body {
     padding: 0;
     border: none;
     background-color: transparent;
-    font-size: 18px;
+    font-size: 20px;
     line-height: 1;
 }
 
@@ -39,24 +33,222 @@ body {
     color: blue;
 }
 
-tr:nth-child(even) {
+.enemy_wrapper tr:nth-child(even) {
     background-color: #f2f2f2;
 }
 
-thead tr {
+.enemy_wrapper thead > tr {
     position: sticky;
-    background-color: #fff;
+    background-color: white;
     top: 0;
     z-index: 1;
 }
 
-tfoot tr:nth-child(even) {
+.enemy_wrapper > table > :is(td, th) {
+    border-left: 2px solid white;
+    /* border-right: 1px solid white; */
+    padding: 1px;
+}
+
+.enemy_wrapper tfoot > tr:last-child > :is(td, th) {
+    background-color: #ccc;
+}
+
+.enemy_wrapper tfoot > tr:last-child > * {
+    z-index: 1;
+    position: sticky;
+    bottom: 0;
+}
+
+#stance_wrapper > form > table > tfoot > tr:last-child > * {
+    z-index: 1;
+    position: sticky;
+    bottom: 0;
+}
+
+#stance_edit_dialog {
+    background-color: #ccc;
+    /* min-width: 520px; */
+    max-height: 80lvh;
+    scrollbar-gutter: stable;
+
+    padding: 0 0 0 10px;
+}
+
+#hits_table {
+    width: 100%;
+    border-spacing: 3px 15px;
+}
+
+#hits_wrapper {
+    background-color: white;
+}
+
+/* input:focus {
+    outline: none;
+}
+
+.input-decoration:focus-within {
+    outline: blue solid 1px;
+} */
+
+.containerAddStat {
+    text-align: center;
+}
+
+a.modebar-btn {
+    font-size: 30px;
+}
+
+#plot {
+    grid-area: plot;
+    width: 100%;
+    height: 500px;
+    border: 2px solid #ccc;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    grid-template-rows: 1fr max-content max-content;
+    gap: 10px 10px;
+    grid-auto-flow: column;
+    justify-content: start;
+    justify-items: start;
+    grid-template-areas:
+        "stats_wrapper mods"
+        "stats_wrapper plot"
+        "other plot";
+}
+
+.other {
+    grid-area: other;
+}
+
+.mods {
+    grid-area: mods; 
+    border: 2px solid #ccc;
+    width: 100%;
+    height: 100%;
+}
+
+.stats_wrapper {
+    grid-area: stats_wrapper;
+    width: 575px;
+    /* max-content + some space for the graph ticks*/
+    border: 2px solid #ccc;
+    position: relative;
+    left: 0%;
+}
+
+.stats_damage_table {
+    position: relative;
+}
+
+.stats_damage_table tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.stats_wrapper th {
+    font-weight: normal;
+}
+
+.stats_wrapper thead th {
+    position: sticky;
+    background-color: #fff;
+    top: 0;
+    z-index: 1;
+    font-weight: normal;
+}
+
+.stats_wrapper tfoot tr:nth-child(even) {
     position: sticky;
     background-color: #fff;
     bottom: 0;
     z-index: 1;
 }
 
-a.modebar-btn {
-    font-size: 30px;
+.separate>td {
+    border-bottom: 15px solid #ffffff;
+}
+
+.indented {
+    padding-left: 1em;
+    color: grey;
+}
+
+div.tooltip {
+    color: grey;
+    display: inline-block;
+}
+
+td.tooltip {
+    background-color: white;
+    padding: 0;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    text-align: center;
+    border-radius: 3px;
+    padding: 5px;
+
+    transform: translate(10px, -15%);
+    position: fixed;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
+}
+
+.stats_wrapper td:nth-child(2),
+.stats_wrapper td:nth-child(3) {
+    text-align: right;
+}
+
+.mod_buff {
+    color: green;
+}
+
+.mod_nerf {
+    color: red;
+}
+
+.row_hide {
+    display: none;
+}
+
+.row_show {
+    display: table-row;
+}
+
+.graph_bar {
+    height: 18px;
+    width: 0%;
+    white-space: nowrap;
+}
+
+.axis {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+}
+
+.tick {
+    position: absolute;
+    bottom: 15px;
+    top: 0;
+    border-right: 1px solid rgba(0, 0, 0, 0.15);
+    font-size: 12px;
+}
+
+.tick::after {
+    content: attr(data-value);
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, 15px);
+    bottom: 0;
 }
