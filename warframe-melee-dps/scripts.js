@@ -32,11 +32,8 @@ function editEnemy(rowIndex) {
         // load saved fields in the dialog if enemy isnt empty
         document.getElementById("enemy_name_input").value = enemy.name;
         document.getElementById("health").value = enemy.health;
-        document.getElementById("health_type").value = enemy.health_type;
         document.getElementById("armor").value = enemy.armor;
-        document.getElementById("armor_type").value = enemy.armor_type;
         document.getElementById("shield").value = enemy.shield;
-        document.getElementById("shield_type").value = enemy.shield_type;
         document.getElementById("level_base").value = enemy.level_base;
         document.getElementById("level_current").value = enemy.level_current;
         document.getElementById("faction").value = enemy.faction;
@@ -59,11 +56,8 @@ function loadEnemyStats() {
 
     // read from the JSON
     document.getElementById("health").value = enemy.health;
-    document.getElementById("health_type").value = enemy.resistances[2].type;
     document.getElementById("armor").value = enemy.armor;
-    document.getElementById("armor_type").value = enemy.resistances[1].type;
     document.getElementById("shield").value = enemy.shield;
-    document.getElementById("shield_type").value = enemy.resistances[0].type;
     // TODO document.getElementById("level_base").value = enemy.???;
     // TODO document.getElementById("level_current").value = enemy.???;
     document.getElementById("faction").value = enemy.type;
@@ -73,11 +67,8 @@ function saveEnemy() {
     enemies[current_enemy_row] = {
         "name": document.getElementById("enemy_name_input").value,
         "health": Number(document.getElementById("health").value),
-        "health_type": document.getElementById("health_type").value,
         "armor": Number(document.getElementById("armor").value),
-        "armor_type": document.getElementById("armor_type").value,
         "shield": Number(document.getElementById("shield").value),
-        "shield_type": document.getElementById("shield_type").value,
         "level_base": Number(document.getElementById("level_base").value),
         "level_current": Number(document.getElementById("level_current").value),
         "faction": document.getElementById("faction").value,
@@ -119,7 +110,7 @@ function updateAverageTTK() {
     for (var i = 0, enemy; enemy = enemies[i]; i++) {
         sum_TTK_mean += Number(parseFloat(enemy.cells[2].innerText));
         sum_TTK_std += Number(parseFloat(enemy.cells[3].innerText));
-    };
+    }
 
     document.getElementById("TTK_average_mean").innerText = sum_TTK_mean / enemies.length;
     document.getElementById("TTK_average_std").innerText = sum_TTK_std / enemies.length;
@@ -150,45 +141,27 @@ function CppToColumnar(dataraw) {
     return ret;
 }
 
-// weapon = {
-//     "attack_speed": 0.917,
-//     "wind_up": 0.7,
-//     "critical_chance": 0.32,
-//     "critical_damage": 2.4,
-//     "status": 0.1,
-//     "initial_combo": 0,
-//     "combo_duration": 5,
-//     "combo_efficiency": 0,
-//     "riven_disposition": 0.85,
-//     "heavy_multiplier": 0,
-//     "max_combo": 12,
-//     "damage_types": {
-//         "impact": 20,
-//         "puncture": 40,
-//         "slash": 140,
-//         "cold": 0,
-//         "electricity": 0,
-//         "heat": 0,
-//         "toxin": 0,
-//         "blast": 0,
-//         "corrosive": 0,
-//         "gas": 0,
-//         "magnetic": 0,
-//         "radiation": 0,
-//         "viral": 0,
-//         "void": 0,
-//         "void_dmg": 0,
-//         "lifted": 0,
-//         "knockdown": 0,
-//         "microwave": 0
-//     },
-//     "weapon_name": "Pennant",
-//     "weapon_type": "Two-Handed Nikana"
-// }
+let iterations;
+let time_max;
+let tickrate;
+let quantization = true;
+let conditionals = true;
 
 function changeStats() {
+    if(weapon == null){
+        alert("Select a weapon");
+        throw "missing weapon";
+    }else if(enemies.length == 0) {
+        alert("Select an enemy to fight against");
+        throw "missing enemies";
+    }
+
+    iterations = Number(document.getElementById("iterations").value);
+    time_max = Number(document.getElementById("max_time").value);
+    tickrate = Number(document.getElementById("tickrate").value);
+
     // TODO why only first enemy?
-    const data = CppToColumnar(Module.stats(weapon, enemies[0]));
+    const data = CppToColumnar(Module.stats(weapon, attack, enemies[0], iterations, time_max, tickrate, quantization, conditionals));
 
     for (const key in data) {
         data[key] = data[key].map(datum => Number(datum));// || undefined);
@@ -301,7 +274,7 @@ function changeStats() {
         showEditInChartStudio: true,
         plotlyServerURL: "https://chart-studio.plotly.com",
     });
-};
+}
 
 function formatPercent(num, maxDigits = 2) {
     return new Intl.NumberFormat("default", {
@@ -312,7 +285,7 @@ function formatPercent(num, maxDigits = 2) {
 }
 
 function formatPercentPoint(num, maxDigits) {
-    return formatPercent(num, maxDigits).replace("%", "%ₚₜ");
+    return formatAdditivePercent(num, maxDigits).replace("%", "%ₚₜ");
 }
 
 function formatSecond(num, maxDigits = 3) {
@@ -361,6 +334,15 @@ function formatAdditive(num, maxDigits = 2) {
         style: "decimal",
         signDisplay: 'always',
         minimumFractionDigits: 1,
+        maximumFractionDigits: maxDigits,
+    }).format(num);
+}
+
+function formatAdditivePercent(num, maxDigits = 2) {
+    return new Intl.NumberFormat("default", {
+        style: 'percent',
+        signDisplay: 'always',
+        minimumFractionDigits: 0,
         maximumFractionDigits: maxDigits,
     }).format(num);
 }
@@ -417,40 +399,70 @@ function loadWeaponStats() {
     saveWeapon();
 }
 
-function displayWeaponStats(weapon, column = 2) { // column 1 for base, 2 for modded stats
-    document.getElementById("attack_speed").cells[column].innerText = formatDecimals(weapon.attack_speed, 3);
-    document.getElementById("wind_up").cells[column].innerText = formatSecond(weapon.wind_up);
-    document.getElementById("critical_chance").cells[column].innerText = formatPercent(weapon.critical_chance);
-    document.getElementById("critical_damage").cells[column].innerText = formatMultiplier(weapon.critical_damage);
-    document.getElementById("status").cells[column].innerText = formatPercent(weapon.status);
-    document.getElementById("initial_combo").cells[column].innerText = formatAdditive(weapon.initial_combo);
-    document.getElementById("combo_duration").cells[column].innerText = formatSecond(weapon.combo_duration);
-    document.getElementById("combo_efficiency").cells[column].innerText = formatPercent(weapon.combo_efficiency);
-    document.getElementById("riven_disposition_input").value = formatDecimals(weapon.riven_disposition, 3);
-    document.getElementById("riven_disposition_meter").value = weapon.riven_disposition;
+function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for base, 2 for modded stats
+    document.getElementById("attack_speed").cells[column].innerText = formatDecimals(weapon_to_display.attack_speed, 3);
+    document.getElementById("wind_up").cells[column].innerText = formatSecond(weapon_to_display.wind_up);
+    document.getElementById("critical_chance").cells[column].innerText = formatPercent(weapon_to_display.critical_chance);
+    document.getElementById("critical_damage").cells[column].innerText = formatMultiplier(weapon_to_display.critical_damage);
+    document.getElementById("status").cells[column].innerText = formatPercent(weapon_to_display.status);
+    document.getElementById("initial_combo").cells[column].innerText = formatAdditive(weapon_to_display.initial_combo);
+    document.getElementById("combo_duration").cells[column].innerText = formatSecond(weapon_to_display.combo_duration);
+    document.getElementById("combo_efficiency").cells[column].innerText = formatPercent(weapon_to_display.combo_efficiency);
 
-    document.getElementById("impact").cells[column].innerText = formatDecimals(weapon.damage_types.impact);
-    document.getElementById("puncture").cells[column].innerText = formatDecimals(weapon.damage_types.puncture);
-    document.getElementById("slash").cells[column].innerText = formatDecimals(weapon.damage_types.slash);
+    //if(column == 2){
+        document.getElementById("critical_chance").cells[3].innerText = formatPercentPoint(weapon_to_display.critical_chance_per_combo);
+        document.getElementById("status").cells[3].innerText = formatPercentPoint(weapon_to_display.status_per_combo);
+    //}
+    document.getElementById("riven_disposition_input").value = formatDecimals(weapon_to_display.riven_disposition, 3);
+    document.getElementById("riven_disposition_meter").value = weapon_to_display.riven_disposition;
 
-    document.getElementById("cold").cells[column].innerText = formatDecimals(weapon.damage_types.cold);
-    document.getElementById("electricity").cells[column].innerText = formatDecimals(weapon.damage_types.electricity);
-    document.getElementById("heat").cells[column].innerText = formatDecimals(weapon.damage_types.heat);
-    document.getElementById("toxin").cells[column].innerText = formatDecimals(weapon.damage_types.toxin);
-
-    document.getElementById("blast").cells[column].innerText = formatDecimals(weapon.damage_types.blast);
-    document.getElementById("corrosive").cells[column].innerText = formatDecimals(weapon.damage_types.corrosive);
-    document.getElementById("gas").cells[column].innerText = formatDecimals(weapon.damage_types.gas);
-    document.getElementById("magnetic").cells[column].innerText = formatDecimals(weapon.damage_types.magnetic);
-    document.getElementById("radiation").cells[column].innerText = formatDecimals(weapon.damage_types.radiation);
-    document.getElementById("viral").cells[column].innerText = formatDecimals(weapon.damage_types.viral);
-    document.getElementById("void").cells[column].innerText = formatDecimals(weapon.damage_types.void);
+    for (const [key, value] of Object.entries(weapon_to_display.damage_types)) {
+        let cell = document.getElementById(key)?.cells[column];
+        if(cell){
+            cell.innerText = formatDecimals(value, 1);
+        }
+    }
+    //c++ vs database name conflict
+    document.getElementById("void").cells[column].innerText = formatDecimals(weapon_to_display.damage_types.void ?? weapon_to_display.damage_types.void_dmg, 1);
 
     statColoring("stats_damage");
     statColoring("stats");
 }
 
 var weapon;
+
+const melee_weapon_types = {
+    "Two-Handed Nikana":   6,
+    "Blade and Whip":      4,
+    "Claws":               5,
+    "Dagger":              5,
+    "Dual Daggers":        5,
+    "Dual Swords":         5,
+    "Fist":                5,
+    "Glaive":              2,
+    "Gunblade":            2,
+    "Hammer":              6,
+    "Heavy Blade":         6,
+    "Machete":             6,
+    "Nikana":              6,
+    "Nunchaku":            5,
+    "Polearm":             6,
+    "Rapier":              4.5,
+    "Scythe":              6,
+    "Sparring":            3,
+    "Staff":               5,
+    "Sword":               5,
+    "Sword and Shield":    5,
+    "Tonfa":               5,
+    "Warfan":              5,
+    "Whip":                4.5
+}
+const weapon_type_list = document.getElementById("weapon_subclass");
+Object.keys(melee_weapon_types).forEach(function (e) {
+    const option = document.createElement('option');
+    option.text = e;
+    weapon_type_list.appendChild(option);
+});
 
 function saveWeapon() {
     // TODO this thing
@@ -468,7 +480,6 @@ function saveWeapon() {
         "combo_duration": document.getElementById("combo_duration").cells[1].innerText,
         "combo_efficiency": document.getElementById("combo_efficiency").cells[1].innerText,
         "riven_disposition": document.getElementById("riven_disposition_input").value,
-        "heavy_multiplier": 0,
         "max_combo": 12,
 
         "damage_types": {
@@ -516,26 +527,41 @@ function saveWeapon() {
     // loadWeaponStats()
 
     // TODO calculate and display updated modded stats
-    displayWeaponStats(calculateModding(weapon), 2);
+    // FIXME not only the first enemy
+    displayWeaponStats(calculateModding(weapon, [], enemies), 2);
 }
 
-function calculateModding(weapon, mods = []) {
-    // TODO
-    // it also has to know if youre hitting Heavy attack or not
+let weaponModded;
+let finalStats;
 
-    let weaponModded = JSON.parse(JSON.stringify(weapon)); // to avoid reference issues
-    for (const [key, value] of Object.entries(weaponModded)) {
-        if (key == "damage_types") {
-            for (const [key2, value2] of Object.entries(value)) {
-                weaponModded[key][key2] *= 2;
-            }
-        } else if (key == "riven_disposition") {
-            //dont multiply the riven dispo x2 lol
-        }
-        else {
-            weaponModded[key] *= 2;
-        }
-    }
+function calculateModding(weapon, mods = [], enemies) {
+    //TODO check if the selected stance is a heavy attack
+    //const isHeavy = document.getElementById("");
+    const isHeavy = true;
+
+    const enemy_faction = enemies[0]?.faction ?? "";
+
+    //FIXME
+    //quantization = document.getElementsByClassName("quantization").value;
+    //conditionals = document.getElementsByClassName("conditionals").value;
+
+    finalStats = Module.final_stats(weapon, isHeavy, enemy_faction, quantization, conditionals);
+
+    weaponModded = JSON.parse(JSON.stringify(weapon));
+    weaponModded.attack_speed = finalStats.attack_speed;
+    weaponModded.wind_up = finalStats.wind_up;
+    weaponModded.critical_chance = finalStats.critical_chance;
+    weaponModded.critical_damage = finalStats.critical_damage;
+    weaponModded.status = finalStats.status;
+
+    weaponModded.initial_combo = finalStats.initial_combo;
+    weaponModded.combo_duration = finalStats.combo_duration;
+    weaponModded.combo_efficiency = finalStats.combo_efficiency;
+    weaponModded.critical_chance_per_combo = finalStats.critical_chance_per_combo;
+    weaponModded.status_per_combo = finalStats.status_per_combo;
+
+    weaponModded.damage_types = finalStats.displayed_damage_types;
+
     return weaponModded;
 }
 
@@ -564,13 +590,21 @@ function statColoring(table) {
             continue;
         }
 
-        const oldVal = parseFloat(c[1].innerText);
-        const newVal = parseFloat(c[2].innerText);
+        const oldVal = parseFloat(c[1].innerText.replace(",", ""));
+        const newVal = parseFloat(c[2].innerText.replace(",", ""));
         const isBuff = oldVal < newVal;
         const isNerf = oldVal > newVal;
         c[2].classList.toggle("mod_buff", isBuff);
         c[2].classList.toggle("mod_nerf", isNerf);
     }
+
+    //thats for the per_combo stats that are offset
+    const c1 = document.getElementById("critical_chance").cells[3];
+    const isBuff1 = 0 < parseFloat(c1.innerText);
+    c1.classList.toggle("mod_buff", isBuff1);
+    const c2 = document.getElementById("status").cells[3];
+    const isBuff2 = 0 < parseFloat(c2.innerText);
+    c2.classList.toggle("mod_buff", isBuff2);
 }
 
 contentEditable("stats_damage");
@@ -715,3 +749,56 @@ function status_proportion_graph() {
 
 // TODO on table resize instead
 window.addEventListener('resize', status_proportion_graph);
+
+attack = {
+    "name": "heavy",
+    "hits": [
+        {
+            "time": 1,
+            "damage": 6,
+            "forced_procs": {
+                "impact": 0,
+                "puncture": 0,
+                "slash": 1,
+                "cold": 0,
+                "electricity": 0,
+                "heat": 0,
+                "toxin": 0,
+                "blast": 0,
+                "corrosive": 0,
+                "gas": 0,
+                "magnetic": 0,
+                "radiation": 0,
+                "viral": 0,
+                "void_dmg": 0,
+                "lifted": 0,
+                "knockdown": 0,
+                "microwave": 0
+            },
+            "bonus_damage": {
+                "impact": 0,
+                "puncture": 0,
+                "slash": 0,
+                "cold": 0,
+                "electricity": 0,
+                "heat": 0,
+                "toxin": 0,
+                "blast": 0,
+                "corrosive": 0,
+                "gas": 0,
+                "magnetic": 0,
+                "radiation": 0,
+                "viral": 0,
+                "void_dmg": 0,
+                "lifted": 0,
+                "knockdown": 0,
+                "microwave": 0
+            },
+            "combo": 1
+        }
+    ]
+}
+attack = {
+    "name": "heavy",
+    "hits": Module.passVectorHits(attack.hits),
+}

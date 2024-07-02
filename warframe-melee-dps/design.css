@@ -105,11 +105,25 @@ a.modebar-btn {
     width: 100%;
     height: 500px;
     border: 2px solid #ccc;
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:empty{
+        background: lightgrey;
+
+        &::before{
+            content: "📊";
+            font-size: 64px;
+        }
+    }
 }
 
 .grid {
     display: grid;
-    grid-template-columns: max-content 1fr;
+    grid-template-columns: max-content 1310px;
     grid-template-rows: 1fr max-content max-content;
     gap: 10px 10px;
     grid-auto-flow: column;
@@ -123,6 +137,7 @@ a.modebar-btn {
 
 .other {
     grid-area: other;
+    width: 100%;
 }
 
 .mods {
@@ -130,6 +145,20 @@ a.modebar-btn {
     border: 2px solid #ccc;
     width: 100%;
     height: 100%;
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:empty{
+        background: lightgrey;
+
+        &::before{
+            content: "mods";
+            font-size: 48px;
+        }
+    }
 }
 
 .stats_wrapper {
@@ -209,11 +238,10 @@ td.tooltip {
     text-align: right;
 }
 
-.mod_buff {
+.mod_buff, .less_is_more.mod_nerf {
     color: green;
 }
-
-.mod_nerf {
+.mod_nerf, .less_is_more.mod_buff {
     color: red;
 }
 

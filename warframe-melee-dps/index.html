@@ -62,59 +62,47 @@
             <label>Faction:</label>
             <select id="faction">
                 <option selected value="Neutral">Neutral</option>
-                <option value="Grineer">Grineer</option>
-                <option value="Corpus">Corpus</option>
-                <option value="Infested">Infested</option>
+                <option style="background: lightgoldenrodyellow" value="Grineer">Grineer</option>
+                <option style="background: lightgoldenrodyellow" value="Kuva Grineer">Kuva Grineer</option>
+                <option style="background: lightblue" value="Corpus">Corpus</option>
+                <option style="background: lightblue" value="Corpus Amalgam">Corpus Amalgam</option>
+                <option style="background: lightcoral" value="Infested">Infested</option>
+                <option style="background: lightcoral" value="Infested Deimos">Infested Deimos</option>
+
+                <option value="Orokin">Orokin</option>
                 <option value="Sentient">Sentient</option>
+                <option value="Narmer">Narmer</option>
+                <option value="Murmur">Murmur</option>
+                <option value="Zariman">Zariman</option>
             </select>
             <br>
             <label>Base level:</label>
-            <input type="number" id="level_base" size="6" value="1" min="1" max="9999">
+            <input type="number" id="level_base" size="6" value="1" min="1" max="9999" disabled>
             <label>Current level:</label>
-            <input type="number" id="level_current" size="6" value="1" min="1" max="9999">
+            <input type="number" id="level_current" size="6" value="1" min="1" max="9999" disabled>
             <table id="editEnemyTable">
                 <tr>
                     <td>Health:</td>
                     <td><input type="number" id="health" size="6" value="100" min="0"></td>
-                    <td><select id="health_type">
-                            <option selected value="Tenno Flesh">Tenno Flesh (neutral)</option>
-                            <option value="Cloned Flesh">Cloned Flesh</option>
-                            <option value="Machinery">Machinery</option>
-                            <option value="Flesh">Flesh</option>
-                            <option value="Robotic">Robotic</option>
-                            <option value="Infested">Infested</option>
-                            <option value="Infested Flesh">Infested Flesh</option>
-                            <option value="Fossilized">Fossilized</option>
-                        </select></td>
                 </tr>
                 <tr>
                     <td>Armor:</td>
                     <td><input type="number" id="armor" size="6" value="0" min="0"></td>
-                    <td><select id="armor_type">
-                            <option selected value="Tenno Armor">Tenno Armor (neutral)</option>
-                            <option value="Infested Sinew">Infested Sinew</option>
-                            <option value="Alloy Armor">Alloy Armor</option>
-                            <option value="Ferrite Armor">Ferrite Armor</option>
-                        </select></td>
                 </tr>
                 <tr>
                     <td>Shield:</td>
                     <td><input type="number" id="shield" size="6" value="0" min="0"></td>
-                    <td><select id="shield_type">
-                            <option selected value="Neutral Shield">Neutral Shield</option>
-                            <option value="Tenno Shield">Tenno Shield</option>
-                            <option value="Proto Shield">Proto Shield</option>
-                            <option value="Shield">Shield</option>
-                        </select></td>
                 </tr>
             </table>
             <input type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
             <input type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
         </form>
     </dialog>
+    <dialog id="spinner" style="z-index: 999999999">AAAA</dialog>
 
     <div class="grid">
-        <div class="mods">mods menu placeholder</div>
+        <!-- <embed type="text/html" src="mods.html" style="width: 100%; height: 100%"> -->
+        <div class="mods"></div>
         <div id="plot"></div>
         <div class="stats_wrapper">
             <table>
@@ -138,20 +126,20 @@
                         <td>1.0</td>
                         <td></td>
                         <td rowspan="2" colspan="3" style="text-align: center; background-color: #ccc;"> <input
-                                type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
-                                placeholder="Weapon select" onchange="loadWeaponStats()"
-                                style="font-size: large; font-weight: bold;" size="17"> </td>
+                            type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
+                            placeholder="Weapon select" onchange="loadWeaponStats()"
+                            style="font-size: large; font-weight: bold;" size="17"> </td>
                     </tr>
                     <tr id="wind_up" class="separate">
                         <td class="indented">wind up</td>
                         <td></td>
-                        <td></td>
+                        <td class="less_is_more"></td>
                     </tr>
                     <tr id="critical_chance">
                         <td>critical</td>
                         <td>0%</td>
                         <td></td>
-                        <td>+100%ₚₜ</td>
+                        <td></td>
                         <td>
                             <div class="tooltip">🛈<span class="tooltiptext">per combo multiplier</span></div>
                         </td>
@@ -166,13 +154,8 @@
                                 <option value="archgun">Archgun</option>
                             </select>
                             <br><br>
-    
-                            <!-- TODO -->
-                            <select id="weapon_subclass"> <!-- could add bow/shotgun/sniper/etc but fuck it -->
-                                <option value="Two-Handed Nikana">Two-Handed Nikana</option>
-                                <option value="Nikana">Nikana</option>
-                                <option value="Sword">Sword</option>
-                            </select>
+
+                            <select id="weapon_subclass" onchange="saveWeapon()"> <!-- TODO could add bow/shotgun/sniper/etc but fuck it --></select>
                             <br><br>
     
                             <label for="riven_disposition_input">Riven disposition</label>
@@ -193,7 +176,7 @@
                         <td>status</td>
                         <td>0%</td>
                         <td></td>
-                        <td>+0%ₚₜ</td>
+                        <td></td>
                         <td>
                             <div class="tooltip">🛈<span class="tooltiptext">per combo multiplier</span></div>
                         </td>
@@ -230,7 +213,7 @@
                             <span class="tooltiptext">can be affected by external factors (stance, etc)</span>
                         </div>
                     </th>
-                    <td colspan="3" style="width: 275px;"><label for="plotly">average count of status stacks</label>
+                    <td colspan="3" style="width: 275px;"><label>average count of status stacks</label>
                     </td>
                 </tr>
     
@@ -417,12 +400,35 @@
                     </tfoot>
                 </table>
             </div>
-            <div>
+            <div onchange="saveWeapon()">
                 <button onclick="changeStats()">Simulate</button>
                 <button onclick="status_proportion_graph()">Status Proportion</button>
                 <button onclick="hideEmptyRows()">Hide Empty Rows</button>
                 <button onclick="displayAllRows()">Display All Rows</button>
+
+                <label>
+                    Quantization:
+                    <input type="checkbox" id="quantization" checked onchange="quantization ^= true;"/>
+                </label>
+                <label>
+                    Conditionals:
+                    <input type="checkbox" id="conditionals" checked onchange="conditionals ^= true;"/>
+                </label>
             </div>
+            <fieldset style="display: flex; justify-content: space-around; padding: 5px; ">
+                <legend>Extra parameters</legend>
+                <label>iterations
+                    <input type="number" value="1" min="1" id="iterations" style="width: 8ch;">
+                </label>
+                <label>max time
+                    <input type="number" value="52.5" min="1" id="max_time" style="width: 7ch;">
+                    s
+                </label>
+                <label>tickrate
+                    <input type="number" value="60" min="1" id="tickrate" style="width: 6ch;">
+                    /s
+                </label>
+            </fieldset>
         </div>
     </div>
 </body>
