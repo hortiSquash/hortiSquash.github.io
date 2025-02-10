@@ -11,20 +11,21 @@
     <script src="scripts.js" defer></script>
     <script src="Warframe_Melee_DPS.js"></script>
 
-    <script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
     <script type="module">
         let response;
 
-        response = await fetch('./modified Enemies.json');
+        response = await fetch('./enemies.json');
         const data_enemies = await response.json();
         window.data_enemies = data_enemies;
 
         const enemy_list = document.getElementById('enemy_list');
         data_enemies.forEach(function (e) {
             const option = document.createElement('option');
-            option.value = e.name;
+            option.value = e.Name;
+            //TODO value=Path and label=Name -> issues with Input displays the value after you select
             enemy_list.appendChild(option);
         });
 
@@ -98,14 +99,15 @@
             <input type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
         </form>
     </dialog>
-    <dialog id="spinner" style="z-index: 999999999">AAAA</dialog>
+    <div id="loading_spinner"></div>
 
     <div class="grid">
         <!-- <embed type="text/html" src="mods.html" style="width: 100%; height: 100%"> -->
         <div class="mods"></div>
+        <div class="mods_list"></div>
         <div id="plot"></div>
         <div class="stats_wrapper">
-            <table>
+            <table style="width: 100%">
                 <thead style="position: sticky;">
                     <tr>
                         <th style="width: 100px;"></th>
@@ -139,11 +141,58 @@
                         <td>critical</td>
                         <td>0%</td>
                         <td></td>
-                        <td></td>
                         <td>
-                            <div class="tooltip">🛈<span class="tooltiptext">per combo multiplier</span></div>
+                            <div class="tooltip">🛈
+                                <table class="tooltiptable">
+                                    <tr>
+                                        <th scope="row">Hit count</th>
+                                        <td>0</td>
+                                        <td>20</td>
+                                        <td>40</td>
+                                        <td>60</td>
+                                        <td>80</td>
+                                        <td>100</td>
+                                        <td>120</td>
+                                        <td>140</td>
+                                        <td>160</td>
+                                        <td>180</td>
+                                        <td>200</td>
+                                        <td>220</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Combo tier</th>
+                                        <td>1x</td>
+                                        <td>2x</td>
+                                        <td>3x</td>
+                                        <td>4x</td>
+                                        <td>5x</td>
+                                        <td>6x</td>
+                                        <td>7x</td>
+                                        <td>8x</td>
+                                        <td>9x</td>
+                                        <td>10x</td>
+                                        <td>11x</td>
+                                        <td>12x</td>
+                                    </tr>
+                                    <tr id="crit_tier">
+                                        <th scope="row">Crit chance</th>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    </tr>
+                                </table>
+                            </div>
                         </td>
-                        <td rowspan="6" style="border-left: 2px solid #ccc;">
+                        <td rowspan="6" colspan="2" style="border-left: 2px solid #ccc;">
                             <!-- <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input" placeholder="Weapon select" onchange="loadWeaponStats()"
                         style="font-size: large; font-weight: bold;" size="17">
                     <br><br> -->
@@ -157,14 +206,12 @@
 
                             <select id="weapon_subclass" onchange="saveWeapon()"> <!-- TODO could add bow/shotgun/sniper/etc but fuck it --></select>
                             <br><br>
-    
+
                             <label for="riven_disposition_input">Riven disposition</label>
-                            <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6"
-                                onchange="saveWeapon()">
-                            <br>
-                            <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11"
-                                optimum="1.6" style="width: 100%;" value="1.5"></meter>
-    
+                            <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6" style="width: 3.5rem"
+                                   onchange="saveWeapon()">
+                            <br> <!-- important for the width of the graph -->
+                            <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1.5"></meter>
                         </td>
                     </tr>
                     <tr id="critical_damage" class="separate">
@@ -176,9 +223,56 @@
                         <td>status</td>
                         <td>0%</td>
                         <td></td>
-                        <td></td>
                         <td>
-                            <div class="tooltip">🛈<span class="tooltiptext">per combo multiplier</span></div>
+                            <div class="tooltip">🛈
+                                <table class="tooltiptable">
+                                    <tr>
+                                        <th scope="row">Hit count</th>
+                                        <td>0</td>
+                                        <td>20</td>
+                                        <td>40</td>
+                                        <td>60</td>
+                                        <td>80</td>
+                                        <td>100</td>
+                                        <td>120</td>
+                                        <td>140</td>
+                                        <td>160</td>
+                                        <td>180</td>
+                                        <td>200</td>
+                                        <td>220</td>
+                                    </tr>
+                                    <tr>
+                                        <th scope="row">Combo tier</th>
+                                        <td>1x</td>
+                                        <td>2x</td>
+                                        <td>3x</td>
+                                        <td>4x</td>
+                                        <td>5x</td>
+                                        <td>6x</td>
+                                        <td>7x</td>
+                                        <td>8x</td>
+                                        <td>9x</td>
+                                        <td>10x</td>
+                                        <td>11x</td>
+                                        <td>12x</td>
+                                    </tr>
+                                    <tr id="status_tier">
+                                        <th scope="row">Status chance</th>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                        <td>0%</td>
+                                    </tr>
+                                </table>
+                            </div>
                         </td>
                     </tr>
                     <tr id="initial_combo">
@@ -213,7 +307,8 @@
                             <span class="tooltiptext">can be affected by external factors (stance, etc)</span>
                         </div>
                     </th>
-                    <td colspan="3" style="width: 275px;"><label>average count of status stacks</label>
+                    <td colspan="3">
+                        <label>average count of status stacks</label>
                     </td>
                 </tr>
     
@@ -223,7 +318,7 @@
                         <td>impact</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -233,7 +328,7 @@
                         <td>puncture</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -243,7 +338,7 @@
                         <td>slash</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -254,7 +349,7 @@
                         <td>cold</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -264,7 +359,7 @@
                         <td>electricity</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -274,7 +369,7 @@
                         <td>heat</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -284,7 +379,7 @@
                         <td>toxin</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -295,7 +390,7 @@
                         <td>blast</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -305,7 +400,7 @@
                         <td>corrosive</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -315,7 +410,7 @@
                         <td>gas</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -325,7 +420,7 @@
                         <td>magnetic</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -335,7 +430,7 @@
                         <td>radiation</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -345,7 +440,7 @@
                         <td>viral</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -356,7 +451,7 @@
                         <td>void</td>
                         <td>0</td>
                         <td></td>
-                        <td colspan="3" class="tooltip">
+                        <td colspan="2" class="tooltip">
                             <div class="graph_bar">
                                 <span class="tooltiptext">0</span>
                             </div>
@@ -367,13 +462,15 @@
                         <td></td>
                         <td></td>
                         <td></td>
-                        <td colspan=4 style="padding: 0px;">
+                        <td colspan=2 style="padding: 0px;">
                             <div class="axis" id="axis"></div>
                         </td>
+                        <td id="padding_right_axis" style="width: 45px"></td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
         <div class="other">
             <div class="enemy_wrapper">
                 <table style="width: 100%; border-collapse: collapse;">
@@ -405,17 +502,16 @@
                 <button onclick="status_proportion_graph()">Status Proportion</button>
                 <button onclick="hideEmptyRows()">Hide Empty Rows</button>
                 <button onclick="displayAllRows()">Display All Rows</button>
-
-                <label>
-                    Quantization:
-                    <input type="checkbox" id="quantization" checked onchange="quantization ^= true;"/>
-                </label>
-                <label>
-                    Conditionals:
-                    <input type="checkbox" id="conditionals" checked onchange="conditionals ^= true;"/>
-                </label>
             </div>
-            <fieldset style="display: flex; justify-content: space-around; padding: 5px; ">
+            <label>
+                Quantization:
+                <input type="checkbox" id="quantization" checked onchange="saveWeapon()"/>
+            </label>
+            <label>
+                Conditionals:
+                <input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/>
+            </label>
+            <fieldset style="display: flex; justify-content: space-around; flex-wrap: wrap; padding: 5px; max-width: 100%;">
                 <legend>Extra parameters</legend>
                 <label>iterations
                     <input type="number" value="1" min="1" id="iterations" style="width: 8ch;">
@@ -429,6 +525,44 @@
                     /s
                 </label>
             </fieldset>
+            <!--
+            <fieldset style="display: flex; justify-content: space-around; align-items: start; flex-wrap: wrap; padding: 5px; max-width: 150px;">
+                <legend>Extra parameters</legend>
+                <label>iterations
+                    <input type="number" value="1" min="1" style="width: 8ch;">
+                </label>
+                <label>max time
+                    <input type="number" value="52.5" min="1" style="width: 7ch;">
+                    s
+                </label>
+                <label>tickrate
+                    <input type="number" value="60" min="1" style="width: 6ch;">
+                    /s
+                </label>
+
+
+                <label>tickrate
+                    <input type="number" value="60" min="1" style="width: 6ch;">
+                    /s
+                </label>
+                <label>tickrate
+                    <input type="number" value="60" min="1" style="width: 6ch;">
+                    /s
+                </label>
+                <label>tickrate
+                    <input type="number" value="60" min="1" style="width: 6ch;">
+                    /s
+                </label>
+                <label>tickrate
+                    <input type="number" value="60" min="1" style="width: 6ch;">
+                    /s
+                </label>
+                <label>tickrate
+                    <input type="number" value="60" min="1" style="width: 6ch;">
+                    /s
+                </label>
+            </fieldset>
+            -->
         </div>
     </div>
 </body>

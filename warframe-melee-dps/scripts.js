@@ -1,3 +1,70 @@
+function default_value(defaults, new_values){
+    return {...defaults, ...new_values};
+}
+
+const default_damage_types = {
+    "impact": 0,
+    "puncture": 0,
+    "slash": 0,
+
+    "cold": 0,
+    "electricity": 0,
+    "heat": 0,
+    "toxin": 0,
+
+    "blast": 0,
+    "corrosive": 0,
+    "gas": 0,
+    "magnetic": 0,
+    "radiation": 0,
+    "viral": 0,
+    "void": 0,
+    //FIXME fucking conflict between c++ refusing "void" and the DB+color needing "void" so i just duplicate because fuck it
+    "void_dmg": 0,
+    "lifted": 0,
+    "knockdown": 0,
+    "microwave": 0,
+}
+
+const default_modbuff = {
+    "name": "unnamed mod",
+
+    "coaction_drift": false,
+    "condition_overload": false,
+
+    "madurai_phoenix_talons": 0,
+    "madurai_phoenix_spirit": 0,
+
+    "attack_speed": 0,
+    "attack_speed_multiplicative": 0,
+    "wind_up": 0,
+    "initial_combo": 0,
+    "combo_efficiency": 0,
+    "combo_duration": 0,
+    "combo_duration_multiplicative": 1,
+    "critical_damage": 0,
+    "critical_chance": 0,
+    "critical_chance_heavy": 0,
+    "critical_chance_per_combo": 0,
+    "critical_chance_multiplicative": 0,
+    "critical_chance_flat": 0,
+    "status": 0,
+    "status_per_combo": 0,
+    "status_multiplicative": 0,
+    "status_damage": 0,
+    "damage": 0,
+    "damage_heavy": 0,
+    "damage_multiplicative": 0,
+    "damage_multiplicative_grineer": 0,
+    "damage_multiplicative_corpus": 0,
+    "damage_multiplicative_corrupted": 0,
+    "damage_multiplicative_infested": 0,
+    "damage_multiplicative_sentient": 0,
+    "armor_reduction": 0,
+
+    "damage_types": default_value(default_damage_types, {}),
+}
+
 var enemies = [];
 var current_enemy_row = 0;
 
@@ -52,15 +119,16 @@ function loadEnemyStats() {
     enemySelect = document.getElementById('enemy_name_input').value; // name
     document.getElementById('enemy_container').rows[current_enemy_row].cells[1].innerText = enemySelect;
 
-    const enemy = data_enemies.find((e) => e.name == enemySelect);
-
-    // read from the JSON
-    document.getElementById("health").value = enemy.health;
-    document.getElementById("armor").value = enemy.armor;
-    document.getElementById("shield").value = enemy.shield;
-    // TODO document.getElementById("level_base").value = enemy.???;
-    // TODO document.getElementById("level_current").value = enemy.???;
-    document.getElementById("faction").value = enemy.type;
+    const enemy = data_enemies.find((e) => e.Name == enemySelect);
+    if(enemy){
+        // read from the JSON
+        document.getElementById("health").value = enemy.Health;
+        document.getElementById("armor").value = enemy.Armor;
+        document.getElementById("shield").value = enemy.Shield;
+        document.getElementById("level_base").value = enemy.BaseLevel;
+        document.getElementById("level_current").value = enemy.BaseLevel; //TODO spawn level
+        document.getElementById("faction").value = enemy.Faction;
+    }
 }
 
 function saveEnemy() {
@@ -147,13 +215,74 @@ let tickrate;
 let quantization = true;
 let conditionals = true;
 
+let mod_buffs = [
+    {
+        "name": "Primed Pressure Point",
+        "damage": 1.65
+    },{
+        "name": "Sacrificial Steel",
+        "critical_chance": 2.20,
+        "critical_chance_heavy": true,
+        "damage_multiplicative_sentient": 0.33
+    },{
+        "name": "Amalgam Organ Shatter",
+        "wind_up": 0.6,
+        "critical_damage": 0.846 //dont ask why its not 85% idk
+    },{
+        "name": "Corrupt Charge",
+        "initial_combo": 30, //22.5
+        "combo_duration_multiplicative": 0.5
+    },{
+        "name": "Killing Blow",
+        "wind_up": 0.6,
+        "damage_heavy": 1.2
+    },{
+        "name": "Primed Fever Strike",
+        "damage_types": default_value(default_damage_types, {
+            "corrosive": 1.65,
+        })
+    },{
+        "name": "Voltaic Strike",
+        "status": 0.6,
+        "damage_types": default_value(default_damage_types, {
+            "corrosive": 0.6,
+        }),
+    },{
+        "name": "Gladiator Might",
+        "critical_damage": 0.6,
+        "critical_chance_per_combo": 0.1,
+    },
+    /*
+    {
+        "name": "Steel Charge",
+        "damage": 0.6,
+    },
+    */
+];
+let mods_buffs_cpp;
+
 function changeStats() {
     if(weapon == null){
         alert("Select a weapon");
         throw "missing weapon";
-    }else if(enemies.length == 0) {
-        alert("Select an enemy to fight against");
-        throw "missing enemies";
+    }
+
+    //TODO support multiple enemies
+    let enemy;
+    if(enemies.length != 0) {
+        enemy = enemies[0];
+        //TODO convert the enemies to scale their stats with their level
+        // since there is no level calculation in the C++
+    }else{
+        //alert("Select an enemy to fight against");
+        //throw "missing enemies";
+        enemy = {
+            "name": "",
+            "health": 2147483647, //2 billion //TODO signed INT max, maybe change the C++ to be unsigned or even 64b ints
+            "armor": 0,
+            "shield": 0,
+            "faction": "Neutral",
+        };
     }
 
     iterations = Number(document.getElementById("iterations").value);
@@ -161,7 +290,17 @@ function changeStats() {
     tickrate = Number(document.getElementById("tickrate").value);
 
     // TODO why only first enemy?
-    const data = CppToColumnar(Module.stats(weapon, attack, enemies[0], iterations, time_max, tickrate, quantization, conditionals));
+    const data = CppToColumnar(Module.stats(
+        weapon,
+        {
+            "name": attack.name,
+            "hits": Module.passVectorHits(attack.hits),
+        },
+        enemy,
+        mods_buffs_cpp,
+        iterations, time_max, tickrate, quantization, conditionals
+    ));
+    //const data = CppToColumnar(Module.stats(weapon, attack, enemy, iterations, time_max, tickrate, quantization, conditionals));
 
     for (const key in data) {
         data[key] = data[key].map(datum => Number(datum));// || undefined);
@@ -237,7 +376,7 @@ function changeStats() {
         xaxis: {
             //type: 'log',
             autorange: true,
-            // range: [0, 10],
+            //range: [0, 9.5],
             autorangeoptions:{
                 minallowed: -1,
                 // maxallowed: 50,
@@ -409,10 +548,18 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
     document.getElementById("combo_duration").cells[column].innerText = formatSecond(weapon_to_display.combo_duration);
     document.getElementById("combo_efficiency").cells[column].innerText = formatPercent(weapon_to_display.combo_efficiency);
 
-    //if(column == 2){
-        document.getElementById("critical_chance").cells[3].innerText = formatPercentPoint(weapon_to_display.critical_chance_per_combo);
-        document.getElementById("status").cells[3].innerText = formatPercentPoint(weapon_to_display.status_per_combo);
-    //}
+
+    let crit_table = document.getElementById("crit_tier").cells;
+    for(i = 1; i < crit_table.length; i++) {
+        let value = weapon_to_display.critical_chance + weapon.critical_chance * weapon_to_display.critical_chance_per_combo * (i - 1);
+        crit_table[i].innerText = formatPercent(value);
+    }
+    let status_table = document.getElementById("status_tier").cells;
+    for(i = 1; i < status_table.length; i++) {
+        let value = weapon_to_display.status + weapon.status * weapon_to_display.status_per_combo * (i - 1);
+        status_table[i].innerText = formatPercent(value);
+    }
+
     document.getElementById("riven_disposition_input").value = formatDecimals(weapon_to_display.riven_disposition, 3);
     document.getElementById("riven_disposition_meter").value = weapon_to_display.riven_disposition;
 
@@ -482,7 +629,7 @@ function saveWeapon() {
         "riven_disposition": document.getElementById("riven_disposition_input").value,
         "max_combo": 12,
 
-        "damage_types": {
+        "damage_types": default_value(default_damage_types, {
             "impact": document.getElementById("impact").cells[1].innerText,
             "puncture": document.getElementById("puncture").cells[1].innerText,
             "slash": document.getElementById("slash").cells[1].innerText,
@@ -501,10 +648,7 @@ function saveWeapon() {
             "void": document.getElementById("void").cells[1].innerText,
             //FIXME fucking conflict between c++ refusing "void" and the DB+color needing "void" so i just duplicate because fuck it
             "void_dmg": document.getElementById("void").cells[1].innerText,
-            "lifted": 0,
-            "knockdown": 0,
-            "microwave": 0,
-        }
+        })
     };
 
     // remove the % and shit
@@ -541,11 +685,12 @@ function calculateModding(weapon, mods = [], enemies) {
 
     const enemy_faction = enemies[0]?.faction ?? "";
 
-    //FIXME
-    //quantization = document.getElementsByClassName("quantization").value;
-    //conditionals = document.getElementsByClassName("conditionals").value;
+    quantization = document.getElementById("quantization").checked;
+    conditionals = document.getElementById("conditionals").checked;
 
-    finalStats = Module.final_stats(weapon, isHeavy, enemy_faction, quantization, conditionals);
+    mods_buffs_cpp = Module.passVectorModBuffs(mod_buffs.map((x) => default_value(default_modbuff, x)));
+
+    finalStats = Module.final_stats(weapon, mods_buffs_cpp, isHeavy, enemy_faction, quantization, conditionals);
 
     weaponModded = JSON.parse(JSON.stringify(weapon));
     weaponModded.attack_speed = finalStats.attack_speed;
@@ -597,14 +742,6 @@ function statColoring(table) {
         c[2].classList.toggle("mod_buff", isBuff);
         c[2].classList.toggle("mod_nerf", isNerf);
     }
-
-    //thats for the per_combo stats that are offset
-    const c1 = document.getElementById("critical_chance").cells[3];
-    const isBuff1 = 0 < parseFloat(c1.innerText);
-    c1.classList.toggle("mod_buff", isBuff1);
-    const c2 = document.getElementById("status").cells[3];
-    const isBuff2 = 0 < parseFloat(c2.innerText);
-    c2.classList.toggle("mod_buff", isBuff2);
 }
 
 contentEditable("stats_damage");
@@ -645,7 +782,7 @@ function displayRows(table, display) {
     }
 }
 
-const colors = {
+const colors_wiki = {
     "void": "rgb(8, 94, 80)",
     "viral": "rgb(183, 22, 88)",
     "radiation": "rgb(128, 96, 0)",
@@ -660,6 +797,40 @@ const colors = {
     "slash": "rgb(122, 82, 84)",
     "puncture": "rgb(92, 82, 71)",
     "impact": "rgb(61, 94, 94)",
+}
+
+const colors_in_game = { //same colors except better gas and magnetic
+    "void": "rgb(8, 94, 80)",
+    "viral": "rgb(247, 185, 214)",
+    "radiation": "rgb(231, 219, 0)",
+    "magnetic": "rgb(208, 208, 208)",
+    "gas": "rgb(113, 230, 193)",
+    "corrosive": "rgb(137, 144, 13)",
+    "blast": "rgb(189, 141, 139)",
+    "toxin": "rgb(76, 131, 55)",
+    "heat": "rgb(255, 159, 1)",
+    "electricity": "rgb(132, 110, 157)",
+    "cold": "rgb(90, 143, 238)",
+    "slash": "rgb(240, 74, 76)",
+    "puncture": "rgb(227, 227, 105)",
+    "impact": "rgb(75, 155, 166)",
+}
+
+const colors = { //handmade
+    "void": "rgb(8, 94, 80)",
+    "viral": "rgb(247, 185, 214)",
+    "radiation": "rgb(231, 219, 0)",
+    "magnetic": "rgb(208, 208, 208)",
+    "gas": "rgb(113, 230, 193)",
+    "corrosive": "rgb(137, 144, 13)",
+    "blast": "rgb(189, 141, 139)",
+    "toxin": "rgb(76, 131, 55)",
+    "heat": "rgb(211,106,25)",
+    "electricity": "rgb(132, 110, 157)",
+    "cold": "rgb(90, 143, 238)",
+    "slash": "rgb(115,12,12)",
+    "puncture": "rgb(227, 227, 105)",
+    "impact": "rgb(75, 155, 166)",
 }
 
 function niceNumber(range) {
@@ -698,7 +869,7 @@ function getNiceTickValues(max, tickCount) {
 
 function status_proportion_graph() {
     const damage_order = [
-        "void",
+        "void_dmg",
         "viral",
         "radiation",
         "magnetic",
@@ -715,7 +886,8 @@ function status_proportion_graph() {
     ];
 
     //TODO C++ call for the proc proportion
-    const x = damage_order.map(k => weapon.damage_types[k]).reverse();
+    //const temp = Module.final_stats(weapon, isHeavy, enemy_faction, quantization, conditionals);
+    const x = damage_order.map(k => finalStats.displayed_damage_types[k]).reverse();
     const max = Math.max(...x);
 
     const orderedcolors = Object.keys(weapon.damage_types).map(k => colors[k]);
@@ -726,7 +898,7 @@ function status_proportion_graph() {
         if (div != null) {
             div.style.width = 100 * x[i] / max + "%";
             div.style["background-color"] = orderedcolors[i];
-            div.querySelector(".tooltiptext").innerText = x[i];
+            div.querySelector(".tooltiptext").innerText = formatDecimals(x[i], 3);
         }
     }
 
@@ -748,7 +920,7 @@ function status_proportion_graph() {
 };
 
 // TODO on table resize instead
-window.addEventListener('resize', status_proportion_graph);
+//window.addEventListener('resize', status_proportion_graph);
 
 attack = {
     "name": "heavy",
@@ -756,49 +928,21 @@ attack = {
         {
             "time": 1,
             "damage": 6,
-            "forced_procs": {
-                "impact": 0,
-                "puncture": 0,
+            "forced_procs": default_value(default_damage_types,{
                 "slash": 1,
-                "cold": 0,
-                "electricity": 0,
-                "heat": 0,
-                "toxin": 0,
-                "blast": 0,
-                "corrosive": 0,
-                "gas": 0,
-                "magnetic": 0,
-                "radiation": 0,
-                "viral": 0,
-                "void_dmg": 0,
-                "lifted": 0,
-                "knockdown": 0,
-                "microwave": 0
-            },
-            "bonus_damage": {
-                "impact": 0,
-                "puncture": 0,
-                "slash": 0,
-                "cold": 0,
-                "electricity": 0,
-                "heat": 0,
-                "toxin": 0,
-                "blast": 0,
-                "corrosive": 0,
-                "gas": 0,
-                "magnetic": 0,
-                "radiation": 0,
-                "viral": 0,
-                "void_dmg": 0,
-                "lifted": 0,
-                "knockdown": 0,
-                "microwave": 0
-            },
+            }),
+            "bonus_damage": default_value(default_damage_types,{
+            }),
+            "combo": 1
+        },{
+            "time": 1,
+            "damage": 6,
+            "forced_procs": default_value(default_damage_types,{
+                "slash": 1,
+            }),
+            "bonus_damage": default_value(default_damage_types,{
+            }),
             "combo": 1
         }
     ]
-}
-attack = {
-    "name": "heavy",
-    "hits": Module.passVectorHits(attack.hits),
 }

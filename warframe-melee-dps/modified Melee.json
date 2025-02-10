@@ -5986,8 +5986,8 @@
     "damage": {
       "total": 200,
       "impact": 20,
-      "puncture": 39.999996,
-      "slash": 140,
+      "puncture": 140,
+      "slash": 40,
       "heat": 0,
       "cold": 0,
       "electricity": 0,
@@ -6017,7 +6017,7 @@
     "type": "Melee",
     "wikiaThumbnail": "https://static.wikia.nocookie.net/warframe/images/1/1a/Pennant.png/revision/latest?cb=20220612022549",
     "wikiaUrl": "https://warframe.fandom.com/wiki/Pennant",
-    "windUp": 0.69999999
+    "windUp": 0.91666669
   },
   {
     "category": "Melee",

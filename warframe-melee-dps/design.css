@@ -100,10 +100,89 @@ a.modebar-btn {
     font-size: 30px;
 }
 
+.grid {
+    display: grid;
+    grid-template-columns: max-content max-content max-content;
+    grid-template-rows: max-content max-content max-content;
+    gap: 10px 10px;
+    grid-auto-flow: column;
+    justify-content: start;
+    justify-items: start;
+    grid-template-areas:
+        "stats_wrapper mods mods"
+        "stats_wrapper plot mods_list"
+        "other plot mods_list";
+}
+
+#loading_spinner {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    margin: -25px 0 0 -25px;
+    border: 8px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #3498db;
+    border-radius: 50%;
+    z-index: 99;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.other {
+    grid-area: other;
+    width: 100%;
+}
+
+.mods {
+    grid-area: mods;
+    border: 2px solid #ccc;
+    width: 1284px;
+    height: 429px;
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:empty{
+        background: lightgrey;
+
+        &::before{
+            content: "mods";
+            font-size: 48px;
+        }
+    }
+}
+
+.mods_list {
+    grid-area: mods_list;
+    border: 2px solid #ccc;
+    width: 520px;
+    height: 465px;
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:empty{
+        background: lightgrey;
+
+        &::before{
+            content: "mods list";
+            font-size: 48px;
+        }
+    }
+}
+
 #plot {
     grid-area: plot;
-    width: 100%;
-    height: 500px;
+    width: 750px;
+    height: 465px;
     border: 2px solid #ccc;
 
     position: relative;
@@ -117,46 +196,6 @@ a.modebar-btn {
         &::before{
             content: "📊";
             font-size: 64px;
-        }
-    }
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: max-content 1310px;
-    grid-template-rows: 1fr max-content max-content;
-    gap: 10px 10px;
-    grid-auto-flow: column;
-    justify-content: start;
-    justify-items: start;
-    grid-template-areas:
-        "stats_wrapper mods"
-        "stats_wrapper plot"
-        "other plot";
-}
-
-.other {
-    grid-area: other;
-    width: 100%;
-}
-
-.mods {
-    grid-area: mods; 
-    border: 2px solid #ccc;
-    width: 100%;
-    height: 100%;
-
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:empty{
-        background: lightgrey;
-
-        &::before{
-            content: "mods";
-            font-size: 48px;
         }
     }
 }
@@ -229,12 +268,32 @@ td.tooltip {
     z-index: 1;
 }
 
-.tooltip:hover .tooltiptext {
+.tooltip > .tooltiptable {
+    visibility: hidden;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    text-align: left;
+    border-radius: 3px;
+    padding: 5px;
+
+    transform: translate(24px, -50%);
+    position: fixed;
+    z-index: 1;
+}
+
+.tooltiptable th{
+    width: 6.5rem;
+}
+.tooltiptable td{
+    width: 6ch;
+}
+
+.tooltip:hover * {
     visibility: visible;
 }
 
-.stats_wrapper td:nth-child(2),
-.stats_wrapper td:nth-child(3) {
+.stats_wrapper td:nth-child(2):not(table td td),
+.stats_wrapper td:nth-child(3):not(table td td) {
     text-align: right;
 }
 
