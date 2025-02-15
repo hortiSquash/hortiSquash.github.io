@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="design.css">
+
+    <datalist id="buffs_types">
+        <option value="WEAPON_PUNCTURE_DEPTH"></option>
+        <option value="WEAPON_PROJECTILE_LINGERING_AOE_DURATION"></option>
+        <option value="AVATAR_ABILITY_STRENGTH"></option>
+        <option value="AVATAR_MOVEMENT_SPEED"></option>
+        <option value="WEAPON_EXPLOSION_RADIUS"></option>
+        <option value="WEAPON_VICTIM_CRIT_CHANCE"></option>
+        <option value="AVATAR_ABILITY_EFFICIENCY"></option>
+        <option value="WEAPON_CORPSE_EXPLODE_RADIUS"></option>
+        <option value="WEAPON_MELEE_COMBO_USAGE_EFFICIENCY"></option>
+        <option value="AVATAR_SLIDE_BOOST"></option>
+        <option value="AVATAR_SOFT_TARGETING_RADIUS_MODIFIER"></option>
+        <option value="AVATAR_SHIELD_RECHARGE_DELAY"></option>
+        <option value="AVATAR_ARMOUR"></option>
+        <option value="WEAPON_MELEE_DAMAGE"></option>
+        <option value="WEAPON_REFLECTION_EXPLOSION_CHANCE"></option>
+        <option value="WEAPON_HEADSHOT_MULTIPLIER"></option>
+        <option value="WEAPON_MELEE_COMBO_INITIAL_BONUS"></option>
+        <option value="WEAPON_AMMO_RETRIEVED"></option>
+        <option value="AVATAR_SHIELD_MAX"></option>
+        <option value="AVATAR_NUM_JUMPS"></option>
+        <option value="WEAPON_PROJECTILE_LINGERING_AOE_RADIUS"></option>
+        <option value="AVATAR_ENERGY_TO_OVERSHIELDS_ON_SPAWN"></option>
+        <option value="WEAPON_OVERHEAT_PROC_CHANCE"></option>
+        <option value="WEAPON_FIRE_ITERATIONS"></option>
+        <option value="WEAPON_LAST_MULTISHOT"></option>
+        <option value="WEAPON_AMMO_CONSUME_RATE"></option>
+        <option value="WEAPON_CONVERT_AMMO_TO_BUFF"></option>
+        <option value="AVATAR_NPC_VIS_RANGE"></option>
+        <option value="AVATAR_PICKUP_BONUS_AMOUNT"></option>
+        <option value="AVATAR_ENERGY_ON_FULL_SHIELD_REGEN"></option>
+        <option value="WEAPON_VICTIM_DAMAGE_AMOUNT"></option>
+        <option value="WEAPON_PROC_MAX_STACK"></option>
+        <option value="WEAPON_AMMO_MAX"></option>
+        <option value="WEAPON_PROJECTILE_EXPLOSION_CHANCE"></option>
+        <option value="WEAPON_PARRY_ANGLE"></option>
+        <option value="WEAPON_PROC_DAMAGE"></option>
+        <option value="WEAPON_MELEE_AVATAR_DAMAGE_FALL_OFF"></option>
+        <option value="WEAPON_CORPSE_EXPLODE_DAMAGE_ENEMY_HEALTH_PCT"></option>
+        <option value="AVATAR_SPRINT_SPEED"></option>
+        <option value="WEAPON_RECOIL"></option>
+        <option value="WEAPON_DAMAGE_TYPE_BIAS"></option>
+        <option value="WEAPON_CONVERT_AMMO"></option>
+        <option value="AVATAR_BLEEDOUT_MODIFIER"></option>
+        <option value="WEAPON_STEALTH_MULTIPLIER"></option>
+        <option value="AVATAR_SLIDE_FRICTION"></option>
+        <option value="AVATAR_ENERGY_SPAWN_PERCENT"></option>
+        <option value="AVATAR_SHARE_XP_RADIUS"></option>
+        <option value="WEAPON_SNIPER_COMBO_DURATION_BONUS"></option>
+        <option value="WEAPON_PROJECTILE_BOUNCES"></option>
+        <option value="GAMEPLAY_HEALTH_PICKUP_AMOUNT"></option>
+        <option value="WEAPON_FIRE_RATE"></option>
+        <option value="AVATAR_HEAL_RATE"></option>
+        <option value="WEAPON_PERCENT_BASE_DAMAGE_ADDED"></option>
+        <option value="AVATAR_CASTING_SPEED"></option>
+        <option value="AVATAR_PARKOUR_GLIDE"></option>
+        <option value="AVATAR_ABILITY_DURATION"></option>
+        <option value="WEAPON_CORPSE_EXPLODE_DAMAGE"></option>
+        <option value="WEAPON_SLASH_PROC_ON_IMPACT"></option>
+        <option value="WEAPON_CRIT_CHANCE"></option>
+        <option value="WEAPON_CRIT_DAMAGE"></option>
+        <option value="SKILL_ABILITY_TACTICAL_EFFICIENCY"></option>
+        <option value="WEAPON_BODYSHOT_MULTIPLIER"></option>
+        <option value="WEAPON_MELEE_COMBO_GAIN_EXTRA_CHANCE"></option>
+        <option value="WEAPON_DAMAGE_AMOUNT"></option>
+        <option value="GAMEPLAY_POWER_TO_HEALTH_ON_DEATH"></option>
+        <option value="AVATAR_ABILITY_RANGE"></option>
+        <option value="WEAPON_CRIT_CHANCE_BODY_PART"></option>
+        <option value="WEAPON_AUGMENT"></option>
+        <option value="WEAPON_PARRY_DAMAGE_REFLECTED"></option>
+        <option value="WEAPON_CORPSE_EXPLODE_PROC_CHANCE"></option>
+        <option value="WEAPON_PROC_TIME"></option>
+        <option value="WEAPON_AMMO_POOL_MULTISHOT_DAMAGE"></option>
+        <option value="WEAPON_ADD_CHARGE_COUNTER_MULTIPLIER"></option>
+        <option value="WEAPON_PROJECTILE_LINGERING_AOE_DAMAGE"></option>
+        <option value="WEAPON_LOW_CRIT_VALUE"></option>
+        <option value="AVATAR_SPAWN_ENERGY"></option>
+        <option value="AVATAR_AIR_JUMP_HEIGHT"></option>
+        <option value="AVATAR_FULL_ENERGY_EFFECT_RANGE"></option>
+        <option value="WEAPON_LOW_CRIT_DAMAGE"></option>
+        <option value="WEAPON_VICTIM_CRIT_DAMAGE"></option>
+        <option value="WEAPON_SPREAD"></option>
+        <option value="WEAPON_MELEE_FINISHER_DAMAGE"></option>
+        <option value="AVATAR_HEALTH_MAX"></option>
+        <option value="GAMEPLAY_ENERGY_PICKUP_AMOUNT"></option>
+        <option value="WEAPON_RANGE"></option>
+        <option value="WEAPON_MELEE_COMBO_DURATION_BONUS"></option>
+        <option value="WEAPON_PROJECTILE_ELASTICITY"></option>
+        <option value="WEAPON_HOLSTER_RATE"></option>
+        <option value="WEAPON_CLIP_MAX"></option>
+        <option value="AVATAR_PROC_IMMUNITY_DURATION"></option>
+        <option value="AVATAR_POWER_MAX"></option>
+        <option value="WEAPON_REFLECTION_MODIFIER"></option>
+        <option value="WEAPON_DAMAGE_IF_VICTIM_PROC_ACTIVE"></option>
+        <option value="WEAPON_DAMAGE_OVER_DISTANCE"></option>
+        <option value="AVATAR_DAMAGE_TAKEN"></option>
+        <option value="AVATAR_PARKOUR_BOOST"></option>
+        <option value="WEAPON_INFINITE_CLIP_MOD"></option>
+        <option value="WEAPON_MELEE_HEAVY_CHARGE_SPEED"></option>
+        <option value="AVATAR_TIME_LIMIT_INCREASE"></option>
+        <option value="AVATAR_POWER_RATE"></option>
+        <option value="AVATAR_MELEE_DAMAGE_REDUCTION"></option>
+        <option value="WEAPON_MARK_TARGET"></option>
+        <option value="GAMEPLAY_PICKUP_AMOUNT"></option>
+        <option value="AVATAR_PROC_TIME"></option>
+        <option value="WEAPON_PROC_CHANCE"></option>
+        <option value="WEAPON_GORE_CHANCE"></option>
+        <option value="WEAPON_RELOAD_SPEED"></option>
+        <option value="WEAPON_AUTO_RELOAD_RATE"></option>
+        <option value="WEAPON_RICOCHET_CHANCE"></option>
+        <option value="WEAPON_ZOOM"></option>
+        <option value="WEAPON_PROJECTILE_SPEED"></option>
+    </datalist>
+
+    <template id="templateBuff">
+        <tr>
+            <td>
+                <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0%" style="width: 40px">
+                <input list="buffs_types" placeholder="select buff">
+            </td>
+            <td>
+                <select>
+                    <option selected>None</option>
+                    <option>On kill</option>
+                    <option>On critical hit</option>
+                    <option>On heavy attack</option>
+                    <option disabled>On headshot</option>
+                    <option disabled>On ability</option>
+                    <option disabled>On wall-latch</option>
+                </select>
+            </td>
+            <td>
+                <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999s" style="width: 40px">
+            </td>
+            <td>
+                <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1" style="width: 40px">
+            </td>
+            <td>
+                <select>
+                    <option>all at once</option>
+                    <option>per stack</option>
+                </select>
+            </td>
+            <td>
+                <select>
+                    <option>while active</option>
+                    <option>after expiry</option>
+                </select>
+            </td>
+        </tr>
+    </template>
+</head>
+<body>
+<dialog id="enemy_edit_dialog" open>
+    <form id="editEnemy" method="dialog">
+        <label>Name:
+            <input type="text" id="name">
+        </label>
+
+        <table id="editEnemyTable">
+            <tr>
+                <td>attack_speed</td>
+                <td><input type="number" id="attack_speed" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">attack_speed_multiplicative</td>
+                <td><input type="number" id="attack_speed_multiplicative" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">wind_up</td>
+                <td><input type="number" id="wind_up" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>initial_combo</td>
+                <td><input type="number" id="initial_combo" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">combo_efficiency</td>
+                <td><input type="number" id="combo_efficiency" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">combo_duration</td>
+                <td><input type="number" id="combo_duration" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">combo_duration_multiplicative</td>
+                <td><input type="number" id="combo_duration_multiplicative" size="6" value="1"></td>
+            </tr>
+            <tr>
+                <td>critical_damage</td>
+                <td><input type="number" id="critical_damage" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>critical_chance</td>
+                <td><input type="number" id="critical_chance" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">critical_chance_heavy</td>
+                <td><input type="number" id="critical_chance_heavy" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">critical_chance_per_combo</td>
+                <td><input type="number" id="critical_chance_per_combo" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">critical_chance_multiplicative</td>
+                <td><input type="number" id="critical_chance_multiplicative" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">critical_chance_flat</td>
+                <td><input type="number" id="critical_chance_flat" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>status</td>
+                <td><input type="number" id="status" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">status_per_combo</td>
+                <td><input type="number" id="status_per_combo" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">status_multiplicative</td>
+                <td><input type="number" id="status_multiplicative" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">status_damage</td>
+                <td><input type="number" id="status_damage" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>damage</td>
+                <td><input type="number" id="damage" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">condition_overload</td>
+                <td><input type="number" id="condition_overload" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">damage_heavy</td>
+                <td><input type="number" id="damage_heavy" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">damage_multiplicative</td>
+                <td><input type="number" id="damage_multiplicative" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">damage_multiplicative_grineer</td>
+                <td><input type="number" id="damage_multiplicative_grineer" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">damage_multiplicative_corpus</td>
+                <td><input type="number" id="damage_multiplicative_corpus" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">damage_multiplicative_corrupted</td>
+                <td><input type="number" id="damage_multiplicative_corrupted" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">damage_multiplicative_infested</td>
+                <td><input type="number" id="damage_multiplicative_infested" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td class="indented">damage_multiplicative_sentient</td>
+                <td><input type="number" id="damage_multiplicative_sentient" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>armor_reduction</td>
+                <td><input type="number" id="armor_reduction" size="6" value="0"></td>
+            </tr>
+
+            <tr>
+                <td>impact</td>
+                <td><input type="number" id="impact" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>puncture</td>
+                <td><input type="number" id="puncture" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>slash</td>
+                <td><input type="number" id="slash" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>cold</td>
+                <td><input type="number" id="cold" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>electricity</td>
+                <td><input type="number" id="electricity" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>heat</td>
+                <td><input type="number" id="heat" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>toxin</td>
+                <td><input type="number" id="toxin" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>blast</td>
+                <td><input type="number" id="blast" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>corrosive</td>
+                <td><input type="number" id="corrosive" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>gas</td>
+                <td><input type="number" id="gas" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>magnetic</td>
+                <td><input type="number" id="magnetic" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>radiation</td>
+                <td><input type="number" id="radiation" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>viral</td>
+                <td><input type="number" id="viral" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>void</td>
+                <td><input type="number" id="void" size="6" value="0"></td>
+            </tr>
+            <!--
+            <tr>
+                <td>lifted</td>
+                <td><input type="number" id="lifted" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>knockdown</td>
+                <td><input type="number" id="knockdown" size="6" value="0"></td>
+            </tr>
+            <tr>
+                <td>microwave</td>
+                <td><input type="number" id="microwave" size="6" value="0"></td>
+            </tr>
+            -->
+        </table>
+
+        <input type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
+        <input type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
+    </form>
+</dialog>
+
+<dialog >
+    <form method="dialog">
+        <input type="text" id="mod_name" placeholder="mod name" list="mods_list" style="font-size: large; margin-bottom: 10px;">
+        <div style="padding: 0; display: flex; justify-content: space-between; display: flex; align-items: center;">
+            <div>
+                <button type="reset">x</button>
+            </div>
+            <!-- TODO -->
+            <div>
+                <button type="button" name="button_level_decrease">-</button>
+                <span>5</span>
+                <button type="button" name="button_level_increase">+</button></th>
+            </div>
+
+            <div style="display: flex; align-items: center;">
+                <span>9</span>
+                <svg viewBox="0 0 32 32" class="icon wf-icon-madurai" style="width: 16px; height: 16px;">
+                    <path d="M6.375 8.438l-1.641-0.734t-2.578-1.047q4.031-1.344 6.031-2.516l2-1.172-0.156 1.875q-0.125 1.875-0.203 4.203t0.016 4.359q0.094 2.063 0.594 2.406 1.625-0.156 3.844-1.625 2.188-1.5 4.266-3.25t3.641-3.281 1.906-1.781q0.469-0.281 1.438-0.031t1.922 0.719 1.703 1q0.719 0.5 0.688 0.75-2.719 0.375-6.25 2.156-3.563 1.75-7.125 4.516t-6.75 6.391q-3.188 3.594-5.125 7.656 0.813-3.875 1.188-7.563 0.375-3.719 0.5-6.609t0.125-4.672l-0.031-1.75z"></path>
+                </svg>
+            </div>
+        </div>
+        <table id="buffs_table">
+            <thead>
+            <tr style="background-color: #ccc;">
+                <th style="width: 280px">buff</th>
+                <th style="width: 125px">condition</th>
+                <th style="width: 63px">duration</th>
+                <th style="width: 63px">max stacks</th>
+                <th style="width: 92px">expiry mode</th>
+                <th style="width: 100px">refresh mode</th>
+            </tr>
+            </thead>
+            <tbody id="buffs_wrapper"></tbody>
+            <tfoot>
+            <tr>
+                <td colspan=99>
+                    <button type="button" onclick="removeBuffLine()">Delete the last buff 🗑️</button>
+                    <button type="button" onclick="addBuffLine()">Add a buff</button>
+                    <button type="submit" onclick="saveMod()" style="float: right;">Save</button>
+                </td>
+            </tr>
+            </tfoot>
+        </table>
+    </form>
+</dialog>
+</body>
+
+<script>
+    function addBuffLine() {
+        const buffs_wrapper = document.getElementById('buffs_wrapper');
+        const buff_line = document.getElementById("templateBuff").content.cloneNode(true);
+        buffs_wrapper.appendChild(buff_line);
+        //TODO return?
+    }
+
+    function removeBuffLine() {
+        document.getElementById('buffs_wrapper').lastElementChild?.remove(); // ?. https://javascript.info/optional-chaining
+    }
+</script>
+</html>

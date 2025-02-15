@@ -9,6 +9,8 @@
 
     <link rel="stylesheet" href="design.css">
     <script src="scripts.js" defer></script>
+    <script src="stance.js" defer></script>
+    <script src="mods.js" defer></script>
     <script src="Warframe_Melee_DPS.js"></script>
 
     <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
@@ -101,10 +103,84 @@
     </dialog>
     <div id="loading_spinner"></div>
 
-    <div class="grid">
+    <div id="grid">
         <!-- <embed type="text/html" src="mods.html" style="width: 100%; height: 100%"> -->
-        <div class="mods"></div>
-        <div class="mods_list"></div>
+        <div id="modding">
+            <datalist id="stances_list">
+                <option value="Defiled Snapdragon"></option>
+                <option value="Cleaving Whirlwind"></option>
+                <option value="Wise Razor"></option>
+            </datalist>
+
+            <!-- Stance slot with provided content -->
+            <div class="stance-slot" style="grid-area: stance;">
+                <div>
+                    <input type="text" id="stance_name" placeholder="stance name" list="stances_list">
+                    <button class="pen-button" onclick="editStance()">✎</button>
+                    <br>
+                    <select id="combo_type" required>
+                        <option value="" disabled selected>select an attack</option>
+                        <option>neutral</option>
+                        <option>forward</option>
+                        <option>block</option>
+                        <option>forward block</option>
+                        <option>heavy</option>
+                        <option>slam</option>
+                    </select>
+                    <br>
+                    <label for="combo_type">Rapid Incisions</label>
+                </div>
+            </div>
+
+            <!-- Exilus slot -->
+            <div class="cell special-slot" style="grid-area: exilus;" data-slot-type="exilus"></div>
+
+            <!-- Buffs wrapper (horizontally scrollable) -->
+            <div class="buffs_wrapper" style="grid-area: buffs_wrapper;">
+                <!-- Initially one buff slot -->
+                <div class="cell buff-slot"></div>
+            </div>
+
+            <div class="cell mod-slot" id="mod1" style="grid-area: mod1;"></div>
+            <div class="cell mod-slot" id="mod2" style="grid-area: mod2;"></div>
+            <div class="cell mod-slot" id="mod3" style="grid-area: mod3;"></div>
+            <div class="cell mod-slot" id="mod4" style="grid-area: mod4;"></div>
+            <div class="cell mod-slot" id="mod5" style="grid-area: mod5;"></div>
+            <div class="cell mod-slot" id="mod6" style="grid-area: mod6;"></div>
+            <div class="cell mod-slot" id="mod7" style="grid-area: mod7;"></div>
+            <div class="cell mod-slot" id="mod8" style="grid-area: mod8;"></div>
+
+            <div class="cell special-slot" style="grid-area: arcane1;" data-slot-type="arcane1"></div>
+            <div class="cell special-slot" style="grid-area: arcane2;" data-slot-type="arcane2"></div>
+        </div>
+        <div id="mod-list-wrapper">
+            <input id="mod_list_search" placeholder="filter mods" style="width:210px">
+            <select disabled>
+                <option selected>Any</option>
+                <option>Madurai</option>
+                <option>Naramon</option>
+                <option>Zenurik</option>
+                <option>Vazarin</option>
+                <option>Unairu</option>>
+                <option>Penjaga</option>
+                <option>Umbra</option>
+            </select>
+            <select disabled>
+                <option selected>Mods</option>
+                <option>Auras</option>
+                <option>Exilus</option>
+                <option>Stance</option>
+                <option>Arcanes</option>
+            </select>
+            <select disabled>
+                <option selected>Any</option>
+                <option>Common</option>
+                <option>Uncommon</option>
+                <option>Rare</option>
+                <option>Legendary</option>
+            </select>
+            <div id="mod-list"></div>
+        </div>
         <div id="plot"></div>
         <div class="stats_wrapper">
             <table style="width: 100%">
@@ -514,10 +590,10 @@
             <fieldset style="display: flex; justify-content: space-around; flex-wrap: wrap; padding: 5px; max-width: 100%;">
                 <legend>Extra parameters</legend>
                 <label>iterations
-                    <input type="number" value="1" min="1" id="iterations" style="width: 8ch;">
+                    <input type="number" value="10" min="1" id="iterations" style="width: 8ch;">
                 </label>
                 <label>max time
-                    <input type="number" value="52.5" min="1" id="max_time" style="width: 7ch;">
+                    <input type="number" value="30" min="1" id="max_time" style="width: 7ch;">
                     s
                 </label>
                 <label>tickrate
@@ -565,5 +641,219 @@
             -->
         </div>
     </div>
+
+    <!-- Template for a Mod Cell (inner structure) -->
+    <template id="cell-template">
+        <table class="mod-stats">
+            <thead>
+            <tr>
+                <th colspan="99" class="mod-name">
+                    <span class="name-text"></span>
+                    <div class="remove">✖</div>
+                </th>
+            </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </template>
+
+    <!-- Dialog for Editing a Mod -->
+    <dialog id="mod-dialog">
+        <form method="dialog">
+            <input type="text" id="mod-name-input" placeholder="mod name" style="font-size: large; margin-bottom: 10px; width: 280px;">
+            <table>
+                <thead>
+                <tr style="background-color: #ccc;">
+                    <th style="width: 280px">buff</th>
+                    <th style="width: 125px">condition</th>
+                    <th style="width: 63px">duration</th>
+                    <th style="width: 63px">max stacks</th>
+                    <th style="width: 92px">expiry mode</th>
+                    <th style="width: 100px">refresh mode</th>
+                </tr>
+                </thead>
+                <tbody id="stats-tbody"></tbody>
+                <tfoot>
+                <tr>
+                    <td colspan="99">
+                        <button type="button" onclick="removeStatLine()">Delete the last stat 🗑️</button>
+                        <button type="button" onclick="addStatLine()">Add a stat</button>
+                        <button type="submit" id="save-button" style="float: right;">Save</button>
+                    </td>
+                </tr>
+                </tfoot>
+            </table>
+        </form>
+    </dialog>
+
+    <!-- Template for a Stat Line in Editing a Mod -->
+    <template id="stat-line-template">
+        <tr>
+            <td>
+                <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0%" style="width: 40px">
+                <select></select>
+            </td>
+            <td>
+                <select disabled>
+                    <option selected>None</option>
+                    <option>On kill</option>
+                    <option>On critical hit</option>
+                    <option>On heavy attack</option>
+                    <option disabled>On headshot</option>
+                    <option disabled>On ability</option>
+                    <option disabled>On wall-latch</option>
+                    <option disabled>On slide attack</option>
+                </select>
+            </td>
+            <td>
+                <input disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999s" style="width: 40px">
+            </td>
+            <td>
+                <input disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1" style="width: 40px">
+            </td>
+            <td>
+                <select disabled>
+                    <option>all at once</option>
+                    <option>per stack</option>
+                </select>
+            </td>
+            <td>
+                <select disabled>
+                    <option>while active</option>
+                    <option>after expiry</option>
+                </select>
+            </td>
+        </tr>
+    </template>
+
+    <!-- Dialog for Editing the Stance -->
+    <dialog id="stance_edit_dialog">
+        <div id="stance_wrapper">
+            <form method="dialog">
+                <table id="hits_table">
+                    <thead>
+                    <tr style="background-color: #ccc;">
+                        <th width=63px>time</th>
+                        <th width=63px>damage</th>
+                        <th width=170px>forced procs</th>
+                        <th width=170px>bonus damage</th>
+                    </tr>
+                    </thead>
+                    <tbody id="hits_wrapper"></tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan=4>
+                            <button type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
+                            <button type="button" onclick="addHit()">Add a hit</button>
+                            <button type="submit" onclick="saveStance()" style="float: right;">Save</button>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </form>
+        </div>
+    </dialog>
+
+    <!-- Templates for a Stat Line in Editing the Stance -->
+    <template id="templateForcedProc">
+        <tr>
+            <td>
+                <input name="inputForcedProc" type="number" size=3 min=0 value=1>
+            </td>
+            <td>
+                <select>
+                    <option>impact</option>
+                    <option>puncture</option>
+                    <option>slash</option>
+                    <option>cold</option>
+                    <option>electricity</option>
+                    <option>heat</option>
+                    <option>toxin</option>
+                    <option>blast</option>
+                    <option>corrosive</option>
+                    <option>gas</option>
+                    <option>magnetic</option>
+                    <option>radiation</option>
+                    <option>viral</option>
+                    <option>void_dmg</option>
+                    <option>knockdown</option>
+                    <option>lifted</option>
+                </select>
+            </td>
+        </tr>
+    </template>
+    <template id="templateBonusDamage">
+        <tr>
+            <td class="input-decoration">
+                <label>
+                    +
+                    <input name="inputBonusDamage" type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?"
+                           size=2.5>
+                    <!-- title="Positive decimal number, can also be Scientific Notation or %" -->
+                    <!--
+                        \d+(?:[.,]\d+)?(?:%|e\d+)?          ℚ+
+                        -?\d+(?:[.,]\d+)?(?:%|e\d+)?        ℚ
+                    -->
+                    %
+                </label>
+            </td>
+            <td>
+                <select>
+                    <option>impact</option>
+                    <option>puncture</option>
+                    <option>slash</option>
+                    <option>cold</option>
+                    <option>electricity</option>
+                    <option>heat</option>
+                    <option>toxin</option>
+                    <option>blast</option>
+                    <option>corrosive</option>
+                    <option>gas</option>
+                    <option>magnetic</option>
+                    <option>radiation</option>
+                    <option>viral</option>
+                    <option>void_dmg</option>
+                </select>
+            </td>
+        </tr>
+    </template>
+    <template id="templateHit">
+        <tr>
+            <td class="containerTime">
+                <label>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" size=4>
+                    s
+                </label>
+            </td>
+            <td class="containerDamage">
+                <label>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" size=3 value=100>
+                    %
+                </label>
+            </td>
+            <td>
+                <table class="containerForcedProc" style="width: 100%;">
+                    <tfoot>
+                    <tr>
+                        <td colspan=2 class="containerAddStat" style="background-color: revert;">
+                            <button name="buttonAddForcedProc" type="button">+</button>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </td>
+            <td>
+                <table class="containerBonusDamage" style="width: 100%;">
+                    <tfoot>
+                    <tr>
+                        <td colspan=2 class="containerAddStat" style="background-color: revert;">
+                            <button name="buttonAddBonusDamage" type="button">+</button>
+                        </td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </td>
+        </tr>
+    </template>
 </body>
 </html>

@@ -214,51 +214,6 @@ let time_max;
 let tickrate;
 let quantization = true;
 let conditionals = true;
-
-let mod_buffs = [
-    {
-        "name": "Primed Pressure Point",
-        "damage": 1.65
-    },{
-        "name": "Sacrificial Steel",
-        "critical_chance": 2.20,
-        "critical_chance_heavy": true,
-        "damage_multiplicative_sentient": 0.33
-    },{
-        "name": "Amalgam Organ Shatter",
-        "wind_up": 0.6,
-        "critical_damage": 0.846 //dont ask why its not 85% idk
-    },{
-        "name": "Corrupt Charge",
-        "initial_combo": 30, //22.5
-        "combo_duration_multiplicative": 0.5
-    },{
-        "name": "Killing Blow",
-        "wind_up": 0.6,
-        "damage_heavy": 1.2
-    },{
-        "name": "Primed Fever Strike",
-        "damage_types": default_value(default_damage_types, {
-            "corrosive": 1.65,
-        })
-    },{
-        "name": "Voltaic Strike",
-        "status": 0.6,
-        "damage_types": default_value(default_damage_types, {
-            "corrosive": 0.6,
-        }),
-    },{
-        "name": "Gladiator Might",
-        "critical_damage": 0.6,
-        "critical_chance_per_combo": 0.1,
-    },
-    /*
-    {
-        "name": "Steel Charge",
-        "damage": 0.6,
-    },
-    */
-];
 let mods_buffs_cpp;
 
 function changeStats() {
@@ -289,13 +244,16 @@ function changeStats() {
     time_max = Number(document.getElementById("max_time").value);
     tickrate = Number(document.getElementById("tickrate").value);
 
+    //TODO waiting animation (in a worker so it doesnt get frozen)
+    // another issue is that Module.stats() is not waited for its answer
+    // so if i put code after it it gets executed before anyway
+
+    //document.body.style.cursor = "wait";
+
     // TODO why only first enemy?
     const data = CppToColumnar(Module.stats(
         weapon,
-        {
-            "name": attack.name,
-            "hits": Module.passVectorHits(attack.hits),
-        },
+        convertStance(),
         enemy,
         mods_buffs_cpp,
         iterations, time_max, tickrate, quantization, conditionals
@@ -486,10 +444,6 @@ function formatAdditivePercent(num, maxDigits = 2) {
     }).format(num);
 }
 
-
-// TODO
-// stance editing
-
 function loadWeaponStats() {
     // retrieve all weapon's stats
     const data = window.data_weapons_melee;
@@ -611,6 +565,26 @@ Object.keys(melee_weapon_types).forEach(function (e) {
     weapon_type_list.appendChild(option);
 });
 
+function updateModding() {
+    mods_buffs_cpp = Module.passVectorModBuffs(mods.map((mod) => {
+        let mod_new = {"name": mod.name}
+        for (let stat_line of mod.stats) {
+            const parsed_value = Number(stat_line.value.replace("%", "E-2"));
+            if (stat_line.stat in default_damage_types) {
+                mod_new["damage_types"] ??= default_value(default_damage_types, {})
+                mod_new["damage_types"][stat_line.stat] = parsed_value;
+            } else {
+                mod_new[stat_line.stat] = parsed_value;
+            }
+        }
+        return default_value(default_modbuff, mod_new);
+    }));
+
+    // TODO calculate and display updated modded stats
+    // FIXME not only the first enemy
+    displayWeaponStats(calculateModding(weapon, mods_buffs_cpp, enemies), 2);
+}
+
 function saveWeapon() {
     // TODO this thing
     // there is an issue between saving from weapon (except editable stats) and saving from edited fields (formated values)
@@ -670,15 +644,14 @@ function saveWeapon() {
     // Force weapon from the DB instead of parsed from fields
     // loadWeaponStats()
 
-    // TODO calculate and display updated modded stats
-    // FIXME not only the first enemy
-    displayWeaponStats(calculateModding(weapon, [], enemies), 2);
+    updateModding();
 }
 
 let weaponModded;
 let finalStats;
 
-function calculateModding(weapon, mods = [], enemies) {
+
+function calculateModding(weapon, mod_buffs_cpp = [], enemies) {
     //TODO check if the selected stance is a heavy attack
     //const isHeavy = document.getElementById("");
     const isHeavy = true;
@@ -688,11 +661,9 @@ function calculateModding(weapon, mods = [], enemies) {
     quantization = document.getElementById("quantization").checked;
     conditionals = document.getElementById("conditionals").checked;
 
-    mods_buffs_cpp = Module.passVectorModBuffs(mod_buffs.map((x) => default_value(default_modbuff, x)));
-
     finalStats = Module.final_stats(weapon, mods_buffs_cpp, isHeavy, enemy_faction, quantization, conditionals);
 
-    weaponModded = JSON.parse(JSON.stringify(weapon));
+    weaponModded = structuredClone(weapon);
     weaponModded.attack_speed = finalStats.attack_speed;
     weaponModded.wind_up = finalStats.wind_up;
     weaponModded.critical_chance = finalStats.critical_chance;
@@ -921,28 +892,3 @@ function status_proportion_graph() {
 
 // TODO on table resize instead
 //window.addEventListener('resize', status_proportion_graph);
-
-attack = {
-    "name": "heavy",
-    "hits": [
-        {
-            "time": 1,
-            "damage": 6,
-            "forced_procs": default_value(default_damage_types,{
-                "slash": 1,
-            }),
-            "bonus_damage": default_value(default_damage_types,{
-            }),
-            "combo": 1
-        },{
-            "time": 1,
-            "damage": 6,
-            "forced_procs": default_value(default_damage_types,{
-                "slash": 1,
-            }),
-            "bonus_damage": default_value(default_damage_types,{
-            }),
-            "combo": 1
-        }
-    ]
-}

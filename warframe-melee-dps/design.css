@@ -2,6 +2,15 @@ body {
     font-family: Arial, sans-serif;
 }
 
+:root {
+    --mod-width: 240px;
+    --mod-height: 120px;
+    --buff-count: 3;
+    --mod-margin-horizontal: 8px;
+    --mod-margin-vertical: 8px;
+    --mod-gap: calc(2 * var(--mod-margin-vertical)) calc(2 * var(--mod-margin-horizontal));
+}
+
 .enemy_wrapper {
     border: 2px solid #ccc;
     width: 400px;
@@ -100,7 +109,7 @@ a.modebar-btn {
     font-size: 30px;
 }
 
-.grid {
+#grid {
     display: grid;
     grid-template-columns: max-content max-content max-content;
     grid-template-rows: max-content max-content max-content;
@@ -109,9 +118,9 @@ a.modebar-btn {
     justify-content: start;
     justify-items: start;
     grid-template-areas:
-        "stats_wrapper mods mods"
-        "stats_wrapper plot mods_list"
-        "other plot mods_list";
+        "stats_wrapper modding modding"
+        "stats_wrapper plot mod-list"
+        "other plot mod-list";
 }
 
 #loading_spinner {
@@ -137,18 +146,24 @@ a.modebar-btn {
     width: 100%;
 }
 
-.mods {
-    grid-area: mods;
-    border: 2px solid #ccc;
-    width: 1284px;
-    height: 429px;
+#modding {
+    grid-area: modding;
 
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    grid-template-areas:
+        "stance exilus buffs_wrapper buffs_wrapper buffs_wrapper"
+        "mod1 mod2 mod3 mod4 arcane1"
+        "mod5 mod6 mod7 mod8 arcane2";
+    gap: var(--mod-gap);
+    width: fit-content;
+    border: 2px solid #ccc;
+    padding: 10px;
 
     &:empty{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: lightgrey;
 
         &::before{
@@ -158,18 +173,17 @@ a.modebar-btn {
     }
 }
 
-.mods_list {
-    grid-area: mods_list;
-    border: 2px solid #ccc;
-    width: 520px;
-    height: 465px;
-
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+#mod-list-wrapper{
+    grid-area: mod-list;
+    border:2px solid #ccc;
+    width: fit-content;
+    padding: 10px;
 
     &:empty{
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background: lightgrey;
 
         &::before{
@@ -179,10 +193,25 @@ a.modebar-btn {
     }
 }
 
+#mod-list {
+    display: grid;
+    gap: var(--mod-gap);
+    grid-auto-flow: column;
+    grid-template-rows: 1fr 1fr 1fr;
+    justify-content: start;
+
+    margin-top: 10px;
+    overflow-x: scroll;
+    width: calc(2 * var(--mod-width) + (2 - 1) * 2 * var(--mod-margin-horizontal));
+    /* 3 mods + 2 gaps + 6 borders = 3*240 + 2*10 + 6*2 = 752 */
+    height: calc(3 * var(--mod-height) + (3 - 1) * 2 * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
+    /* 3*120 + 2*2*8 + 3*2 * 2px = 409px */
+}
+
 #plot {
     grid-area: plot;
-    width: 750px;
-    height: 465px;
+    width: 754px;
+    /* height: 465px; */
     border: 2px solid #ccc;
 
     position: relative;
@@ -196,6 +225,13 @@ a.modebar-btn {
         &::before{
             content: "📊";
             font-size: 64px;
+        }
+        &::after {
+            content: "select weapon/enemy/mods and simulate";
+            position: absolute;
+            font-size: 36px;
+            color: grey;
+            transform: translateY(-150%);
         }
     }
 }
@@ -338,4 +374,103 @@ td.tooltip {
     left: 50%;
     transform: translate(-50%, 15px);
     bottom: 0;
+}
+
+/* All cells are fixed to the mod size */
+.cell {
+    width: var(--mod-width);
+    height: var(--mod-height);
+    border: 2px solid gold;
+    background: #dbdbdb;
+    font-family: Arial, sans-serif;
+    position: relative;
+    overflow: hidden;
+    box-sizing: border-box;
+    cursor: pointer;
+}
+
+/* Empty mod and buff slots show dashed border with "Empty" */
+.cell:empty {
+    background: none;
+    border: 2px dashed #ccc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+}
+.cell:empty::after {
+    content: "empty";
+    position: absolute;
+    font-size: 14px;
+    color: #3a3a3a;
+    /* pointer-events: none; */
+}
+
+.cell.special-slot:empty::after {
+    content: attr(data-slot-type);
+    /* font-size: 18px; */
+}
+
+/* Stance slot styling */
+.stance-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Scrollable buffs_wrapper container with calculated width */
+.buffs_wrapper {
+    width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * var(--mod-margin-horizontal) + 4 * (var(--buff-count) - 1) * 2px);
+    overflow-x: scroll;
+    display: flex;
+    /* align-items: center;
+    box-sizing: border-box;
+    padding: 0; */
+    gap: var(--mod-gap);
+}
+
+/* Buff slots inherit the same fixed cell size */
+.buff-slot {
+    flex: 0 0 auto;
+}
+
+/* Mod inner structure */
+.mod-name {
+    /* background: #ddd; */
+    font-weight: bold;
+    height: 28px;
+}
+.remove {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+    font-size: 12px;
+    cursor: pointer;
+    color: white;
+    background: rgba(226,74,74,0.6);
+    /* border-radius: 50%; */
+    display: none;
+}
+.modding .mod-name:hover .remove { display: block; }
+.remove:hover { background: rgba(226,74,74,0.8); }
+.cell.dragging { opacity: 0.5; }
+
+/* Mod cell stats table */
+.mod-stats {
+    width: 100%;
+    /* height: calc(100% - 30px); */
+    /* overflow-y: auto; */
+    border-collapse: collapse;
+}
+.mod-stats td {
+    /* border: 1px solid #ddd; */
+    padding: 2px 4px;
+    font-size: 12px;
+}
+
+.d-none {
+    display: none;
 }
