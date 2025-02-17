@@ -37,14 +37,26 @@
     
         const melee_weapon_list = document.getElementById('weapon_list');
         data_weapons_melee.forEach(function (e) {
-            var option = document.createElement('option');
+            const option = document.createElement('option');
             option.value = e.name;
             melee_weapon_list.appendChild(option);
         });
+
+        response = await fetch('./stances.json');
+        const data_stances = await response.json();
+        window.data_stances = data_stances;
+
+        const stances_list = document.getElementById('stances_list');
+        for(let e of Object.values(data_stances)){
+            const option = document.createElement('option');
+            option.value = e["name"];
+            stances_list.appendChild(option);
+        };
     </script>
 
     <datalist id="enemy_list"></datalist>
     <datalist id="weapon_list"></datalist>
+    <datalist id="stances_list"></datalist>
 
     <template id="templateEnemyRow">
         <tr>
@@ -60,7 +72,7 @@
     <!-- hidden input : style="border: none; background: transparent" -->
     <dialog id="enemy_edit_dialog">
         <form id="editEnemy" method="dialog">
-            <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" size="22" required>
+            <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" size="22" placeholder="enemy name" required>
             <br>
             <label>Faction:</label>
             <select id="faction">
@@ -80,21 +92,21 @@
             </select>
             <br>
             <label>Base level:</label>
-            <input type="number" id="level_base" size="6" value="1" min="1" max="9999" disabled>
+            <input type="number" id="level_base" disabled value="1" min="1" max="9999" style="width: 3.5rem">
             <label>Current level:</label>
-            <input type="number" id="level_current" size="6" value="1" min="1" max="9999" disabled>
+            <input type="number" id="level_current" disabled value="1" min="1" max="9999" style="width: 3.5rem">
             <table id="editEnemyTable">
                 <tr>
                     <td>Health:</td>
-                    <td><input type="number" id="health" size="6" value="100" min="0"></td>
+                    <td><input type="number" id="health" value="100" min="0" max="2147483647" style="width: 3.5rem"></td>
                 </tr>
                 <tr>
                     <td>Armor:</td>
-                    <td><input type="number" id="armor" size="6" value="0" min="0"></td>
+                    <td><input type="number" id="armor" value="0" min="0" max="2147483647" style="width: 3.5rem"></td>
                 </tr>
                 <tr>
                     <td>Shield:</td>
-                    <td><input type="number" id="shield" size="6" value="0" min="0"></td>
+                    <td><input type="number" id="shield" value="0" min="0" max="2147483647" style="width: 3.5rem"></td>
                 </tr>
             </table>
             <input type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
@@ -106,18 +118,13 @@
     <div id="grid">
         <!-- <embed type="text/html" src="mods.html" style="width: 100%; height: 100%"> -->
         <div id="modding">
-            <datalist id="stances_list">
-                <option value="Defiled Snapdragon"></option>
-                <option value="Cleaving Whirlwind"></option>
-                <option value="Wise Razor"></option>
-            </datalist>
-
             <!-- Stance slot with provided content -->
-            <div class="stance-slot" style="grid-area: stance;">
-                <div>
-                    <input type="text" id="stance_name" placeholder="stance name" list="stances_list">
-                    <button class="pen-button" onclick="editStance()">✎</button>
-                    <br>
+            <div class="stance-slot">
+                <div style="display: flex; justify-content: space-evenly; flex-direction: column; height: 100%">
+                    <div>
+                        <input type="text" id="stance_name" placeholder="stance name" list="stances_list" style="font-size: initial">
+                        <button class="pen-button" onclick="editStance()">✎</button>
+                    </div>
                     <select id="combo_type" required>
                         <option value="" disabled selected>select an attack</option>
                         <option>neutral</option>
@@ -126,9 +133,12 @@
                         <option>forward block</option>
                         <option>heavy</option>
                         <option>slam</option>
+                        <option>aerial</option>
+                        <option>finisher</option>
+                        <option>slide</option>
+                        <option>wall</option>
                     </select>
-                    <br>
-                    <label for="combo_type">Rapid Incisions</label>
+                    <label for="combo_type" id="combo_name">Rapid Incisions</label>
                 </div>
             </div>
 
@@ -136,7 +146,7 @@
             <div class="cell special-slot" style="grid-area: exilus;" data-slot-type="exilus"></div>
 
             <!-- Buffs wrapper (horizontally scrollable) -->
-            <div class="buffs_wrapper" style="grid-area: buffs_wrapper;">
+            <div id="buffs_wrapper" style="grid-area: buffs_wrapper;">
                 <!-- Initially one buff slot -->
                 <div class="cell buff-slot"></div>
             </div>
@@ -523,7 +533,7 @@
                         </td>
                     </tr>
     
-                    <tr id="void">
+                    <tr id="void_dmg">
                         <td>void</td>
                         <td>0</td>
                         <td></td>
@@ -758,7 +768,7 @@
     <template id="templateForcedProc">
         <tr>
             <td>
-                <input name="inputForcedProc" type="number" size=3 min=0 value=1>
+                <input name="inputForcedProc" type="number" min=0 value=1 style="width: 3rem">
             </td>
             <td>
                 <select>
@@ -788,7 +798,7 @@
                 <label>
                     +
                     <input name="inputBonusDamage" type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?"
-                           size=2.5>
+                           style="width: 2rem">
                     <!-- title="Positive decimal number, can also be Scientific Notation or %" -->
                     <!--
                         \d+(?:[.,]\d+)?(?:%|e\d+)?          ℚ+
@@ -821,13 +831,13 @@
         <tr>
             <td class="containerTime">
                 <label>
-                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" size=4>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" style="width: 2.5rem">
                     s
                 </label>
             </td>
             <td class="containerDamage">
                 <label>
-                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" size=3 value=100>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" value=100 style="width: 2rem">
                     %
                 </label>
             </td>

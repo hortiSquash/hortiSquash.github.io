@@ -16,7 +16,7 @@ const statTypes = [
     "damage_multiplicative", "damage_multiplicative_grineer", "damage_multiplicative_corpus",
     "damage_multiplicative_corrupted", "damage_multiplicative_infested", "damage_multiplicative_sentient",
     "armor_reduction", "impact", "puncture", "slash", "cold", "electricity", "heat", "toxin",
-    "blast", "corrosive", "gas", "magnetic", "radiation", "viral", "void"
+    "blast", "corrosive", "gas", "magnetic", "radiation", "viral", "void_dmg"
 ];
 
 /***** Helper Functions *****/
@@ -211,7 +211,7 @@ document.getElementById("mod_list_search").addEventListener("change", function(e
 
 /***** Buff Slot Management *****/
 function addBuffSlot() {
-    const buffsWrapper = document.querySelector('.buffs_wrapper');
+    const buffsWrapper = document.querySelector('#buffs_wrapper');
     const newSlot = document.createElement('div');
     newSlot.className = "cell buff-slot";
     buffsWrapper.appendChild(newSlot);
@@ -219,7 +219,7 @@ function addBuffSlot() {
 
 // Ensure there is exactly ONE empty buff slot at all times.
 function checkBuffSlots() {
-    const buffsWrapper = document.querySelector('.buffs_wrapper');
+    const buffsWrapper = document.querySelector('#buffs_wrapper');
     const buffSlots = Array.from(buffsWrapper.querySelectorAll('.buff-slot'));
     // An "empty" buff slot is one with no modData or no modData.name.
     const emptySlots = buffSlots.filter(slot => !(slot.modData && slot.modData.name));
@@ -316,7 +316,8 @@ function removeStatLine() {
     document.getElementById('stats-tbody').lastElementChild?.remove();
 }
 
-/***** Initialize the 8 mod slots with your mods *****/
+/*
+//Initialize the 8 mod slots with your mods
 const modNamesArr = [
     "Primed Rubedo-Lined Barrel",
     "Pressure Point",
@@ -342,10 +343,18 @@ const modNamesArr = [
     "Healing Return",
     "Amalgam Organ Shatter"
 ];
-
 modNamesArr.forEach(name => {
     let cell = document.createElement("div");
     cell.className = "cell";
     updateCell(cell, name);
     mod_list.appendChild(cell);
 });
+*/
+
+for (let i = 0; i < 20; i++) {
+    let cell = document.createElement("div");
+    let name = `Randomly generated mod ${i+1}`
+    cell.className = "cell";
+    updateCell(cell, name);
+    mod_list.appendChild(cell);
+}

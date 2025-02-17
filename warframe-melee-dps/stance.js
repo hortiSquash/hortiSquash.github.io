@@ -6,7 +6,7 @@ function editStance() {
 
     const combo_type = document.getElementById("combo_type").value;
 
-    let hits = stance[combo_type];
+    let hits = stance[combo_type]?.hits;
     if (hits) {
         for (let hit of hits) {
             addHit();
@@ -18,20 +18,23 @@ function editStance() {
             const damage = hit_html.querySelector(".containerDamage");
             damage.querySelector("input").value = hit.damage;
 
-            const forcedProcs = hit_html.querySelector(".containerForcedProc");
-            for (let e of Object.entries(hit.forced_procs)) {
-                const forcedProc = document.getElementById("templateForcedProc").content.cloneNode(true);
-                forcedProc.querySelector("select").value = e[0];
-                forcedProc.querySelector("input").value = e[1];
-                forcedProcs.appendChild(forcedProc);
+            if(hit.forced_procs){
+                const forcedProcs = hit_html.querySelector(".containerForcedProc");
+                for (let e of Object.entries(hit.forced_procs)) {
+                    const forcedProc = document.getElementById("templateForcedProc").content.cloneNode(true);
+                    forcedProc.querySelector("select").value = e[0];
+                    forcedProc.querySelector("input").value = e[1];
+                    forcedProcs.appendChild(forcedProc);
+                }
             }
-
-            const bonusDamages = hit_html.querySelector(".containerBonusDamage");
-            for (let e of Object.entries(hit.bonus_damage)) {
-                const bonusDamage = document.getElementById("templateBonusDamage").content.cloneNode(true);
-                bonusDamage.querySelector("select").value = e[0];
-                bonusDamage.querySelector("input").value = e[1];
-                bonusDamages.appendChild(bonusDamage);
+            if(hit.bonus_damage) {
+                const bonusDamages = hit_html.querySelector(".containerBonusDamage");
+                for (let e of Object.entries(hit.bonus_damage)) {
+                    const bonusDamage = document.getElementById("templateBonusDamage").content.cloneNode(true);
+                    bonusDamage.querySelector("select").value = e[0];
+                    bonusDamage.querySelector("input").value = e[1];
+                    bonusDamages.appendChild(bonusDamage);
+                }
             }
         }
     } else {
@@ -83,12 +86,12 @@ function saveStance() {
             bonus_damage: bonus_damage,
         })
     }
-    stance[document.getElementById("combo_type").value] = hits;
+    stance[document.getElementById("combo_type").value].hits = hits;
 }
 
 function convertStance(){
     let combo_type = document.getElementById("combo_type").value;
-    let hits = stance[combo_type];
+    let hits = structuredClone(stance[combo_type].hits);
     for (let e of hits){
         e.damage /= 100;
         e.combo ??= 1;
@@ -125,3 +128,12 @@ document.getElementById("hits_wrapper").addEventListener('change', function (eve
         }
     }
 });
+
+document.querySelectorAll("#stance_name, #combo_type").forEach(function (target) {
+    target.addEventListener('change', function () {
+        const name = document.getElementById("stance_name").value;
+        const combo_type = document.getElementById("combo_type").value;
+        stance = data_stances?.[name];
+        const attack = stance?.[combo_type];
+        document.getElementById("combo_name").innerText = attack?.name ?? "combo does not exist";
+})})

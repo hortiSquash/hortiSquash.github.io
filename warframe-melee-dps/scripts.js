@@ -18,8 +18,6 @@ const default_damage_types = {
     "magnetic": 0,
     "radiation": 0,
     "viral": 0,
-    "void": 0,
-    //FIXME fucking conflict between c++ refusing "void" and the DB+color needing "void" so i just duplicate because fuck it
     "void_dmg": 0,
     "lifted": 0,
     "knockdown": 0,
@@ -465,25 +463,25 @@ function loadWeaponStats() {
         "combo_efficiency": weaponTemp.whateveritscalled || 0, // TODO
         "riven_disposition": weaponTemp.omegaAttenuation || 0,
 
-        "damage_types": weaponTemp.damage, // because keep names
-        // "damage_types": {
-        //     "impact": weaponTemp.impact || 0,
-        //     "puncture": weaponTemp.puncture || 0,
-        //     "slash": weaponTemp.slash || 0,
+        //"damage_types": weaponTemp.damage, // because keep names
+         "damage_types": {
+             "impact": weaponTemp.damage.impact || 0,
+             "puncture": weaponTemp.damage.puncture || 0,
+             "slash": weaponTemp.damage.slash || 0,
 
-        //     "cold": weaponTemp.cold || 0,
-        //     "electricity": weaponTemp.electricity || 0,
-        //     "heat": weaponTemp.heat || 0,
-        //     "toxin": weaponTemp.toxin || 0,
+             "cold": weaponTemp.damage.cold || 0,
+             "electricity": weaponTemp.damage.electricity || 0,
+             "heat": weaponTemp.damage.heat || 0,
+             "toxin": weaponTemp.damage.toxin || 0,
 
-        //     "blast": weaponTemp.blast || 0,
-        //     "corrosive": weaponTemp.corrosive || 0,
-        //     "gas": weaponTemp.gas || 0,
-        //     "magnetic": weaponTemp.magnetic || 0,
-        //     "radiation": weaponTemp.radiation || 0,
-        //     "viral": weaponTemp.viral || 0,
-        //     "void": weaponTemp.void || 0,
-        // }
+             "blast": weaponTemp.damage.blast || 0,
+             "corrosive": weaponTemp.damage.corrosive || 0,
+             "gas": weaponTemp.damage.gas || 0,
+             "magnetic": weaponTemp.damage.magnetic || 0,
+             "radiation": weaponTemp.damage.radiation || 0,
+             "viral": weaponTemp.damage.viral || 0,
+             "void_dmg": weaponTemp.damage.void || 0,
+         }
     };
 
     displayWeaponStats(weapon, 1);
@@ -524,7 +522,7 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
         }
     }
     //c++ vs database name conflict
-    document.getElementById("void").cells[column].innerText = formatDecimals(weapon_to_display.damage_types.void ?? weapon_to_display.damage_types.void_dmg, 1);
+    document.getElementById("void_dmg").cells[column].innerText = formatDecimals(weapon_to_display.damage_types.void_dmg, 1);
 
     statColoring("stats_damage");
     statColoring("stats");
@@ -566,6 +564,7 @@ Object.keys(melee_weapon_types).forEach(function (e) {
 });
 
 function updateModding() {
+    if(!weapon) return;
     mods_buffs_cpp = Module.passVectorModBuffs(mods.map((mod) => {
         let mod_new = {"name": mod.name}
         for (let stat_line of mod.stats) {
@@ -619,9 +618,7 @@ function saveWeapon() {
             "magnetic": document.getElementById("magnetic").cells[1].innerText,
             "radiation": document.getElementById("radiation").cells[1].innerText,
             "viral": document.getElementById("viral").cells[1].innerText,
-            "void": document.getElementById("void").cells[1].innerText,
-            //FIXME fucking conflict between c++ refusing "void" and the DB+color needing "void" so i just duplicate because fuck it
-            "void_dmg": document.getElementById("void").cells[1].innerText,
+            "void_dmg": document.getElementById("void_dmg").cells[1].innerText,
         })
     };
 
@@ -754,7 +751,7 @@ function displayRows(table, display) {
 }
 
 const colors_wiki = {
-    "void": "rgb(8, 94, 80)",
+    "void_dmg": "rgb(8, 94, 80)",
     "viral": "rgb(183, 22, 88)",
     "radiation": "rgb(128, 96, 0)",
     "magnetic": "rgb(71, 71, 209)",
@@ -771,7 +768,7 @@ const colors_wiki = {
 }
 
 const colors_in_game = { //same colors except better gas and magnetic
-    "void": "rgb(8, 94, 80)",
+    "void_dmg": "rgb(8, 94, 80)",
     "viral": "rgb(247, 185, 214)",
     "radiation": "rgb(231, 219, 0)",
     "magnetic": "rgb(208, 208, 208)",
@@ -788,7 +785,7 @@ const colors_in_game = { //same colors except better gas and magnetic
 }
 
 const colors = { //handmade
-    "void": "rgb(8, 94, 80)",
+    "void_dmg": "rgb(8, 94, 80)",
     "viral": "rgb(247, 185, 214)",
     "radiation": "rgb(231, 219, 0)",
     "magnetic": "rgb(208, 208, 208)",

@@ -399,9 +399,9 @@ td.tooltip {
     cursor: default;
 }
 .cell:empty::after {
-    content: "empty";
+    content: "+";
     position: absolute;
-    font-size: 14px;
+    font-size: 28px;
     color: #3a3a3a;
     /* pointer-events: none; */
 }
@@ -411,15 +411,23 @@ td.tooltip {
     /* font-size: 18px; */
 }
 
+#buffs_wrapper>.cell:empty::after {
+    content: "buff";
+    /* font-size: 18px; */
+}
+
 /* Stance slot styling */
 .stance-slot {
+    grid-area: stance;
+
     display: flex;
     align-items: center;
     justify-content: center;
+    height: var(--mod-height);
 }
 
 /* Scrollable buffs_wrapper container with calculated width */
-.buffs_wrapper {
+#buffs_wrapper {
     width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * var(--mod-margin-horizontal) + 4 * (var(--buff-count) - 1) * 2px);
     overflow-x: scroll;
     display: flex;
