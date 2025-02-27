@@ -63,8 +63,8 @@ const default_modbuff = {
     "damage_types": default_value(default_damage_types, {}),
 }
 
-var enemies = [];
-var current_enemy_row = 0;
+let enemies = [];
+let current_enemy_row = 0;
 
 function addEnemy() {
     enemies.push({});
@@ -114,10 +114,10 @@ function editEnemy(rowIndex) {
 function loadEnemyStats() {
     const data_enemies = window.data_enemies;
 
-    enemySelect = document.getElementById('enemy_name_input').value; // name
+    const enemySelect = document.getElementById('enemy_name_input').value; // name
     document.getElementById('enemy_container').rows[current_enemy_row].cells[1].innerText = enemySelect;
 
-    const enemy = data_enemies.find((e) => e.Name == enemySelect);
+    const enemy = data_enemies.find((e) => e.Name === enemySelect);
     if(enemy){
         // read from the JSON
         document.getElementById("health").value = enemy.Health;
@@ -169,11 +169,11 @@ function convertEnemyToWASM(enemy) {
 }
 
 function updateAverageTTK() {
-    sum_TTK_mean = 0;
-    sum_TTK_std = 0;
+    let sum_TTK_mean = 0;
+    let sum_TTK_std = 0;
     const enemies = document.getElementById('enemy_container').rows;
 
-    for (var i = 0, enemy; enemy = enemies[i]; i++) {
+    for (let enemy in enemies) {
         sum_TTK_mean += Number(parseFloat(enemy.cells[2].innerText));
         sum_TTK_std += Number(parseFloat(enemy.cells[3].innerText));
     }
@@ -500,14 +500,13 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
     document.getElementById("combo_duration").cells[column].innerText = formatSecond(weapon_to_display.combo_duration);
     document.getElementById("combo_efficiency").cells[column].innerText = formatPercent(weapon_to_display.combo_efficiency);
 
-
     let crit_table = document.getElementById("crit_tier").cells;
-    for(i = 1; i < crit_table.length; i++) {
+    for(let i = 1; i < crit_table.length; i++) {
         let value = weapon_to_display.critical_chance + weapon.critical_chance * weapon_to_display.critical_chance_per_combo * (i - 1);
         crit_table[i].innerText = formatPercent(value);
     }
     let status_table = document.getElementById("status_tier").cells;
-    for(i = 1; i < status_table.length; i++) {
+    for(let i = 1; i < status_table.length; i++) {
         let value = weapon_to_display.status + weapon.status * weapon_to_display.status_per_combo * (i - 1);
         status_table[i].innerText = formatPercent(value);
     }
@@ -521,17 +520,14 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
             cell.innerText = formatDecimals(value, 1);
         }
     }
-    //c++ vs database name conflict
-    document.getElementById("void_dmg").cells[column].innerText = formatDecimals(weapon_to_display.damage_types.void_dmg, 1);
 
     statColoring("stats_damage");
     statColoring("stats");
 }
 
-var weapon;
+let weapon;
 
 const melee_weapon_types = {
-    "Two-Handed Nikana":   6,
     "Blade and Whip":      4,
     "Claws":               5,
     "Dagger":              5,
@@ -553,6 +549,7 @@ const melee_weapon_types = {
     "Sword":               5,
     "Sword and Shield":    5,
     "Tonfa":               5,
+    "Two-Handed Nikana":   6,
     "Warfan":              5,
     "Whip":                4.5
 }
@@ -650,8 +647,7 @@ let finalStats;
 
 function calculateModding(weapon, mod_buffs_cpp = [], enemies) {
     //TODO check if the selected stance is a heavy attack
-    //const isHeavy = document.getElementById("");
-    const isHeavy = true;
+    const isHeavy = document.getElementById("combo_type").value === "heavy";
 
     const enemy_faction = enemies[0]?.faction ?? "";
 
@@ -696,9 +692,9 @@ function contentEditable(table) {
 }
 
 function statColoring(table) {
-    b = document.getElementById(table).rows;
-    for (var i = 0; i < b.length; i++) {
-        c = b[i].cells;
+    const b = document.getElementById(table).rows;
+    for (let i = 0; i < b.length; i++) {
+        const c = b[i].cells;
         if (c.length < 3) {
             continue;
         }
@@ -731,10 +727,10 @@ function displayRows(table, display) {
     // the size and position of everything is fucked up
     // graph disappears if impact disappears, etc
 
-    var rows = document.getElementById(table).rows;
-    for (var i = 0; i < rows.length - 1; i++) {
-        var row = rows[i];
-        var cells = row.cells;
+    const rows = document.getElementById(table).rows;
+    for (let i = 0; i < rows.length - 1; i++) {
+        const row = rows[i];
+        const cells = row.cells;
         if (cells.length < 3) {
             continue;
         }

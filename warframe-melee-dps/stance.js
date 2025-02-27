@@ -137,3 +137,22 @@ document.querySelectorAll("#stance_name, #combo_type").forEach(function (target)
         const attack = stance?.[combo_type];
         document.getElementById("combo_name").innerText = attack?.name ?? "combo does not exist";
 })})
+
+document.getElementById("combo_type").addEventListener('change', function () {
+    displayWeaponStats(calculateModding(weapon, mods_buffs_cpp, enemies), 2);
+})
+
+document.getElementById("weapon_subclass").addEventListener('change', function (event) {
+    //TODO hide from stances_list those that arent of the right weapon subclass
+    // cant use sword stances on a staff
+});
+
+/*
+//FIXME issues with reading the value from the mod when going back to edit mode
+document.getElementById("stats-tbody").addEventListener('change', function (event) {
+    if (event.target.nodeName !== "SELECT") return;
+    if (event.target.value !== "critical_chance_heavy") return;
+    let input = event.target.parentElement.firstElementChild;
+    input.type = "checkbox";
+})
+*/

@@ -11,9 +11,9 @@
     <script src="scripts.js" defer></script>
     <script src="stance.js" defer></script>
     <script src="mods.js" defer></script>
-    <script src="Warframe_Melee_DPS.js"></script>
+    <script src="Warframe_Melee_DPS.js" defer></script>
 
-    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8" defer fetchpriority="low"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
     <script type="module">
@@ -74,38 +74,44 @@
         <form id="editEnemy" method="dialog">
             <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" size="22" placeholder="enemy name" required>
             <br>
-            <label>Faction:</label>
-            <select id="faction">
-                <option selected value="Neutral">Neutral</option>
-                <option style="background: lightgoldenrodyellow" value="Grineer">Grineer</option>
-                <option style="background: lightgoldenrodyellow" value="Kuva Grineer">Kuva Grineer</option>
-                <option style="background: lightblue" value="Corpus">Corpus</option>
-                <option style="background: lightblue" value="Corpus Amalgam">Corpus Amalgam</option>
-                <option style="background: lightcoral" value="Infested">Infested</option>
-                <option style="background: lightcoral" value="Infested Deimos">Infested Deimos</option>
+            <label>
+                Faction:
+                <select id="faction">
+                    <option selected value="Neutral">Neutral</option>
+                    <option style="background: lightgoldenrodyellow" value="Grineer">Grineer</option>
+                    <option style="background: lightgoldenrodyellow" value="Kuva Grineer">Kuva Grineer</option>
+                    <option style="background: lightblue" value="Corpus">Corpus</option>
+                    <option style="background: lightblue" value="Corpus Amalgam">Corpus Amalgam</option>
+                    <option style="background: lightcoral" value="Infested">Infested</option>
+                    <option style="background: lightcoral" value="Infested Deimos">Infested Deimos</option>
 
-                <option value="Orokin">Orokin</option>
-                <option value="Sentient">Sentient</option>
-                <option value="Narmer">Narmer</option>
-                <option value="Murmur">Murmur</option>
-                <option value="Zariman">Zariman</option>
-            </select>
+                    <option value="Orokin">Orokin</option>
+                    <option value="Sentient">Sentient</option>
+                    <option value="Narmer">Narmer</option>
+                    <option value="Murmur">Murmur</option>
+                    <option value="Zariman">Zariman</option>
+                </select>
+            </label>
             <br>
-            <label>Base level:</label>
-            <input type="number" id="level_base" disabled value="1" min="1" max="9999" style="width: 3.5rem">
-            <label>Current level:</label>
-            <input type="number" id="level_current" disabled value="1" min="1" max="9999" style="width: 3.5rem">
+            <label>
+                Base level:
+                <input type="number" id="level_base" disabled value="1" min="1" max="9999" style="width: 3.5rem">
+            </label>
+            <label>
+                Current level:
+                <input type="number" id="level_current" disabled value="1" min="1" max="9999" style="width: 3.5rem">
+            </label>
             <table id="editEnemyTable">
                 <tr>
-                    <td>Health:</td>
+                    <td><label for="health">Health:</label></td>
                     <td><input type="number" id="health" value="100" min="0" max="2147483647" style="width: 3.5rem"></td>
                 </tr>
                 <tr>
-                    <td>Armor:</td>
+                    <td><label for="armor">Armor:</label></td>
                     <td><input type="number" id="armor" value="0" min="0" max="2147483647" style="width: 3.5rem"></td>
                 </tr>
                 <tr>
-                    <td>Shield:</td>
+                    <td><label for="shield">Shield:</label></td>
                     <td><input type="number" id="shield" value="0" min="0" max="2147483647" style="width: 3.5rem"></td>
                 </tr>
             </table>
@@ -678,7 +684,7 @@
                     <th style="width: 125px">condition</th>
                     <th style="width: 63px">duration</th>
                     <th style="width: 63px">max stacks</th>
-                    <th style="width: 92px">expiry mode</th>
+                    <th style="width: 92px">expiry mode</th> <!-- decay? -->
                     <th style="width: 100px">refresh mode</th>
                 </tr>
                 </thead>
