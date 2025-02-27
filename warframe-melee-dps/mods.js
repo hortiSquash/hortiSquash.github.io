@@ -4,8 +4,26 @@ const mod_list = document.getElementById('mod-list');
 const cellTemplate = document.getElementById('cell-template');
 const modDialog = document.getElementById("mod-dialog");
 let draggedCell = null;
-let editingCell = null;
 let mods = [];
+
+const polarity_unicode = {
+    //ammo thingy is ea01
+    "Madurai": "\u{ea02}",
+    "Vazarin": "\u{ea03}",
+    "Zenurik": "\u{ea04}",
+    "Penjaga": "\u{ea05}",
+    "Naramon": "\u{ea06}",
+    "Umbra": "\u{ea07}",
+    "Unairu": "\u{ea08}",
+    //corrosive is ea0b
+    //elec is ???
+    //gas is ea10
+    //impact is ea11
+    //puncture is ea14
+    //tau is ea17
+    //slash is ea18
+    //viral is ea19
+}
 
 const statTypes = [
     "attack_speed", "attack_speed_multiplicative", "wind_up", "initial_combo",
@@ -18,23 +36,6 @@ const statTypes = [
     "armor_reduction", "impact", "puncture", "slash", "cold", "electricity", "heat", "toxin",
     "blast", "corrosive", "gas", "magnetic", "radiation", "viral", "void_dmg"
 ];
-
-/***** Helper Functions *****/
-function generateStats() {
-    const statsArray = [];
-    const statCount = 1 + Math.floor(Math.random() * 4);
-    for (let i = 0; i < statCount; i++) {
-        const value = `${Math.floor(Math.random() * 100) + 1}%`;
-        const stat = statTypes[Math.floor(Math.random() * statTypes.length)];
-        const condition = "None";
-        const duration = "";
-        const maxStacks = "";
-        const expiryMode = "all at once";
-        const refreshMode = "while active";
-        statsArray.push({ value, stat, condition, duration, maxStacks, expiryMode, refreshMode });
-    }
-    return statsArray;
-}
 
 function updateModsArray() {
     mods = [];
@@ -56,19 +57,52 @@ function ensureCellStructure(cell) {
     }
 }
 
+function generateStats() {
+    const statsArray = [];
+    const statCount = 1 + Math.floor(Math.random() * 4);
+    for (let i = 0; i < statCount; i++) {
+        const value = `${Math.floor(Math.random() * 100) + 1}%`;
+        const stat = statTypes[Math.floor(Math.random() * statTypes.length)];
+        const condition = "None";
+        const duration = "";
+        const maxStacks = "";
+        const expiryMode = "all at once";
+        const refreshMode = "while active";
+        statsArray.push({ value, stat, condition, duration, maxStacks, expiryMode, refreshMode });
+    }
+    return statsArray;
+}
+
 // Update a cell with a mod’s name and its stats.
-function updateCell(cell, name, stats = null, update_mods = true) {
+function updateCell(cell, modData, update_mods = true) {
     ensureCellStructure(cell);
     const nameText = cell.querySelector(".mod-name .name-text");
     const statsTable = cell.querySelector(".mod-stats");
     const tbody = statsTable.querySelector("tbody");
 
     //fixme maybe? if unnamed, mod gets deleted
-    if (name) {
+    if (modData) {
         cell.draggable = true;
-        stats ??= cell.modData?.stats ?? generateStats();
+        let name = modData?.name;
+        let stats = modData?.stats;
         nameText.textContent = name;
         tbody.innerHTML = "";
+
+        if(!stats){
+            stats = [];
+            for (let buff of modData.buffs) {
+                const true_value = buff?.value * (1 + (modData.current_level ?? modData.max_level)) * 100;
+                const value = formatDecimals(true_value, 1);
+                const stat = statTypes[Math.floor(Math.random() * statTypes.length)];
+                const condition = "None";
+                const duration = "";
+                const maxStacks = "";
+                const expiryMode = "all at once";
+                const refreshMode = "while active";
+                stats.push({ value, stat, condition, duration, maxStacks, expiryMode, refreshMode });
+            }
+        }
+
         stats.forEach(stat => {
             const tr = document.createElement("tr");
             const tdValue = document.createElement("td");
@@ -79,7 +113,15 @@ function updateCell(cell, name, stats = null, update_mods = true) {
             tr.appendChild(tdStat);
             tbody.appendChild(tr);
         });
-        cell.modData = { name, stats };
+        modData.stats = stats;
+        cell.modData = modData;
+
+        for(let classname of cell.classList){
+            if(classname.startsWith("mod-rarity-")){
+                cell.classList.remove(classname);
+            }
+        }
+        cell.classList.add("mod-rarity-" + modData.rarity);
 
         if(cell.closest("#modding") && update_mods) {
             updateModsArray();
@@ -111,8 +153,8 @@ function emptyCell(cell, update_mods = true) {
 function swapCells(cell1, cell2) {
     const data1 = cell1.modData;
     const data2 = cell2.modData;
-    updateCell(cell1, data2?.name, data2?.stats, false);
-    updateCell(cell2, data1?.name, data1?.stats, false);
+    updateCell(cell1, data2, false);
+    updateCell(cell2, data1, false);
     updateModsArray();
 
     // If either cell is in the buffs_wrapper, enforce exactly one empty slot.
@@ -199,15 +241,23 @@ mod_list.addEventListener("drop", createDelegatedEvent(".cell", function (event,
     }
 }))
 
-document.getElementById("mod_list_search").addEventListener("change", function(e) { //keyup
-    const filter = document.getElementById("mod_list_search").value.toUpperCase();
-    const li = mod_list.querySelectorAll(".cell");
-    for (let element of li) {
-        let txtValue = element.textContent || element.innerText;
-        const included = txtValue.toUpperCase().includes(filter);
-        element.classList.toggle("d-none", !included);
-    }
-})
+document.querySelectorAll("#mod_list_search, #mod_list_select_polarity, #mod_list_select_type, #mod_list_select_rarity").forEach(function (target) {
+    target.addEventListener('change', function () {
+        const filter_text = document.getElementById("mod_list_search").value.toUpperCase();
+        const filter_polarity = document.getElementById("mod_list_select_polarity").value;
+        const filter_type = document.getElementById("mod_list_select_type").value;
+        const filter_rarity = document.getElementById("mod_list_select_rarity").value;
+
+        const li = mod_list.querySelectorAll(".cell");
+        for (let element of li) {
+            let txtValue = element.textContent || element.innerText;
+            const included = txtValue.toUpperCase().includes(filter_text)
+                && element.modData.rarity.includes(filter_rarity)
+                && element.modData.type.includes(filter_type)
+                && element.modData.polarity.includes(filter_polarity);
+            element.classList.toggle("d-none", !included);
+        }
+})})
 
 /***** Buff Slot Management *****/
 function addBuffSlot() {
@@ -237,9 +287,16 @@ function checkBuffSlots() {
 /***** Modal Functions *****/
 function openEditModal(cell) {
     if (!cell.modData || !cell.modData.name) return;
-    editingCell = cell;
     const modNameInput = document.getElementById("mod-name-input");
     modNameInput.value = cell.modData.name;
+
+    const modLevelInput = document.getElementById("mod-level-input");
+    modLevelInput.value = cell.modData.max_level;
+
+    const polarity = polarity_unicode[cell.modData.polarity] ?? (cell.modData.polarity || " any");
+    const modCapacity = document.getElementById("mod-capacity");
+    modCapacity.innerText = cell.modData.base_drain + cell.modData.max_level + polarity;
+
     const statsTbody = document.getElementById("stats-tbody");
     statsTbody.innerHTML = "";
 
@@ -291,7 +348,12 @@ function openEditModal(cell) {
             const refreshMode = cells[5].querySelector("select").value;
             return { value, stat: statType, condition, duration, maxStacks, expiryMode, refreshMode };
         });
-        updateCell(editingCell, newName, newStats);
+
+        let modData = cell.modData;
+        modData.name = newName;
+        modData.stats = newStats;
+
+        updateCell(cell, modData);
         modDialog.close();
     }, { once: true });
 
@@ -314,47 +376,4 @@ function addStatLine() {
 
 function removeStatLine() {
     document.getElementById('stats-tbody').lastElementChild?.remove();
-}
-
-/*
-//Initialize the 8 mod slots with your mods
-const modNamesArr = [
-    "Primed Rubedo-Lined Barrel",
-    "Pressure Point",
-    "Primed Pressure Point",
-    "Berserker Fury",
-    "Blood Rush",
-    "Condition Overload",
-    "Weeping Wounds",
-    "Drifting Contact",
-    "Primed Fury",
-    "Fury",
-    "Gladiator Might",
-    "Gladiator Vice",
-    "Organ Shatter",
-    "Sacrificial Steel",
-    "Sacrificial Pressure",
-    "True Steel",
-    "Shocking Touch",
-    "Virulent Scourge",
-    "Primed Reach",
-    "Body Count",
-    "Voltaic Strike",
-    "Healing Return",
-    "Amalgam Organ Shatter"
-];
-modNamesArr.forEach(name => {
-    let cell = document.createElement("div");
-    cell.className = "cell";
-    updateCell(cell, name);
-    mod_list.appendChild(cell);
-});
-*/
-
-for (let i = 0; i < 20; i++) {
-    let cell = document.createElement("div");
-    let name = `Randomly generated mod ${i+1}`
-    cell.className = "cell";
-    updateCell(cell, name);
-    mod_list.appendChild(cell);
 }

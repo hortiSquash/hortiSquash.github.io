@@ -219,6 +219,10 @@ function changeStats() {
         alert("Select a weapon");
         throw "missing weapon";
     }
+    if(stance[document.getElementById("combo_type").value] == null){
+        alert("Select a stance and combo");
+        throw "missing stance/combo";
+    }
 
     //TODO support multiple enemies
     let enemy;

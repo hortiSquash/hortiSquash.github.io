@@ -1,5 +1,10 @@
+@font-face {
+    font-family: WarframeIcons;
+    src: url(WarframeIcons.woff) format('woff');
+}
+
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif, WarframeIcons;
 }
 
 :root {
@@ -481,4 +486,39 @@ td.tooltip {
 
 .d-none {
     display: none;
+}
+
+/* TODO better colors with unified contrast */
+.mod-rarity-common {
+    border-color: darkgoldenrod;
+}
+.mod-rarity-uncommon {
+    border-color: silver;
+}
+.mod-rarity-rare {
+    border-color: gold;
+}
+.mod-rarity-legendary {
+    border-color: lightblue;
+}
+.mod-rarity-archon {
+    border-color: orange;
+}
+.mod-rarity-galvanized {
+    border-color: slategray;
+}
+.mod-rarity-riven {
+    border-color: darkorchid;
+}
+.mod-rarity-amalgam {
+    border-color: peachpuff;
+}
+
+.hidden_input input {
+    padding-right: 0.9rem;
+    text-align: right;
+}
+.hidden_input span {
+    margin-left: -1.25rem;
+    font-size: small;
 }
