@@ -149,8 +149,15 @@ function emptyCell(cell, update_mods = true) {
     }
 }
 
+function canSwapAtoB(cell1, cell2){
+    if(!cell2.classList.contains("special-slot")) return true;
+    if(!cell1.modData) return true;
+    return cell2.dataset.slot_type === cell1.modData.type;
+}
+
 // Swap mod data between two cells.
 function swapCells(cell1, cell2) {
+    if(!canSwapAtoB(cell1, cell2) || !canSwapAtoB(cell2, cell1)) return;
     const data1 = cell1.modData;
     const data2 = cell2.modData;
     updateCell(cell1, data2, false);
@@ -316,19 +323,19 @@ function openEditModal(cell) {
         statSelect.value = stat.stat;
 
         const conditionSelect = statLineClone.querySelector("td:nth-child(2) select");
-        conditionSelect.value = stat.condition;
+        conditionSelect.value = stat.condition ?? conditionSelect.value;
 
         const durationInput = statLineClone.querySelector("td:nth-child(3) input");
-        durationInput.value = stat.duration;
+        durationInput.value = stat.duration ?? durationInput.value;
 
         const maxStacksInput = statLineClone.querySelector("td:nth-child(4) input");
-        maxStacksInput.value = stat.maxStacks;
+        maxStacksInput.value = stat.maxStacks ?? maxStacksInput.value;
 
         const expiryModeSelect = statLineClone.querySelector("td:nth-child(5) select");
-        expiryModeSelect.value = stat.expiryMode;
+        expiryModeSelect.value = stat.expiryMode ?? expiryModeSelect.value;
 
         const refreshModeSelect = statLineClone.querySelector("td:nth-child(6) select");
-        refreshModeSelect.value = stat.refreshMode;
+        refreshModeSelect.value = stat.refreshMode ?? refreshModeSelect.value;
 
         statsTbody.appendChild(statLineClone);
     });
@@ -336,10 +343,14 @@ function openEditModal(cell) {
     const form = modDialog.querySelector("form");
     form.addEventListener("submit", function(e) {
         e.preventDefault();
+        const modData = cell.modData;
         const newName = modNameInput.value;
         const newStats = Array.from(statsTbody.children).map(tr => {
             const cells = tr.children;
             const value = cells[0].querySelector("input").value;
+            //TODO
+            // -1 if stat.operation === "STACKING_MULTIPLY"
+            // /100 if stat.display_as === "%"
             const statType = cells[0].querySelector("select").value;
             const condition = cells[1].querySelector("select").value;
             const duration = cells[2].querySelector("input").value;
@@ -349,7 +360,6 @@ function openEditModal(cell) {
             return { value, stat: statType, condition, duration, maxStacks, expiryMode, refreshMode };
         });
 
-        let modData = cell.modData;
         modData.name = newName;
         modData.stats = newStats;
 

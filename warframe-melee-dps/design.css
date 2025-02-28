@@ -412,7 +412,7 @@ td.tooltip {
 }
 
 .cell.special-slot:empty::after {
-    content: attr(data-slot-type);
+    content: attr(data-slot_type);
     /* font-size: 18px; */
 }
 

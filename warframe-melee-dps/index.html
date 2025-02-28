@@ -81,6 +81,7 @@
 </head>
 
 <body>
+    <img src="help.svg" style="position: absolute; z-index: 999; backdrop-filter: blur(1px);" id="help_svg"/>
     <!-- hidden input : style="border: none; background: transparent" -->
     <dialog id="enemy_edit_dialog">
         <form id="editEnemy" method="dialog">
@@ -161,7 +162,7 @@
             </div>
 
             <!-- Exilus slot -->
-            <div class="cell special-slot" style="grid-area: exilus;" data-slot-type="exilus"></div>
+            <div class="cell special-slot" style="grid-area: exilus;" data-slot_type="exilus"></div>
 
             <!-- Buffs wrapper (horizontally scrollable) -->
             <div id="buffs_wrapper" style="grid-area: buffs_wrapper;">
@@ -178,8 +179,8 @@
             <div class="cell mod-slot" id="mod7" style="grid-area: mod7;"></div>
             <div class="cell mod-slot" id="mod8" style="grid-area: mod8;"></div>
 
-            <div class="cell special-slot" style="grid-area: arcane1;" data-slot-type="arcane1"></div>
-            <div class="cell special-slot" style="grid-area: arcane2;" data-slot-type="arcane2"></div>
+            <div class="cell special-slot" style="grid-area: arcane1;" data-slot_type="arcane"></div>
+            <div class="cell special-slot" style="grid-area: arcane2;" data-slot_type="arcane"></div>
         </div>
         <div id="mod-list-wrapper">
             <input id="mod_list_search" placeholder="filter mods" style="width:210px">
@@ -241,7 +242,7 @@
                     </tr>
                     <tr id="wind_up" class="separate">
                         <td class="indented">wind up</td>
-                        <td></td>
+                        <td>1s</td>
                         <td class="less_is_more"></td>
                     </tr>
                     <tr id="critical_chance">
@@ -303,7 +304,7 @@
                             <!-- <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input" placeholder="Weapon select" onchange="loadWeaponStats()"
                         style="font-size: large; font-weight: bold;" size="17">
                     <br><br> -->
-                            <select id="weapon_type">
+                            <select id="weapon_type" disabled>
                                 <option value="melee">Melee</option>
                                 <option value="secondary">Secondary</option>
                                 <option value="primary">Primary</option>
@@ -311,7 +312,9 @@
                             </select>
                             <br><br>
 
-                            <select id="weapon_subclass" onchange="saveWeapon()"> <!-- TODO could add bow/shotgun/sniper/etc but fuck it --></select>
+                            <select id="weapon_subclass" onchange="saveWeapon()" disabled>
+                                <option selected disabled>Subclass</option>
+                                <!-- TODO could add bow/shotgun/sniper/etc but fuck it --></select>
                             <br><br>
 
                             <label for="riven_disposition_input">Riven disposition</label>
@@ -603,20 +606,21 @@
                     </tfoot>
                 </table>
             </div>
-            <div onchange="saveWeapon()">
-                <button onclick="changeStats()">Simulate</button>
+            <div>
+                <button onclick="changeStats()" style="font-size: large; color: darkred; margin: 10px">Simulate</button>
                 <button onclick="status_proportion_graph()">Status Proportion</button>
+                <!--
                 <button onclick="hideEmptyRows()">Hide Empty Rows</button>
                 <button onclick="displayAllRows()">Display All Rows</button>
+                -->
+                <button id="help_button">Help</button>
+                <label>Quantization:
+                    <input type="checkbox" id="quantization" checked onchange="saveWeapon()"/>
+                </label>
+                <label>Conditionals:
+                    <input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/>
+                </label>
             </div>
-            <label>
-                Quantization:
-                <input type="checkbox" id="quantization" checked onchange="saveWeapon()"/>
-            </label>
-            <label>
-                Conditionals:
-                <input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/>
-            </label>
             <fieldset style="display: flex; justify-content: space-around; flex-wrap: wrap; padding: 5px; max-width: 100%;">
                 <legend>Extra parameters</legend>
                 <label>iterations
@@ -793,6 +797,9 @@
                         <td colspan=4>
                             <button type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
                             <button type="button" onclick="addHit()">Add a hit</button>
+                            <div class="tooltip" style="color: #333">🛈
+                                <span class="tooltiptext">edit to 0 to delete proc or bonus damage</span>
+                            </div>
                             <button type="submit" onclick="saveStance()" style="float: right;">Save</button>
                         </td>
                     </tr>
@@ -833,16 +840,16 @@
     <template id="templateBonusDamage">
         <tr>
             <td class="input-decoration">
-                <label>
+                <label class="hidden_input">
                     +
                     <input name="inputBonusDamage" type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?"
                            style="width: 2rem">
+                    <span>%</span>
                     <!-- title="Positive decimal number, can also be Scientific Notation or %" -->
                     <!--
                         \d+(?:[.,]\d+)?(?:%|e\d+)?          ℚ+
                         -?\d+(?:[.,]\d+)?(?:%|e\d+)?        ℚ
                     -->
-                    %
                 </label>
             </td>
             <td>
@@ -868,15 +875,15 @@
     <template id="templateHit">
         <tr>
             <td class="containerTime">
-                <label>
+                <label class="hidden_input">
                     <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" style="width: 2.5rem">
-                    s
+                    <span>s</span>
                 </label>
             </td>
             <td class="containerDamage">
-                <label>
+                <label class="hidden_input">
                     <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" value=100 style="width: 2rem">
-                    %
+                    <span>%</span>
                 </label>
             </td>
             <td>

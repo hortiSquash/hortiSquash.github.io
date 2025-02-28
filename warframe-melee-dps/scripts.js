@@ -717,12 +717,12 @@ contentEditable("stats");
 
 function hideEmptyRows(table) {
     displayRows("stats_damage", false);
-    displayRows("stats", false);
+    //displayRows("stats", false);
 }
 
 function displayAllRows(table) {
     displayRows("stats_damage", true);
-    displayRows("stats", true);
+    //displayRows("stats", true);
 }
 
 function displayRows(table, display) {
@@ -889,3 +889,11 @@ function status_proportion_graph() {
 
 // TODO on table resize instead
 //window.addEventListener('resize', status_proportion_graph);
+
+document.getElementById("help_svg").addEventListener("click", function(event) {
+    event.target.style.display = "none";
+})
+document.getElementById("help_button").addEventListener("click", function(event) {
+    console.log("bite");
+    document.getElementById("help_svg").style.display = "";
+})
