@@ -3,6 +3,77 @@
         "base_drain": 6,
         "buffs": [
             {
+                "buff": "WEAPON_PROJECTILE_SPEED",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "loc_path": "/Lotus/Language/Upgrades/WeaponProjectileSpeedModDesc",
+                "loc_tag": "|val|% Projectile Speed",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.10000000149011612
+            },
+            {
+                "buff": "WEAPON_SPREAD",
+                "damage_type": "DT_ANY",
+                "display_as": "x",
+                "loc_path": "/Lotus/Language/Upgrades/WeaponAccuracy",
+                "loc_tag": "|val|% Accuracy",
+                "operation": "ADD",
+                "value": 1.0
+            },
+            {
+                "buff": "WEAPON_SPREAD",
+                "damage_type": "DT_ANY",
+                "display_as": "",
+                "loc_path": "/Lotus/Language/Upgrades/WeaponAccuracy",
+                "loc_tag": "|val|% Accuracy",
+                "operation": "MULTIPLY",
+                "value": 1.0
+            }
+        ],
+        "compatibility": "",
+        "loc_path": "",
+        "max_level": 3,
+        "name": "Testing 1",
+        "path": "",
+        "polarity": "Madurai",
+        "rarity": "rare",
+        "type": "none"
+    },
+    {
+        "base_drain": 10,
+        "buffs": [
+            {
+                "buff": "WEAPON_MELEE_DAMAGE",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "loc_path": "/Lotus/Language/Upgrades/MeleeDamageBuffDesc",
+                "loc_tag": "|val|% Melee Damage",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.183
+            },
+            {
+                "buff": "WEAPON_CRIT_CHANCE",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "loc_path": "/Lotus/Language/Upgrades/WeaponCritChance",
+                "loc_tag": "|val|% Critical Chance",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.2
+            }
+        ],
+        "compatibility": "",
+        "loc_path": "",
+        "max_level": 8,
+        "name": "Riven",
+        "path": "",
+        "polarity": "Madurai",
+        "rarity": "riven",
+        "type": "none"
+    },
+    {
+        "base_drain": 6,
+        "buffs": [
+            {
                 "buff": "AVATAR_MOVEMENT_SPEED",
                 "damage_type": "DT_ANY",
                 "display_as": "%",

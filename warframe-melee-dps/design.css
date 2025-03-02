@@ -514,11 +514,20 @@ td.tooltip {
     border-color: peachpuff;
 }
 
-.hidden_input input {
-    padding-right: 0.9rem;
-    text-align: right;
+.input_with_unit {
+    > span {
+        margin-left: -1.0rem;
+        font-size: small;
+        display: inline-block;
+        width: 1rem;
+    }
+    > input {
+        padding-right: 1.0rem;
+        text-align: right;
+    }
 }
-.hidden_input span {
-    margin-left: -1.25rem;
-    font-size: small;
+
+.hidden_input {
+    border: none;
+    background: transparent;
 }

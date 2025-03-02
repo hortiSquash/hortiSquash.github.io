@@ -450,10 +450,10 @@ function loadWeaponStats() {
     // retrieve all weapon's stats
     const data = window.data_weapons_melee;
 
-    weaponSelected = document.getElementById("weapon_name_input").value;
+    const weaponSelected = document.getElementById("weapon_name_input").value;
 
     // retrieve enemy data
-    const weaponTemp = data.find((e) => e.name == weaponSelected);
+    const weaponTemp = data.find((e) => e.name === weaponSelected);
 
     // convert from the DB
     weapon = {
@@ -508,11 +508,17 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
     for(let i = 1; i < crit_table.length; i++) {
         let value = weapon_to_display.critical_chance + weapon.critical_chance * weapon_to_display.critical_chance_per_combo * (i - 1);
         crit_table[i].innerText = formatPercent(value);
+
+        crit_table[i].classList.toggle("mod_buff", (weapon_to_display.critical_chance_per_combo > 0));
+        crit_table[i].classList.toggle("mod_nerf", (weapon_to_display.critical_chance_per_combo < 0));
     }
     let status_table = document.getElementById("status_tier").cells;
     for(let i = 1; i < status_table.length; i++) {
         let value = weapon_to_display.status + weapon.status * weapon_to_display.status_per_combo * (i - 1);
         status_table[i].innerText = formatPercent(value);
+
+        status_table[i].classList.toggle("mod_buff", (weapon_to_display.status_per_combo > 0));
+        status_table[i].classList.toggle("mod_nerf", (weapon_to_display.status_per_combo < 0));
     }
 
     document.getElementById("riven_disposition_input").value = formatDecimals(weapon_to_display.riven_disposition, 3);
@@ -681,17 +687,11 @@ function calculateModding(weapon, mod_buffs_cpp = [], enemies) {
 function contentEditable(table) {
     for (const row of document.getElementById(table).rows) {
         const c = row.cells[1];
-        if (c == null) {
-            continue;
-        }
-
+        if (c == null) continue;
         c.setAttribute("contenteditable", "true");
-
-        c.addEventListener('input',
-            function () { // no idea why you need that empty function but ok
-                saveWeapon()
-            }
-        );
+        c.addEventListener('input', function () {
+            saveWeapon()
+        });
     }
 }
 
@@ -699,10 +699,7 @@ function statColoring(table) {
     const b = document.getElementById(table).rows;
     for (let i = 0; i < b.length; i++) {
         const c = b[i].cells;
-        if (c.length < 3) {
-            continue;
-        }
-
+        if (c.length < 3) continue;
         const oldVal = parseFloat(c[1].innerText.replace(",", ""));
         const newVal = parseFloat(c[2].innerText.replace(",", ""));
         const isBuff = oldVal < newVal;
@@ -893,7 +890,6 @@ function status_proportion_graph() {
 document.getElementById("help_svg").addEventListener("click", function(event) {
     event.target.style.display = "none";
 })
-document.getElementById("help_button").addEventListener("click", function(event) {
-    console.log("bite");
+document.getElementById("help_button").addEventListener("click", function() {
     document.getElementById("help_svg").style.display = "";
 })

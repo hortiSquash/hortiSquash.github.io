@@ -132,12 +132,12 @@
             <input type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
         </form>
     </dialog>
+
+    <!-- TODO -->
     <div id="loading_spinner"></div>
 
     <div id="grid">
-        <!-- <embed type="text/html" src="mods.html" style="width: 100%; height: 100%"> -->
         <div id="modding">
-            <!-- Stance slot with provided content -->
             <div class="stance-slot">
                 <div style="display: flex; justify-content: space-evenly; flex-direction: column; height: 100%">
                     <div>
@@ -237,7 +237,7 @@
                         <td></td>
                         <td rowspan="2" colspan="3" style="text-align: center; background-color: #ccc;"> <input
                             type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
-                            placeholder="Weapon select" onchange="loadWeaponStats()"
+                            placeholder="Weapon select" onblur="loadWeaponStats()"
                             style="font-size: large; font-weight: bold;" size="17"> </td>
                     </tr>
                     <tr id="wind_up" class="separate">
@@ -676,6 +676,14 @@
         </div>
     </div>
 
+    <!--
+    TODO
+    <label class="input_with_unit">
+        <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem">
+        <span>%</span>
+    </label>
+    -->
+
     <!-- Template for a Mod Cell (inner structure) -->
     <template id="cell-template">
         <table class="mod-stats">
@@ -692,7 +700,7 @@
     </template>
 
     <!-- Dialog for Editing a Mod -->
-    <dialog id="mod-dialog">
+    <dialog id="mod-dialog" style="overflow: inherit">
         <form method="dialog">
             <div style="display: flex; justify-content: space-between;">
                 <input type="text" id="mod-name-input" placeholder="mod name" style="font-size: large; margin-bottom: 10px; width: 280px;">
@@ -710,7 +718,7 @@
             <table>
                 <thead>
                 <tr style="background-color: #ccc;">
-                    <th style="width: 295px">buff</th>
+                    <th style="width: 435px" colspan="3">buff</th>
                     <th style="width: 125px">condition</th>
                     <th style="width: 63px">duration</th>
                     <th style="width: 63px">max stacks</th>
@@ -736,11 +744,22 @@
     <template id="stat-line-template">
         <tr>
             <td>
-                <label class="hidden_input">
-                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem">
-                    <span>%</span>
+                <label class="input_with_unit border-1">
+                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem"><span></span>
                 </label>
+            </td>
+            <td>
                 <select></select>
+            </td>
+            <td>
+                <select>
+                    <option value="ADD">add flat</option>
+                    <option value="MULTIPLY">multiply</option>
+                    <option value="STACKING_MULTIPLY" selected>stacking multiply</option>
+                    <option value="SET">set</option>
+                    <option value="SET_BASE">set base</option>
+                    <option value="ADD_BASE">add base</option>
+                </select>
             </td>
             <td>
                 <select disabled>
@@ -755,7 +774,7 @@
                 </select>
             </td>
             <td>
-                <label class="hidden_input">
+                <label class="input_with_unit">
                     <input disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999" style="width: 2rem">
                     <!-- TODO <span>s</span> -->
                 </label>
@@ -840,7 +859,7 @@
     <template id="templateBonusDamage">
         <tr>
             <td class="input-decoration">
-                <label class="hidden_input">
+                <label class="input_with_unit">
                     +
                     <input name="inputBonusDamage" type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?"
                            style="width: 2rem">
@@ -875,13 +894,13 @@
     <template id="templateHit">
         <tr>
             <td class="containerTime">
-                <label class="hidden_input">
+                <label class="input_with_unit">
                     <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" style="width: 2.5rem">
                     <span>s</span>
                 </label>
             </td>
             <td class="containerDamage">
-                <label class="hidden_input">
+                <label class="input_with_unit">
                     <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" value=100 style="width: 2rem">
                     <span>%</span>
                 </label>

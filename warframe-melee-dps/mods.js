@@ -57,22 +57,6 @@ function ensureCellStructure(cell) {
     }
 }
 
-function generateStats() {
-    const statsArray = [];
-    const statCount = 1 + Math.floor(Math.random() * 4);
-    for (let i = 0; i < statCount; i++) {
-        const value = `${Math.floor(Math.random() * 100) + 1}%`;
-        const stat = statTypes[Math.floor(Math.random() * statTypes.length)];
-        const condition = "None";
-        const duration = "";
-        const maxStacks = "";
-        const expiryMode = "all at once";
-        const refreshMode = "while active";
-        statsArray.push({ value, stat, condition, duration, maxStacks, expiryMode, refreshMode });
-    }
-    return statsArray;
-}
-
 // Update a cell with a mod’s name and its stats.
 function updateCell(cell, modData, update_mods = true) {
     ensureCellStructure(cell);
@@ -91,15 +75,10 @@ function updateCell(cell, modData, update_mods = true) {
         if(!stats){
             stats = [];
             for (let buff of modData.buffs) {
-                const true_value = buff?.value * (1 + (modData.current_level ?? modData.max_level)) * 100;
-                const value = formatDecimals(true_value, 1);
-                const stat = statTypes[Math.floor(Math.random() * statTypes.length)];
-                const condition = "None";
-                const duration = "";
-                const maxStacks = "";
-                const expiryMode = "all at once";
-                const refreshMode = "while active";
-                stats.push({ value, stat, condition, duration, maxStacks, expiryMode, refreshMode });
+                const true_value = buff?.value * (1 + (modData.current_level ?? modData.max_level));
+                const value = formatDecimals(true_value, 3);
+                const stat = buff?.buff;
+                stats.push({value: value, stat: stat});
             }
         }
 
@@ -249,7 +228,7 @@ mod_list.addEventListener("drop", createDelegatedEvent(".cell", function (event,
 }))
 
 document.querySelectorAll("#mod_list_search, #mod_list_select_polarity, #mod_list_select_type, #mod_list_select_rarity").forEach(function (target) {
-    target.addEventListener('change', function () {
+    target.addEventListener('blur', function () {
         const filter_text = document.getElementById("mod_list_search").value.toUpperCase();
         const filter_polarity = document.getElementById("mod_list_select_polarity").value;
         const filter_type = document.getElementById("mod_list_select_type").value;
@@ -307,34 +286,47 @@ function openEditModal(cell) {
     const statsTbody = document.getElementById("stats-tbody");
     statsTbody.innerHTML = "";
 
-    cell.modData.stats.forEach(stat => {
+    cell.modData.buffs.forEach(stat => {
         const statLineClone = document.getElementById("stat-line-template").content.cloneNode(true);
         const firstTd = statLineClone.querySelector("td:nth-child(1)");
         const valueInput = firstTd.querySelector("input");
-        const statSelect = firstTd.querySelector("select");
+        const valueUnit = firstTd.querySelector("span");
+
+        const statSelect = statLineClone.querySelector("td:nth-child(2) select");
         statSelect.innerHTML = "";
-        statTypes.forEach(type => {
+
+        //FIXME wtf is this shit
+        [...statTypes, stat.buff].forEach(type => {
             const option = document.createElement("option");
             option.value = type;
             option.textContent = type;
+            if(type === stat.buff) option.disabled = true;
             statSelect.appendChild(option);
         });
-        valueInput.value = stat.value;
-        statSelect.value = stat.stat;
+        //valueUnit.innerText = stat.display_as; //TODO hide temporarily until fixed
+        valueInput.value = formatDecimals(stat.value
+            * (1 + (cell.modData.current_level ?? cell.modData.max_level))
+            //* (stat.display_as === "%" ? 100 : 1) TODO
+            //+ ((stat.operation === "STACKING_MULTIPLY") ? 1 : 0)
+            , 5);
+        statSelect.value = stat.buff;
 
-        const conditionSelect = statLineClone.querySelector("td:nth-child(2) select");
+        const operationSelect = statLineClone.querySelector("td:nth-child(3) select");
+        operationSelect.value = stat.operation ?? operationSelect.value;
+
+        const conditionSelect = statLineClone.querySelector("td:nth-child(4) select");
         conditionSelect.value = stat.condition ?? conditionSelect.value;
 
-        const durationInput = statLineClone.querySelector("td:nth-child(3) input");
+        const durationInput = statLineClone.querySelector("td:nth-child(5) input");
         durationInput.value = stat.duration ?? durationInput.value;
 
-        const maxStacksInput = statLineClone.querySelector("td:nth-child(4) input");
+        const maxStacksInput = statLineClone.querySelector("td:nth-child(6) input");
         maxStacksInput.value = stat.maxStacks ?? maxStacksInput.value;
 
-        const expiryModeSelect = statLineClone.querySelector("td:nth-child(5) select");
+        const expiryModeSelect = statLineClone.querySelector("td:nth-child(7) select");
         expiryModeSelect.value = stat.expiryMode ?? expiryModeSelect.value;
 
-        const refreshModeSelect = statLineClone.querySelector("td:nth-child(6) select");
+        const refreshModeSelect = statLineClone.querySelector("td:nth-child(8) select");
         refreshModeSelect.value = stat.refreshMode ?? refreshModeSelect.value;
 
         statsTbody.appendChild(statLineClone);
@@ -351,13 +343,14 @@ function openEditModal(cell) {
             //TODO
             // -1 if stat.operation === "STACKING_MULTIPLY"
             // /100 if stat.display_as === "%"
-            const statType = cells[0].querySelector("select").value;
-            const condition = cells[1].querySelector("select").value;
-            const duration = cells[2].querySelector("input").value;
-            const maxStacks = cells[3].querySelector("input").value;
-            const expiryMode = cells[4].querySelector("select").value;
-            const refreshMode = cells[5].querySelector("select").value;
-            return { value, stat: statType, condition, duration, maxStacks, expiryMode, refreshMode };
+            const statType = cells[1].querySelector("select").value;
+            const condition = cells[2].querySelector("select").value;
+            const operation = cells[3].querySelector("select").value;
+            const duration = cells[4].querySelector("input").value;
+            const maxStacks = cells[5].querySelector("input").value;
+            const expiryMode = cells[6].querySelector("select").value;
+            const refreshMode = cells[7].querySelector("select").value;
+            return { value, stat: statType, condition, operation, duration, maxStacks, expiryMode, refreshMode };
         });
 
         modData.name = newName;
@@ -373,7 +366,7 @@ function openEditModal(cell) {
 function addStatLine() {
     const stats_table = document.getElementById('stats-tbody');
     const stat_line_template = document.getElementById("stat-line-template").content.cloneNode(true);
-    const firstColSelect = stat_line_template.querySelector("td:nth-child(1) select");
+    const firstColSelect = stat_line_template.querySelector("td:nth-child(2) select");
     firstColSelect.innerHTML = "";
     statTypes.forEach(type => {
         const option = document.createElement("option");
