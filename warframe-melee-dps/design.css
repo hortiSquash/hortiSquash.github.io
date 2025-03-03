@@ -455,7 +455,9 @@ td.tooltip {
 .mod-name {
     /* background: #ddd; */
     font-weight: bold;
-    height: 28px;
+    min-height: 30px;
+    text-align: center;
+    align-content: center;
 }
 .remove {
     position: absolute;
@@ -471,7 +473,7 @@ td.tooltip {
     /* border-radius: 50%; */
     display: none;
 }
-.modding .mod-name:hover .remove { display: block; }
+#modding .mod-name:hover .remove { display: block; }
 .remove:hover { background: rgba(226,74,74,0.8); }
 .cell.dragging { opacity: 0.5; }
 

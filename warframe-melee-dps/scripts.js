@@ -243,7 +243,7 @@ function changeStats() {
 
     //TODO support multiple enemies
     let enemy;
-    if(enemies.length != 0) {
+    if(enemies.length !== 0) {
         enemy = enemies[0];
         //TODO convert the enemies to scale their stats with their level
         // since there is no level calculation in the C++
@@ -277,7 +277,6 @@ function changeStats() {
         mods_buffs_cpp,
         iterations, time_max, tickrate, quantization, conditionals
     ));
-    //const data = CppToColumnar(Module.stats(weapon, attack, enemy, iterations, time_max, tickrate, quantization, conditionals));
 
     for (const key in data) {
         data[key] = data[key].map(datum => Number(datum));// || undefined);
@@ -393,7 +392,7 @@ function changeStats() {
 }
 
 function formatPercent(num, maxDigits = 2) {
-    return new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en-US", {
         style: 'percent',
         minimumFractionDigits: 0,
         maximumFractionDigits: maxDigits,
@@ -405,7 +404,7 @@ function formatPercentPoint(num, maxDigits) {
 }
 
 function formatSecond(num, maxDigits = 3) {
-    return new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en-US", {
         style: "unit",
         unit: "second",
         unitDisplay: "narrow",
@@ -419,7 +418,7 @@ function formatPerSecond(num, maxDigits = 3) {
 }
 
 function formatMultiplier(num, maxDigits = 2) {
-    return new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en-US", {
         style: "unit",
         unit: "meter",
         unitDisplay: "narrow",
@@ -430,7 +429,7 @@ function formatMultiplier(num, maxDigits = 2) {
 
 //fr-FR for ISO number format with SPACE as thousands separator and , as decimals
 function formatDecimalsMinMax(num, minDigits, maxDigits) {
-    return new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en-US", {
         minimumFractionDigits: minDigits,
         maximumFractionDigits: maxDigits,
     }).format(num);
@@ -441,7 +440,7 @@ function formatDecimals(num, maxDigits = 2) {
 }
 
 function formatLargeNumbers(num, maxDigits = 3) {
-    return new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en-US", {
         // compactDisplay: "short",
         notation: "compact",
         minimumFractionDigits: 0,
@@ -450,7 +449,7 @@ function formatLargeNumbers(num, maxDigits = 3) {
 }
 
 function formatAdditive(num, maxDigits = 2) {
-    return new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en-US", {
         style: "decimal",
         signDisplay: 'always',
         minimumFractionDigits: 1,
@@ -459,7 +458,7 @@ function formatAdditive(num, maxDigits = 2) {
 }
 
 function formatAdditivePercent(num, maxDigits = 2) {
-    return new Intl.NumberFormat("default", {
+    return new Intl.NumberFormat("en-US", {
         style: 'percent',
         signDisplay: 'always',
         minimumFractionDigits: 0,
@@ -599,13 +598,14 @@ function updateModding() {
     if(!weapon) return;
     mods_buffs_cpp = Module.passVectorModBuffs(mods.map((mod) => {
         let mod_new = {"name": mod.name}
-        for (let stat_line of mod.stats) {
-            const parsed_value = Number(stat_line.value.replace("%", "E-2"));
-            if (stat_line.stat in default_damage_types) {
+        const current_level = mod.current_level ?? mod.max_level;
+        for (let buff of mod.buffs) {
+            const parsed_value = Number(buff.value) * (current_level + 1);
+            if (buff.buff in default_damage_types) {
                 mod_new["damage_types"] ??= default_value(default_damage_types, {})
-                mod_new["damage_types"][stat_line.stat] = parsed_value;
+                mod_new["damage_types"][buff.buff] = parsed_value;
             } else {
-                mod_new[stat_line.stat] = parsed_value;
+                mod_new[buff.buff] = parsed_value;
             }
         }
         return default_value(default_modbuff, mod_new);

@@ -40,7 +40,7 @@ const statTypes = [
 function updateModsArray() {
     mods = [];
     modding.querySelectorAll('.cell').forEach(cell => {
-        if (cell.modData && cell.modData.name) {
+        if (cell.modData) {
             mods.push(cell.modData);
         }
     });
@@ -67,32 +67,21 @@ function updateCell(cell, modData, update_mods = true) {
     //fixme maybe? if unnamed, mod gets deleted
     if (modData) {
         cell.draggable = true;
-        let name = modData?.name;
-        let stats = modData?.stats;
-        nameText.textContent = name;
+        nameText.textContent = modData.name;
         tbody.innerHTML = "";
 
-        if(!stats){
-            stats = [];
-            for (let buff of modData.buffs) {
-                const true_value = buff?.value * (1 + (modData.current_level ?? modData.max_level));
-                const value = formatDecimals(true_value, 3);
-                const stat = buff?.buff;
-                stats.push({value: value, stat: stat});
-            }
-        }
-
-        stats.forEach(stat => {
+        modData.buffs.forEach(buff => {
             const tr = document.createElement("tr");
             const tdValue = document.createElement("td");
-            tdValue.textContent = stat.value;
+            tdValue.textContent = formatDecimals(buff.value * (1 + (modData.current_level ?? modData.max_level)), 3);
+            //TODO display_as with 100x if %, +1 with operationtype, etc
+
             const tdStat = document.createElement("td");
-            tdStat.textContent = stat.stat;
+            tdStat.textContent = ((!statTypes.includes(buff.buff)) ? `unknown:\u{00a0}` : "") + buff.buff;
             tr.appendChild(tdValue);
             tr.appendChild(tdStat);
             tbody.appendChild(tr);
         });
-        modData.stats = stats;
         cell.modData = modData;
 
         for(let classname of cell.classList){
@@ -270,29 +259,37 @@ function checkBuffSlots() {
     }
 }
 
+const buff_keys = ["buff", "operation", "condition", "duration", "maxStacks", "expiryMode", "refreshMode"];
+
 /***** Modal Functions *****/
 function openEditModal(cell) {
-    if (!cell.modData || !cell.modData.name) return;
+    const modData = cell.modData;
+    if (!modData?.name) return;
+
+    //this is just for removing all event handlers
+    // cause we keep creating new ones
+    modDialog.innerHTML = modDialog.innerHTML;
+
     const modNameInput = document.getElementById("mod-name-input");
-    modNameInput.value = cell.modData.name;
+    modNameInput.value = modData.name;
 
     const modLevelInput = document.getElementById("mod-level-input");
-    modLevelInput.value = cell.modData.max_level;
+    modLevelInput.value = modData.current_level ?? modData.max_level;
+    modLevelInput.max = modData.max_level;
 
-    const polarity = polarity_unicode[cell.modData.polarity] ?? (cell.modData.polarity || " any");
+    const polarity = polarity_unicode[modData.polarity] ?? (modData.polarity || " any");
     const modCapacity = document.getElementById("mod-capacity");
-    modCapacity.innerText = cell.modData.base_drain + cell.modData.max_level + polarity;
+    modCapacity.innerText = modData.base_drain + modLevelInput.valueAsNumber + polarity;
 
     const statsTbody = document.getElementById("stats-tbody");
     statsTbody.innerHTML = "";
 
-    cell.modData.buffs.forEach(stat => {
+    modData.buffs.forEach(stat => {
         const statLineClone = document.getElementById("stat-line-template").content.cloneNode(true);
-        const firstTd = statLineClone.querySelector("td:nth-child(1)");
-        const valueInput = firstTd.querySelector("input");
-        const valueUnit = firstTd.querySelector("span");
+        const valueInput = statLineClone.querySelector("[name='value']");
+        const valueUnit = valueInput.parentElement.querySelector("span");
 
-        const statSelect = statLineClone.querySelector("td:nth-child(2) select");
+        const statSelect = statLineClone.querySelector("[name='buff']");
         statSelect.innerHTML = "";
 
         //FIXME wtf is this shit
@@ -305,56 +302,57 @@ function openEditModal(cell) {
         });
         //valueUnit.innerText = stat.display_as; //TODO hide temporarily until fixed
         valueInput.value = formatDecimals(stat.value
-            * (1 + (cell.modData.current_level ?? cell.modData.max_level))
+            * (1 + modLevelInput.valueAsNumber)
             //* (stat.display_as === "%" ? 100 : 1) TODO
             //+ ((stat.operation === "STACKING_MULTIPLY") ? 1 : 0)
             , 5);
         statSelect.value = stat.buff;
 
-        const operationSelect = statLineClone.querySelector("td:nth-child(3) select");
-        operationSelect.value = stat.operation ?? operationSelect.value;
-
-        const conditionSelect = statLineClone.querySelector("td:nth-child(4) select");
-        conditionSelect.value = stat.condition ?? conditionSelect.value;
-
-        const durationInput = statLineClone.querySelector("td:nth-child(5) input");
-        durationInput.value = stat.duration ?? durationInput.value;
-
-        const maxStacksInput = statLineClone.querySelector("td:nth-child(6) input");
-        maxStacksInput.value = stat.maxStacks ?? maxStacksInput.value;
-
-        const expiryModeSelect = statLineClone.querySelector("td:nth-child(7) select");
-        expiryModeSelect.value = stat.expiryMode ?? expiryModeSelect.value;
-
-        const refreshModeSelect = statLineClone.querySelector("td:nth-child(8) select");
-        refreshModeSelect.value = stat.refreshMode ?? refreshModeSelect.value;
+        for(let name of buff_keys) {
+            if(name === "buff") continue;
+            const whatever = statLineClone.querySelector(`[name='${name}']`);
+            whatever.value = stat[name] ?? whatever.value;
+        }
 
         statsTbody.appendChild(statLineClone);
     });
 
-    const form = modDialog.querySelector("form");
-    form.addEventListener("submit", function(e) {
+    let old_mod_level = modLevelInput.valueAsNumber;
+    modLevelInput.addEventListener("change", () => {
+        for(let tr of statsTbody.children){
+            const cell_value = tr.querySelector(`[name='value']`);
+            cell_value.value = formatDecimals(
+                cell_value.value / (1 + old_mod_level) * (1 + modLevelInput.valueAsNumber), 5);
+
+            //FIXME NaN when parse % and text and , and shit
+        }
+        old_mod_level = modLevelInput.valueAsNumber;
+    })
+
+    modDialog.querySelector("form").addEventListener("submit", function(e) {
         e.preventDefault();
-        const modData = cell.modData;
-        const newName = modNameInput.value;
-        const newStats = Array.from(statsTbody.children).map(tr => {
+        modData.name = modNameInput.value;
+        modData.current_level = modLevelInput.valueAsNumber;
+
+        modData.buffs.length = statsTbody.children.length;
+        for(let i=0; i < statsTbody.children.length; i++){
+            const tr = statsTbody.children[i];
             const cells = tr.children;
+
+            modData.buffs[i] ??= {};
+            const current_buff = modData.buffs[i];
+
             const value = cells[0].querySelector("input").value;
+            current_buff.value = value / (1 + modData.current_level);
             //TODO
             // -1 if stat.operation === "STACKING_MULTIPLY"
             // /100 if stat.display_as === "%"
-            const statType = cells[1].querySelector("select").value;
-            const condition = cells[2].querySelector("select").value;
-            const operation = cells[3].querySelector("select").value;
-            const duration = cells[4].querySelector("input").value;
-            const maxStacks = cells[5].querySelector("input").value;
-            const expiryMode = cells[6].querySelector("select").value;
-            const refreshMode = cells[7].querySelector("select").value;
-            return { value, stat: statType, condition, operation, duration, maxStacks, expiryMode, refreshMode };
-        });
 
-        modData.name = newName;
-        modData.stats = newStats;
+            //FIXME NaN when parse % and text and , and shit
+            for(let name of buff_keys) {
+                current_buff[name]= tr.querySelector(`[name='${name}']`).value;
+            }
+        }
 
         updateCell(cell, modData);
         modDialog.close();
@@ -366,13 +364,13 @@ function openEditModal(cell) {
 function addStatLine() {
     const stats_table = document.getElementById('stats-tbody');
     const stat_line_template = document.getElementById("stat-line-template").content.cloneNode(true);
-    const firstColSelect = stat_line_template.querySelector("td:nth-child(2) select");
-    firstColSelect.innerHTML = "";
+    const select_buffs = stat_line_template.querySelector("[name='buff']");
+    select_buffs.innerHTML = "";
     statTypes.forEach(type => {
         const option = document.createElement("option");
         option.value = type;
         option.textContent = type;
-        firstColSelect.appendChild(option);
+        select_buffs.appendChild(option);
     });
     stats_table.appendChild(stat_line_template);
 }

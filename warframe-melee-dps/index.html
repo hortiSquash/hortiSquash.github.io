@@ -60,7 +60,6 @@
         for (let mod of data_mods) {
             let cell = document.createElement("div");
             cell.className = "cell";
-            cell.modData = mod;
             updateCell(cell, mod);
             mod_list.appendChild(cell);
         }
@@ -144,19 +143,21 @@
                         <input type="text" id="stance_name" placeholder="stance name" list="stances_list" style="font-size: initial">
                         <button class="pen-button" onclick="editStance()">✎</button>
                     </div>
-                    <select id="combo_type" required>
-                        <option value="" disabled selected>select an attack</option>
-                        <option>neutral</option>
-                        <option>forward</option>
-                        <option>block</option>
-                        <option>forward block</option>
-                        <option>heavy</option>
-                        <option>slam</option>
-                        <option>aerial</option>
-                        <option>finisher</option>
-                        <option>slide</option>
-                        <option>wall</option>
-                    </select>
+                    <label>
+                        select an attack:
+                        <select id="combo_type" required>
+                            <option selected>neutral</option>
+                            <option>forward</option>
+                            <option>block</option>
+                            <option>forward block</option>
+                            <option>heavy</option>
+                            <option>slam</option>
+                            <option>aerial</option>
+                            <option>finisher</option>
+                            <option>slide</option>
+                            <option>wall</option>
+                        </select>
+                    </label>
                     <label for="combo_type" id="combo_name">Rapid Incisions</label>
                 </div>
             </div>
@@ -682,15 +683,11 @@
 
     <!-- Template for a Mod Cell (inner structure) -->
     <template id="cell-template">
+        <div class="mod-name">
+            <span class="name-text"></span>
+            <div class="remove">✖</div>
+        </div>
         <table class="mod-stats">
-            <thead>
-            <tr>
-                <th colspan="99" class="mod-name">
-                    <span class="name-text"></span>
-                    <div class="remove">✖</div>
-                </th>
-            </tr>
-            </thead>
             <tbody></tbody>
         </table>
     </template>
@@ -702,7 +699,7 @@
                 <input type="text" id="mod-name-input" placeholder="mod name" style="font-size: large; margin-bottom: 10px; width: 280px;">
                 <label>
                     rank:
-                    <input type="number" id="mod-level-input" style="width: 2.25rem" disabled>
+                    <input type="number" id="mod-level-input" style="width: 2.25rem" min="0">
                 </label>
                 <label>
                     capacity:
@@ -741,14 +738,14 @@
         <tr>
             <td>
                 <label class="input_with_unit border-1">
-                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem"><span></span>
+                    <input name="value" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem"><span></span>
                 </label>
             </td>
             <td>
-                <select></select>
+                <select name="buff"></select>
             </td>
             <td>
-                <select>
+                <select name="operation">
                     <option value="ADD">add flat</option>
                     <option value="MULTIPLY">multiply</option>
                     <option value="STACKING_MULTIPLY" selected>stacking multiply</option>
@@ -758,7 +755,7 @@
                 </select>
             </td>
             <td>
-                <select disabled>
+                <select disabled name="condition">
                     <option selected>None</option>
                     <option>On kill</option>
                     <option>On critical hit</option>
@@ -771,21 +768,21 @@
             </td>
             <td>
                 <label class="input_with_unit">
-                    <input disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999" style="width: 2rem"
+                    <input disabled name="duration" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999" style="width: 2rem"
                     ><span>s</span>
                 </label>
             </td>
             <td>
-                <input disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1" style="width: 40px">
+                <input disabled name="maxStacks" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1" style="width: 40px">
             </td>
             <td>
-                <select disabled>
+                <select disabled name="expiryMode">
                     <option>all at once</option>
                     <option>per stack</option>
                 </select>
             </td>
             <td>
-                <select disabled>
+                <select disabled name="refreshMode">
                     <option>while active</option>
                     <option>after expiry</option>
                 </select>
