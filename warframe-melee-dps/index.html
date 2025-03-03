@@ -214,7 +214,7 @@
             <div id="mod-list"></div>
         </div>
         <div id="plot"></div>
-        <div class="stats_wrapper">
+        <div id="stats_wrapper">
             <table style="width: 100%">
                 <thead style="position: sticky;">
                     <tr>
@@ -233,8 +233,18 @@
                 <tbody id="stats">
                     <tr id="attack_speed">
                         <td>attack speed</td>
-                        <td>1.0</td>
-                        <td></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="1.0"
+                                ><span>/s</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1.0"
+                                ><span>/s</span>
+                            </label>
+                        </td>
                         <td rowspan="2" colspan="3" style="text-align: center; background-color: #ccc;"> <input
                             type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
                             placeholder="Weapon select" onblur="loadWeaponStats()"
@@ -242,13 +252,33 @@
                     </tr>
                     <tr id="wind_up" class="separate">
                         <td class="indented">wind up</td>
-                        <td>1s</td>
-                        <td class="less_is_more"></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="1"
+                                ><span>s</span>
+                            </label>
+                        </td>
+                        <td class="less_is_more">
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1"
+                                ><span>s</span>
+                            </label>
+                        </td>
                     </tr>
                     <tr id="critical_chance">
                         <td>critical</td>
-                        <td>0%</td>
-                        <td></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0"
+                                ><span>%</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
+                                ><span>%</span>
+                            </label>
+                        </td>
                         <td>
                             <div class="tooltip">🛈
                                 <table class="tooltiptable">
@@ -300,7 +330,7 @@
                                 </table>
                             </div>
                         </td>
-                        <td rowspan="6" colspan="2" style="border-left: 2px solid #ccc;">
+                        <td rowspan="10" colspan="2" style="border-left: 2px solid #ccc;">
                             <!-- <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input" placeholder="Weapon select" onchange="loadWeaponStats()"
                         style="font-size: large; font-weight: bold;" size="17">
                     <br><br> -->
@@ -326,13 +356,33 @@
                     </tr>
                     <tr id="critical_damage" class="separate">
                         <td class="indented">damage</td>
-                        <td>2.0×</td>
-                        <td></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="2.0"
+                                ><span>×</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="2.0"
+                                ><span>×</span>
+                            </label>
+                        </td>
                     </tr>
                     <tr id="status" class="separate">
                         <td>status</td>
-                        <td>0%</td>
-                        <td></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0"
+                                ><span>%</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
+                                ><span>%</span>
+                            </label>
+                        </td>
                         <td>
                             <div class="tooltip">🛈
                                 <table class="tooltiptable">
@@ -385,23 +435,97 @@
                             </div>
                         </td>
                     </tr>
+
+                    <tr id="multishot" class="d-none">
+                        <td>multishot</td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1.0"
+                                ><span></span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1.0"
+                                ><span></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr id="magazine_capacity" class="d-none">
+                        <td class="indented">magazine</td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="10"
+                                ><span></span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="10"
+                                ><span></span>
+                            </label>
+                        </td>
+                    </tr>
+                    <tr id="reload" class="separate d-none">
+                        <td class="indented">reload</td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
+                                ><span>s</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
+                                ><span>s</span>
+                            </label>
+                        </td>
+                    </tr>
+
                     <tr id="initial_combo">
                         <td>combo</td>
-                        <td></td>
-                        <td></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <span></span
+                                ><input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0">
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <span></span
+                                ><input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0">
+                            </label>
+                        </td>
                     </tr>
                     <tr id="combo_efficiency">
                         <td class="indented">efficiency</td>
-                        <td></td>
-                        <td></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0"
+                                ><span>%</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
+                                ><span>%</span>
+                            </label>
+                        </td>
                     </tr>
                     <tr id="combo_duration" class="separate">
                         <td class="indented">duration</td>
-                        <td>5s</td>
-                        <td></td>
-                    </tr>
-                    <tr>
-                        <td></td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="5"
+                                ><span>s</span>
+                            </label>
+                        </td>
+                        <td>
+                            <label class="input_with_unit">
+                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="5"
+                                ><span>s</span>
+                            </label>
+                        </td>
                     </tr>
                 </tbody>
     
@@ -423,149 +547,6 @@
                 </tr>
     
                 <tbody class="stats_damage_table" id="stats_damage">
-                    <tr id="impact">
-                        <td>impact</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="puncture">
-                        <td>puncture</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="slash">
-                        <td>slash</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-    
-                    <tr id="cold">
-                        <td>cold</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="electricity">
-                        <td>electricity</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="heat">
-                        <td>heat</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="toxin">
-                        <td>toxin</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-    
-                    <tr id="blast">
-                        <td>blast</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="corrosive">
-                        <td>corrosive</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="gas">
-                        <td>gas</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="magnetic">
-                        <td>magnetic</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="radiation">
-                        <td>radiation</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr id="viral">
-                        <td>viral</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
-    
-                    <tr id="void_dmg">
-                        <td>void</td>
-                        <td>0</td>
-                        <td></td>
-                        <td colspan="2" class="tooltip">
-                            <div class="graph_bar">
-                                <span class="tooltiptext">0</span>
-                            </div>
-                        </td>
-                    </tr>
                     <!-- space for the axis of the graph -->
                     <tr style="height:15px;">
                         <td></td>
@@ -581,7 +562,7 @@
         </div>
 
         <div class="other">
-            <div class="enemy_wrapper">
+            <div id="enemy_wrapper">
                 <table style="width: 100%; border-collapse: collapse;">
                     <thead style="position: sticky;">
                         <tr>
@@ -626,13 +607,13 @@
                 <label>iterations
                     <input type="number" value="10" min="1" id="iterations" style="width: 8ch;">
                 </label>
-                <label>max time
-                    <input type="number" value="30" min="1" id="max_time" style="width: 7ch;">
-                    s
+                <label class="input_with_unit">max time
+                    <input type="number" value="30" min="1" id="max_time" style="width: 7ch;"
+                    ><span>s</span>
                 </label>
-                <label>tickrate
-                    <input type="number" value="60" min="1" id="tickrate" style="width: 6ch;">
-                    /s
+                <label class="input_with_unit">tickrate
+                    <input type="number" value="60" min="1" id="tickrate" style="width: 6ch;"
+                    ><span>/s</span>
                 </label>
             </fieldset>
             <!--
@@ -676,13 +657,28 @@
         </div>
     </div>
 
-    <!--
-    TODO
-    <label class="input_with_unit">
-        <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem">
-        <span>%</span>
-    </label>
-    -->
+    <template id="damage_template">
+        <tr>
+            <td>dmg_type</td>
+            <td>
+                <label class="input_with_unit">
+                    <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0"
+                    ><span></span>
+                </label>
+            </td>
+            <td>
+                <label class="input_with_unit">
+                    <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
+                    ><span></span>
+                </label>
+            </td>
+            <td colspan="2" class="tooltip">
+                <div class="graph_bar">
+                    <span class="tooltiptext">0</span>
+                </div>
+            </td>
+        </tr>
+    </template>
 
     <!-- Template for a Mod Cell (inner structure) -->
     <template id="cell-template">
@@ -726,7 +722,7 @@
                     <th style="width: 100px">refresh mode</th>
                 </tr>
                 </thead>
-                <tbody id="stats-tbody"></tbody>
+                <tbody id="stats-tbody" style="text-align: center;"></tbody>
                 <tfoot>
                 <tr>
                     <td colspan="99">
@@ -775,8 +771,8 @@
             </td>
             <td>
                 <label class="input_with_unit">
-                    <input disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999" style="width: 2rem">
-                    <!-- TODO <span>s</span> -->
+                    <input disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999" style="width: 2rem"
+                    ><span>s</span>
                 </label>
             </td>
             <td>
@@ -860,10 +856,9 @@
         <tr>
             <td class="input-decoration">
                 <label class="input_with_unit">
-                    +
-                    <input name="inputBonusDamage" type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?"
-                           style="width: 2rem">
-                    <span>%</span>
+                    <span>+</span
+                    ><input name="inputBonusDamage" type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" style="width: 2rem"
+                    ><span>%</span>
                     <!-- title="Positive decimal number, can also be Scientific Notation or %" -->
                     <!--
                         \d+(?:[.,]\d+)?(?:%|e\d+)?          ℚ+
@@ -895,14 +890,14 @@
         <tr>
             <td class="containerTime">
                 <label class="input_with_unit">
-                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" style="width: 2.5rem">
-                    <span>s</span>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" style="width: 2.5rem"
+                    ><span>s</span>
                 </label>
             </td>
             <td class="containerDamage">
                 <label class="input_with_unit">
-                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" value=100 style="width: 2rem">
-                    <span>%</span>
+                    <input type="text" inputmode="decimal" pattern="\d+(?:[.,]\d+)?(?:%|e\d+)?" value=100 style="width: 2.5rem"
+                    ><span>%</span>
                 </label>
             </td>
             <td>

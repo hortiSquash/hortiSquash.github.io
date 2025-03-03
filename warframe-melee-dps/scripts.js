@@ -63,6 +63,23 @@ const default_modbuff = {
     "damage_types": default_value(default_damage_types, {}),
 }
 
+const damage_order = [
+    "void_dmg",
+    "viral",
+    "radiation",
+    "magnetic",
+    "gas",
+    "corrosive",
+    "blast",
+    "toxin",
+    "heat",
+    "electricity",
+    "cold",
+    "slash",
+    "puncture",
+    "impact",
+];
+
 let enemies = [];
 let current_enemy_row = 0;
 
@@ -412,11 +429,15 @@ function formatMultiplier(num, maxDigits = 2) {
 }
 
 //fr-FR for ISO number format with SPACE as thousands separator and , as decimals
-function formatDecimals(num, maxDigits = 2) {
+function formatDecimalsMinMax(num, minDigits, maxDigits) {
     return new Intl.NumberFormat("default", {
-        minimumFractionDigits: 1,
+        minimumFractionDigits: minDigits,
         maximumFractionDigits: maxDigits,
     }).format(num);
+}
+
+function formatDecimals(num, maxDigits = 2) {
+    return formatDecimalsMinMax(num, 1, maxDigits);
 }
 
 function formatLargeNumbers(num, maxDigits = 3) {
@@ -495,25 +516,29 @@ function loadWeaponStats() {
 }
 
 function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for base, 2 for modded stats
-    document.getElementById("attack_speed").cells[column].innerText = formatDecimals(weapon_to_display.attack_speed, 3);
-    document.getElementById("wind_up").cells[column].innerText = formatSecond(weapon_to_display.wind_up);
-    document.getElementById("critical_chance").cells[column].innerText = formatPercent(weapon_to_display.critical_chance);
-    document.getElementById("critical_damage").cells[column].innerText = formatMultiplier(weapon_to_display.critical_damage);
-    document.getElementById("status").cells[column].innerText = formatPercent(weapon_to_display.status);
-    document.getElementById("initial_combo").cells[column].innerText = formatAdditive(weapon_to_display.initial_combo);
-    document.getElementById("combo_duration").cells[column].innerText = formatSecond(weapon_to_display.combo_duration);
-    document.getElementById("combo_efficiency").cells[column].innerText = formatPercent(weapon_to_display.combo_efficiency);
+    document.getElementById("attack_speed").cells[column].querySelector("input").value = formatDecimals(weapon_to_display.attack_speed, 3);
+    document.getElementById("wind_up").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.wind_up, 0, 3);
+    document.getElementById("critical_chance").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.critical_chance * 100, 0, 2);
+    document.getElementById("critical_damage").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.critical_damage, 0, 2);
+    document.getElementById("status").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.status * 100, 0, 2);
+    document.getElementById("initial_combo").cells[column].querySelector("input").value = formatAdditive(weapon_to_display.initial_combo);
+    document.getElementById("combo_duration").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.combo_duration, 0, 3);
+    document.getElementById("combo_efficiency").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.combo_efficiency * 100, 0, 2);
 
     let crit_table = document.getElementById("crit_tier").cells;
-    for(let i = 1; i < crit_table.length; i++) {
+
+    crit_table[1].innerText = formatPercent(weapon_to_display.critical_chance);
+    for(let i = 2; i < crit_table.length; i++) {
         let value = weapon_to_display.critical_chance + weapon.critical_chance * weapon_to_display.critical_chance_per_combo * (i - 1);
         crit_table[i].innerText = formatPercent(value);
 
         crit_table[i].classList.toggle("mod_buff", (weapon_to_display.critical_chance_per_combo > 0));
         crit_table[i].classList.toggle("mod_nerf", (weapon_to_display.critical_chance_per_combo < 0));
     }
+
     let status_table = document.getElementById("status_tier").cells;
-    for(let i = 1; i < status_table.length; i++) {
+    status_table[1].innerText = formatPercent(weapon_to_display.status);
+    for(let i = 2; i < status_table.length; i++) {
         let value = weapon_to_display.status + weapon.status * weapon_to_display.status_per_combo * (i - 1);
         status_table[i].innerText = formatPercent(value);
 
@@ -527,7 +552,7 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
     for (const [key, value] of Object.entries(weapon_to_display.damage_types)) {
         let cell = document.getElementById(key)?.cells[column];
         if(cell){
-            cell.innerText = formatDecimals(value, 1);
+            cell.querySelector("input").value = formatDecimals(value, 1);
         }
     }
 
@@ -598,40 +623,32 @@ function saveWeapon() {
     document.getElementById("riven_disposition_meter").value = document.getElementById("riven_disposition_input").value;
 
     weapon = {
-        "attack_speed": document.getElementById("attack_speed").cells[1].innerText,
-        "wind_up": document.getElementById("wind_up").cells[1].innerText,
-        "critical_chance": document.getElementById("critical_chance").cells[1].innerText,
-        "critical_damage": document.getElementById("critical_damage").cells[1].innerText,
-        "status": document.getElementById("status").cells[1].innerText,
-        "initial_combo": document.getElementById("initial_combo").cells[1].innerText,
-        "combo_duration": document.getElementById("combo_duration").cells[1].innerText,
-        "combo_efficiency": document.getElementById("combo_efficiency").cells[1].innerText,
+        "attack_speed": document.getElementById("attack_speed").cells[1].querySelector("input").value,
+        "wind_up": document.getElementById("wind_up").cells[1].querySelector("input").value,
+
+        "critical_chance": document.getElementById("critical_chance").cells[1].querySelector("input").value / 100,
+        "critical_damage": document.getElementById("critical_damage").cells[1].querySelector("input").value,
+
+        "status": document.getElementById("status").cells[1].querySelector("input").value / 100,
+
+        "initial_combo": document.getElementById("initial_combo").cells[1].querySelector("input").value,
+        "combo_duration": document.getElementById("combo_duration").cells[1].querySelector("input").value,
+        "combo_efficiency": document.getElementById("combo_efficiency").cells[1].querySelector("input").value / 100,
+
+        "multishot": document.getElementById("multishot").cells[1].querySelector("input").value,
+        "magazine_capacity": document.getElementById("magazine_capacity").cells[1].querySelector("input").value,
+        "reload": document.getElementById("reload").cells[1].querySelector("input").value,
+
         "riven_disposition": document.getElementById("riven_disposition_input").value,
         "max_combo": 12,
-
-        "damage_types": default_value(default_damage_types, {
-            "impact": document.getElementById("impact").cells[1].innerText,
-            "puncture": document.getElementById("puncture").cells[1].innerText,
-            "slash": document.getElementById("slash").cells[1].innerText,
-
-            "cold": document.getElementById("cold").cells[1].innerText,
-            "electricity": document.getElementById("electricity").cells[1].innerText,
-            "heat": document.getElementById("heat").cells[1].innerText,
-            "toxin": document.getElementById("toxin").cells[1].innerText,
-
-            "blast": document.getElementById("blast").cells[1].innerText,
-            "corrosive": document.getElementById("corrosive").cells[1].innerText,
-            "gas": document.getElementById("gas").cells[1].innerText,
-            "magnetic": document.getElementById("magnetic").cells[1].innerText,
-            "radiation": document.getElementById("radiation").cells[1].innerText,
-            "viral": document.getElementById("viral").cells[1].innerText,
-            "void_dmg": document.getElementById("void_dmg").cells[1].innerText,
-        })
     };
+    weapon.damage_types = default_value(default_damage_types, Object.fromEntries(damage_order.map(e =>
+        [e, (document.getElementById(e)?.cells[1].querySelector("input").value) | 0]
+    )));
 
     // remove the % and shit
     for (const [key, value] of Object.entries(weapon)) {
-        if (key != "damage_types") {
+        if (key !== "damage_types") {
             weapon[key] = parseFloat(String(value).replace("%", "E-2")) || 0;
         }
         else {
@@ -684,24 +701,13 @@ function calculateModding(weapon, mod_buffs_cpp = [], enemies) {
     return weaponModded;
 }
 
-function contentEditable(table) {
-    for (const row of document.getElementById(table).rows) {
-        const c = row.cells[1];
-        if (c == null) continue;
-        c.setAttribute("contenteditable", "true");
-        c.addEventListener('input', function () {
-            saveWeapon()
-        });
-    }
-}
-
 function statColoring(table) {
     const b = document.getElementById(table).rows;
     for (let i = 0; i < b.length; i++) {
         const c = b[i].cells;
         if (c.length < 3) continue;
-        const oldVal = parseFloat(c[1].innerText.replace(",", ""));
-        const newVal = parseFloat(c[2].innerText.replace(",", ""));
+        const oldVal = parseFloat(c[1].querySelector("input")?.value.replace(",", ""));
+        const newVal = parseFloat(c[2].querySelector("input")?.value.replace(",", ""));
         const isBuff = oldVal < newVal;
         const isNerf = oldVal > newVal;
         c[2].classList.toggle("mod_buff", isBuff);
@@ -709,8 +715,19 @@ function statColoring(table) {
     }
 }
 
-contentEditable("stats_damage");
-contentEditable("stats");
+document.getElementById("stats_wrapper").addEventListener('input', function () {
+    saveWeapon()
+});
+
+{
+    const kek = document.getElementById("stats_damage")
+    for (const e of damage_order){
+        const damage_template = document.getElementById("damage_template").content.cloneNode(true);
+        damage_template.querySelector("tr").id = e;
+        damage_template.querySelector("td").innerText = (e !== "void_dmg") ? e : "void";
+        kek.insertBefore(damage_template, kek.firstChild);
+    }
+}
 
 function hideEmptyRows(table) {
     displayRows("stats_damage", false);
@@ -833,23 +850,6 @@ function getNiceTickValues(max, tickCount) {
 }
 
 function status_proportion_graph() {
-    const damage_order = [
-        "void_dmg",
-        "viral",
-        "radiation",
-        "magnetic",
-        "gas",
-        "corrosive",
-        "blast",
-        "toxin",
-        "heat",
-        "electricity",
-        "cold",
-        "slash",
-        "puncture",
-        "impact",
-    ];
-
     //TODO C++ call for the proc proportion
     //const temp = Module.final_stats(weapon, isHeavy, enemy_faction, quantization, conditionals);
     const x = damage_order.map(k => finalStats.displayed_damage_types[k]).reverse();

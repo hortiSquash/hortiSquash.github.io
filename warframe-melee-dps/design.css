@@ -14,14 +14,45 @@ body {
     --mod-margin-horizontal: 8px;
     --mod-margin-vertical: 8px;
     --mod-gap: calc(2 * var(--mod-margin-vertical)) calc(2 * var(--mod-margin-horizontal));
+
+    --unit-size: 0.8rem;
 }
 
-.enemy_wrapper {
+#enemy_wrapper {
     border: 2px solid #ccc;
     width: 400px;
     height: 200px;
     overflow-y: auto;
     scrollbar-gutter: stable;
+
+    & tr:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+
+    & thead > tr {
+        position: sticky;
+        background-color: white;
+        top: 0;
+        z-index: 1;
+    }
+
+    > table > :is(td, th) {
+        border-left: 2px solid white;
+        /* border-right: 1px solid white; */
+        padding: 1px;
+    }
+
+    & tfoot > tr:last-child {
+        > * {
+            z-index: 1;
+            position: sticky;
+            bottom: 0;
+        }
+
+        > :is(td, th) {
+            background-color: #ccc;
+        }
+    }
 }
 
 .add-enemy button {
@@ -45,33 +76,6 @@ body {
 
 .pen-button:hover {
     color: blue;
-}
-
-.enemy_wrapper tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-.enemy_wrapper thead > tr {
-    position: sticky;
-    background-color: white;
-    top: 0;
-    z-index: 1;
-}
-
-.enemy_wrapper > table > :is(td, th) {
-    border-left: 2px solid white;
-    /* border-right: 1px solid white; */
-    padding: 1px;
-}
-
-.enemy_wrapper tfoot > tr:last-child > :is(td, th) {
-    background-color: #ccc;
-}
-
-.enemy_wrapper tfoot > tr:last-child > * {
-    z-index: 1;
-    position: sticky;
-    bottom: 0;
 }
 
 #stance_wrapper > form > table > tfoot > tr:last-child > * {
@@ -241,7 +245,7 @@ a.modebar-btn {
     }
 }
 
-.stats_wrapper {
+#stats_wrapper {
     grid-area: stats_wrapper;
     width: 575px;
     /* max-content + some space for the graph ticks*/
@@ -258,11 +262,11 @@ a.modebar-btn {
     background-color: #f2f2f2;
 }
 
-.stats_wrapper th {
+#stats_wrapper th {
     font-weight: normal;
 }
 
-.stats_wrapper thead th {
+#stats_wrapper thead th {
     position: sticky;
     background-color: #fff;
     top: 0;
@@ -270,7 +274,7 @@ a.modebar-btn {
     font-weight: normal;
 }
 
-.stats_wrapper tfoot tr:nth-child(even) {
+#stats_wrapper tfoot tr:nth-child(even) {
     position: sticky;
     background-color: #fff;
     bottom: 0;
@@ -333,8 +337,8 @@ td.tooltip {
     visibility: visible;
 }
 
-.stats_wrapper td:nth-child(2):not(table td td),
-.stats_wrapper td:nth-child(3):not(table td td) {
+#stats_wrapper td:nth-child(2):not(table td td),
+#stats_wrapper td:nth-child(3):not(table td td) {
     text-align: right;
 }
 
@@ -516,14 +520,64 @@ td.tooltip {
 
 .input_with_unit {
     > span {
-        margin-left: -1.0rem;
         font-size: small;
         display: inline-block;
-        width: 1rem;
+        width: var(--unit-size);
+        position: relative;
+
+        &:empty {
+            display: none;
+        }
     }
+
     > input {
-        padding-right: 1.0rem;
         text-align: right;
+        outline-offset: 1px;
+        width: calc(100% - var(--unit-size));
+        padding: 0;
+    }
+
+    /* if span at the end */
+    > input:has(+ span) {
+        padding-right: var(--unit-size);
+    }
+    > input + span {
+        margin-left: calc(-1 * var(--unit-size));
+        text-align: left;
+    }
+
+    /* if span at the beginning */
+    > span:has(+ input) {
+        margin-right: calc(-1 * var(--unit-size));
+        text-align: right;
+    }
+    > span + input {
+        padding-left: var(--unit-size);
+    }
+
+    /* if input sandwiched between two spans */
+    > span + input:has(+ span) {
+        width: calc(100% - 2 * var(--unit-size));
+    }
+
+    /* TODO make that work with 2 spans */
+    &:has(> span:empty) > input {
+        padding: 0;
+        width: 100%;
+    }
+
+    &:has(> input:disabled) > span {
+        color: grey;
+    }
+}
+
+#stats_wrapper .input_with_unit {
+    > input {
+        height: 16px;
+        font: inherit;
+    }
+    &:has(> input:disabled) > * {
+        color: inherit;
     }
 }
 
