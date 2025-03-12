@@ -247,7 +247,7 @@
                                 ><span>/s</span>
                             </label>
                         </td>
-                        <td rowspan="2" colspan="3" style="text-align: center; background-color: #ccc;">
+                        <td rowspan="2" colspan="3" style="text-align: center; background-color: var(--color-weapon-background);">
                             <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
                             placeholder="Weapon select" onblur="loadWeaponStats()" style="font-size: large; font-weight: bold;" size="17">
                         </td>
@@ -353,7 +353,7 @@
                             <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6" style="width: 3.5rem"
                                    onchange="saveWeapon()">
                             <br> <!-- important for the width of the graph -->
-                            <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1.5"></meter>
+                            <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1"></meter>
                         </td>
                     </tr>
                     <tr id="critical_damage" class="separate">
@@ -723,7 +723,7 @@
             </div>
             <table>
                 <thead>
-                    <tr style="background-color: #ccc;">
+                    <tr>
                         <th style="width: 435px" colspan="3">buff</th>
                         <th style="width: 125px">condition</th>
                         <th style="width: 63px">duration</th>
@@ -822,7 +822,7 @@
                         <td colspan=4>
                             <button type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
                             <button type="button" onclick="addHit()">Add a hit</button>
-                            <div class="tooltip" style="color: #333">🛈
+                            <div class="tooltip">🛈
                                 <span class="tooltiptext">edit to 0 to delete proc or bonus damage</span>
                             </div>
                             <button type="submit" onclick="saveStance()" style="float: right;">Save</button>

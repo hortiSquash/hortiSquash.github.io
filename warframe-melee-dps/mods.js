@@ -217,7 +217,7 @@ mod_list.addEventListener("drop", createDelegatedEvent(".cell", function (event,
 }))
 
 document.querySelectorAll("#mod_list_search, #mod_list_select_polarity, #mod_list_select_type, #mod_list_select_rarity").forEach(function (target) {
-    target.addEventListener('blur', function () {
+    target.addEventListener('change', function () {
         const filter_text = document.getElementById("mod_list_search").value.toUpperCase();
         const filter_polarity = document.getElementById("mod_list_select_polarity").value;
         const filter_type = document.getElementById("mod_list_select_type").value;
@@ -227,9 +227,9 @@ document.querySelectorAll("#mod_list_search, #mod_list_select_polarity, #mod_lis
         for (let element of li) {
             let txtValue = element.textContent || element.innerText;
             const included = txtValue.toUpperCase().includes(filter_text)
-                && element.modData.rarity.includes(filter_rarity)
-                && element.modData.type.includes(filter_type)
-                && element.modData.polarity.includes(filter_polarity);
+                && (element.modData.rarity?.includes(filter_rarity) ?? true)
+                && (element.modData.type?.includes(filter_type) ?? true)
+                && (element.modData.polarity?.includes(filter_polarity) ?? true);
             element.classList.toggle("d-none", !included);
         }
 })})
