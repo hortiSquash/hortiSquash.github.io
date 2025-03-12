@@ -200,6 +200,7 @@
                 <option value="aura">Auras</option>
                 <option value="exilus">Exilus</option>
                 <option value="arcane">Arcanes</option>
+                <option value="ability">Abilities</option>
             </select>
             <select id="mod_list_select_rarity">
                 <option value="" selected>Any</option>
@@ -219,10 +220,10 @@
             <table style="width: 100%">
                 <thead style="position: sticky;">
                     <tr>
-                        <th style="width: 100px;"></th>
+                        <th style="width: 100px; background: inherit"></th>
                         <th style="width: 65px;">base</th>
                         <th style="width: 65px;">modded</th>
-                        <th style="width: 40px;"></th>
+                        <th style="width: 40px; background: inherit"></th>
                     </tr>
                 </thead>
                 <colgroup>
@@ -246,10 +247,10 @@
                                 ><span>/s</span>
                             </label>
                         </td>
-                        <td rowspan="2" colspan="3" style="text-align: center; background-color: #ccc;"> <input
-                            type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
-                            placeholder="Weapon select" onblur="loadWeaponStats()"
-                            style="font-size: large; font-weight: bold;" size="17"> </td>
+                        <td rowspan="2" colspan="3" style="text-align: center; background-color: #ccc;">
+                            <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
+                            placeholder="Weapon select" onblur="loadWeaponStats()" style="font-size: large; font-weight: bold;" size="17">
+                        </td>
                     </tr>
                     <tr id="wind_up" class="separate">
                         <td class="indented">wind up</td>
@@ -331,7 +332,7 @@
                                 </table>
                             </div>
                         </td>
-                        <td rowspan="10" colspan="2" style="border-left: 2px solid #ccc;">
+                        <td rowspan="10" colspan="2" style="border-left: 2px solid var(--color-borders);">
                             <!-- <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input" placeholder="Weapon select" onchange="loadWeaponStats()"
                         style="font-size: large; font-weight: bold;" size="17">
                     <br><br> -->
@@ -602,6 +603,7 @@
                 <label>Conditionals:
                     <input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/>
                 </label>
+                <button onclick="document.body.toggleAttribute('dark')">☀ / ⛭</button>
             </div>
             <fieldset style="display: flex; justify-content: space-around; flex-wrap: wrap; padding: 5px; max-width: 100%;">
                 <legend>Extra parameters</legend>
@@ -660,7 +662,10 @@
 
     <template id="damage_template">
         <tr>
-            <td>dmg_type</td>
+            <td>
+                <img class="damage-glyph" loading="lazy">
+                <span class="damage-name"></span>
+            </td>
             <td>
                 <label class="input_with_unit">
                     <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0"
@@ -701,6 +706,14 @@
                     rank:
                     <input type="number" id="mod-level-input" style="width: 2.25rem" min="0">
                 </label>
+                <label class="input_with_unit">
+                    ability strength:
+                    <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1"><span>%</span>
+                    <!--
+                    <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1">
+                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0">
+                    >-->
+                </label>
                 <label>
                     capacity:
                     <span id="mod-capacity">
@@ -710,14 +723,14 @@
             </div>
             <table>
                 <thead>
-                <tr style="background-color: #ccc;">
-                    <th style="width: 435px" colspan="3">buff</th>
-                    <th style="width: 125px">condition</th>
-                    <th style="width: 63px">duration</th>
-                    <th style="width: 63px">max stacks</th>
-                    <th style="width: 92px">expiry mode</th> <!-- decay? -->
-                    <th style="width: 100px">refresh mode</th>
-                </tr>
+                    <tr style="background-color: #ccc;">
+                        <th style="width: 435px" colspan="3">buff</th>
+                        <th style="width: 125px">condition</th>
+                        <th style="width: 63px">duration</th>
+                        <th style="width: 63px">max stacks</th>
+                        <th style="width: 92px">expiry mode</th> <!-- decay? -->
+                        <th style="width: 100px">refresh mode</th>
+                    </tr>
                 </thead>
                 <tbody id="stats-tbody" style="text-align: center;"></tbody>
                 <tfoot>
@@ -796,7 +809,7 @@
             <form method="dialog">
                 <table id="hits_table">
                     <thead>
-                    <tr style="background-color: #ccc;">
+                    <tr style="background-color: var(--color-TR-header);">
                         <th width=63px>time</th>
                         <th width=63px>damage</th>
                         <th width=170px>forced procs</th>

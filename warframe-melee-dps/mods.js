@@ -277,9 +277,17 @@ function openEditModal(cell) {
     modLevelInput.value = modData.current_level ?? modData.max_level;
     modLevelInput.max = modData.max_level;
 
+    const abilityStrengthInput = document.getElementById("ability-strength-input");
+    abilityStrengthInput.value = modData.current_strength ?? abilityStrengthInput.value;
+
     const polarity = polarity_unicode[modData.polarity] ?? (modData.polarity || " any");
     const modCapacity = document.getElementById("mod-capacity");
     modCapacity.innerText = modData.base_drain + modLevelInput.valueAsNumber + polarity;
+
+    const isAbility = modData.type === "ability";
+    abilityStrengthInput.parentElement.classList.toggle("d-none", !isAbility);
+    modCapacity.parentElement.classList.toggle("d-none", isAbility);
+    modLevelInput.parentElement.classList.toggle("d-none", isAbility);
 
     const statsTbody = document.getElementById("stats-tbody");
     statsTbody.innerHTML = "";
@@ -319,20 +327,35 @@ function openEditModal(cell) {
 
     let old_mod_level = modLevelInput.valueAsNumber;
     modLevelInput.addEventListener("change", () => {
+        const level_ratio = (1 + modLevelInput.valueAsNumber) / (1 + old_mod_level);
         for(let tr of statsTbody.children){
-            const cell_value = tr.querySelector(`[name='value']`);
-            cell_value.value = formatDecimals(
-                cell_value.value / (1 + old_mod_level) * (1 + modLevelInput.valueAsNumber), 5);
+            const cell = tr.querySelector(`[name='value']`);
+            cell.value = formatDecimals(
+                cell.value * level_ratio, 5);
 
             //FIXME NaN when parse % and text and , and shit
         }
-        old_mod_level = modLevelInput.valueAsNumber;
+        old_mod_level = modLevelInput.valueAsNumber ?? 0;
+    })
+
+    let old_ability_strength = abilityStrengthInput.valueAsNumber;
+    abilityStrengthInput.addEventListener("change", () => {
+        const level_ratio = abilityStrengthInput.valueAsNumber / old_ability_strength;
+        for(let tr of statsTbody.children){
+            const cell = tr.querySelector(`[name='value']`);
+            cell.value = formatDecimals(
+                cell.value * level_ratio, 5);
+
+            //FIXME NaN when parse % and text and , and shit
+        }
+        old_ability_strength = abilityStrengthInput.valueAsNumber ?? 100;
     })
 
     modDialog.querySelector("form").addEventListener("submit", function(e) {
         e.preventDefault();
         modData.name = modNameInput.value;
         modData.current_level = modLevelInput.valueAsNumber;
+        if(isAbility) modData.current_strength = abilityStrengthInput.valueAsNumber;
 
         modData.buffs.length = statsTbody.children.length;
         for(let i=0; i < statsTbody.children.length; i++){

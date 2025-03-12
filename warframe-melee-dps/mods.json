@@ -1,5 +1,171 @@
 [
     {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "attack_speed",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.2
+            }
+        ],
+        "max_level": 0,
+        "name": "Wisp's Haste Mote",
+        "rarity": "rare",
+        "type": "ability"
+    },
+    {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "damage_multiplicative_grineer",
+                "damage_type": "DT_ANY",
+                "display_as": "x",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.5
+            },
+            {
+                "buff": "damage_multiplicative_corpus",
+                "damage_type": "DT_ANY",
+                "display_as": "x",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.5
+            },
+            {
+                "buff": "damage_multiplicative_corrupted",
+                "damage_type": "DT_ANY",
+                "display_as": "x",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.5
+            },
+            {
+                "buff": "damage_multiplicative_infested",
+                "damage_type": "DT_ANY",
+                "display_as": "x",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.5
+            },
+            {
+                "buff": "damage_multiplicative_sentient",
+                "damage_type": "DT_ANY",
+                "display_as": "x",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.5
+            }
+        ],
+        "max_level": 0,
+        "name": "Rhino's Roar",
+        "rarity": "rare",
+        "type": "ability"
+    },
+    {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "damage_multiplicative",
+                "damage_type": "DT_ANY",
+                "display_as": "x",
+                "operation": "MULTIPLY",
+                "value": 2.0
+            }
+        ],
+        "max_level": 0,
+        "name": "Mirage's Eclipse",
+        "rarity": "rare",
+        "type": "ability"
+    },
+    {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "void_dmg",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.26
+            }
+        ],
+        "max_level": 0,
+        "name": "(BUGGED) Xaku's Xata's Whisper",
+        "rarity": "rare",
+        "type": "ability"
+    },
+    {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "viral",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.75
+            }
+        ],
+        "max_level": 0,
+        "name": "Grendel's Nourish",
+        "rarity": "rare",
+        "type": "ability"
+    },
+    {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "critical_chance_flat",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "operation": "STACKING_MULTIPLY",
+                "value": 2.0
+            }
+        ],
+        "max_level": 0,
+        "name": "Kullervo's Wrathful Advance",
+        "rarity": "rare",
+        "type": "ability"
+    },
+    {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "critical_chance_flat",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.05
+            }
+        ],
+        "max_level": 0,
+        "name": "Harrow's Covenant",
+        "rarity": "rare",
+        "type": "ability"
+    },
+    {
+        "base_drain": 0,
+        "buffs": [
+            {
+                "buff": "attack_speed",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.35
+            },
+
+            {
+                "buff": "WEAPON_RELOAD_SPEED",
+                "damage_type": "DT_ANY",
+                "display_as": "%",
+                "operation": "STACKING_MULTIPLY",
+                "value": 0.70
+            }
+        ],
+        "max_level": 0,
+        "name": "Harrow's Pennance",
+        "rarity": "rare",
+        "type": "ability"
+    },
+
+
+    {
         "base_drain": 6,
         "buffs": [
             {
@@ -39,6 +205,8 @@
         "rarity": "rare",
         "type": "none"
     },
+
+
     {
         "base_drain": 10,
         "buffs": [
@@ -70,6 +238,8 @@
         "rarity": "riven",
         "type": "none"
     },
+
+    
     {
         "base_drain": 6,
         "buffs": [

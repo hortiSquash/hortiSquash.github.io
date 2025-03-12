@@ -236,7 +236,7 @@ function changeStats() {
         alert("Select a weapon");
         throw "missing weapon";
     }
-    if(stance[document.getElementById("combo_type").value] == null){
+    if(stance == null || stance[document.getElementById("combo_type").value] == null){
         alert("Select a stance and combo");
         throw "missing stance/combo";
     }
@@ -720,11 +720,39 @@ document.getElementById("stats_wrapper").addEventListener('input', function () {
 });
 
 {
+    const unicode = {
+        //ammo thingy is ea01
+        "Madurai": "\u{ea02}",
+        "Vazarin": "\u{ea03}",
+        "Zenurik": "\u{ea04}",
+        "Penjaga": "\u{ea05}",
+        "Naramon": "\u{ea06}",
+        "Umbra": "\u{ea07}",
+        "Unairu": "\u{ea08}",
+
+        "corrosive": "\u{ea0b}",
+        "gas": "\u{ea10}",
+        "impact": "\u{ea11}",
+        "puncture": "\u{ea14}",
+        "slash": "\u{ea18}",
+        "viral": "\u{ea19}",
+        //corrosive is ea0b
+        //elec is ???
+        //gas is ea10
+        //impact is ea11
+        //puncture is ea14
+        //tau is ea17
+        //slash is ea18
+        //viral is ea19
+    }
+
     const kek = document.getElementById("stats_damage")
-    for (const e of damage_order){
+    for (let e of damage_order){
         const damage_template = document.getElementById("damage_template").content.cloneNode(true);
         damage_template.querySelector("tr").id = e;
-        damage_template.querySelector("td").innerText = (e !== "void_dmg") ? e : "void";
+        if (e === "void_dmg") e = "void";
+        damage_template.querySelector("td img").src = "https://browse.wf/Lotus/Interface/Icons/StatSymbols/"+ e.charAt(0).toUpperCase() + e.slice(1) +"Symbol.png";
+        damage_template.querySelector("td .damage-name").innerText = e;
         kek.insertBefore(damage_template, kek.firstChild);
     }
 }

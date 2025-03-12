@@ -5,42 +5,85 @@
 
 body {
     font-family: Arial, sans-serif, WarframeIcons;
+    background-color: var(--color-background);
+    color: var(--color-text);
 }
 
 :root {
     --mod-width: 240px;
     --mod-height: 120px;
     --buff-count: 3;
-    --mod-margin-horizontal: 8px;
-    --mod-margin-vertical: 8px;
+    --mod-margin-horizontal: 5px;
+    --mod-margin-vertical: 5px;
     --mod-gap: calc(2 * var(--mod-margin-vertical)) calc(2 * var(--mod-margin-horizontal));
 
     --unit-size: 0.8rem;
+
+    --color-text: #000;
+    --color-background: #ddd;
+    --color-borders: #bbb;
+    --color-indented: grey;
+    --color-hovered: blue;
+    --color-modbuff: green;
+    --color-modnerf: red;
+    --mod-empty-background-filter: invert() opacity(30%);
+    --color-mod-empty-background: rgba(0, 0, 0, 0.7);
+    --color-hits-background: white;
+    --color-plot-background: lightgray;
+
+    --color-TR-even: rgba(0, 0, 0, 0.05);
+    --color-TR-header: var(--color-background);
+
+    --color-tooltip: grey;
+    --color-tooltip-background: rgba(0, 0, 0, 0.7);
+    --color-tooltip-text: white;
+}
+
+body[dark] {
+    --color-text: #fff;
+    --color-background: #555;
+    --color-borders: #bbb;
+    --color-indented: grey;
+    --color-hovered: blue;
+    --color-modbuff: green;
+    --color-modnerf: red;
+    --mod-empty-background-filter: opacity(30%);
+    --color-mod-empty-background: rgba(255, 255, 255, 0.7);
+    --color-hits-background: white;
+    --color-plot-background: #333;
+
+    --color-TR-even: rgba(0, 0, 0, 0.05);
+    --color-TR-header: var(--color-background);
+
+    --color-tooltip: grey;
+    --color-tooltip-background: rgba(0, 0, 0, 0.7);
+    --color-tooltip-text: white;
 }
 
 #enemy_wrapper {
-    border: 2px solid #ccc;
+    border: 2px solid var(--color-borders);
     width: 400px;
     height: 200px;
     overflow-y: auto;
     scrollbar-gutter: stable;
 
     & tr:nth-child(even) {
-        background-color: #f2f2f2;
+        background-color: var(--color-TR-even);
     }
 
     & thead > tr {
         position: sticky;
-        background-color: white;
+        background-color: var(--color-TR-header);
         top: 0;
         z-index: 1;
     }
 
+    /*
     > table > :is(td, th) {
         border-left: 2px solid white;
-        /* border-right: 1px solid white; */
         padding: 1px;
     }
+    */
 
     & tfoot > tr:last-child {
         > * {
@@ -50,7 +93,7 @@ body {
         }
 
         > :is(td, th) {
-            background-color: #ccc;
+            background-color: var(--color-borders);
         }
     }
 }
@@ -66,6 +109,7 @@ body {
 }
 
 .pen-button {
+    color: inherit;
     cursor: pointer;
     padding: 0;
     border: none;
@@ -75,7 +119,7 @@ body {
 }
 
 .pen-button:hover {
-    color: blue;
+    color: var(--color-hovered);
 }
 
 #stance_wrapper > form > table > tfoot > tr:last-child > * {
@@ -85,7 +129,7 @@ body {
 }
 
 #stance_edit_dialog {
-    background-color: #ccc;
+    background-color: var(--color-background);
     /* min-width: 520px; */
     max-height: 80lvh;
     scrollbar-gutter: stable;
@@ -99,16 +143,8 @@ body {
 }
 
 #hits_wrapper {
-    background-color: white;
+    background-color: var(--color-hits-background);
 }
-
-/* input:focus {
-    outline: none;
-}
-
-.input-decoration:focus-within {
-    outline: blue solid 1px;
-} */
 
 .containerAddStat {
     text-align: center;
@@ -165,41 +201,15 @@ a.modebar-btn {
         "mod5 mod6 mod7 mod8 arcane2";
     gap: var(--mod-gap);
     width: fit-content;
-    border: 2px solid #ccc;
+    border: 2px solid var(--color-borders);
     padding: 10px;
-
-    &:empty{
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: lightgrey;
-
-        &::before{
-            content: "mods";
-            font-size: 48px;
-        }
-    }
 }
 
 #mod-list-wrapper{
     grid-area: mod-list;
-    border:2px solid #ccc;
+    border:2px solid var(--color-borders);
     width: fit-content;
     padding: 10px;
-
-    &:empty{
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: lightgrey;
-
-        &::before{
-            content: "mods list";
-            font-size: 48px;
-        }
-    }
 }
 
 #mod-list {
@@ -219,9 +229,9 @@ a.modebar-btn {
 
 #plot {
     grid-area: plot;
-    width: 754px;
+    width: calc((3 * var(--mod-width) + (4 - 1) * 2 * var(--mod-margin-horizontal) + 5 * 2px /* mod border */ - 2 * 2px /* plot's own border */) - 10px /* grid gap */- 4px);
     /* height: 465px; */
-    border: 2px solid #ccc;
+    border: 2px solid var(--color-borders);
 
     position: relative;
     display: flex;
@@ -229,7 +239,7 @@ a.modebar-btn {
     justify-content: center;
 
     &:empty{
-        background: lightgrey;
+        background: var(--color-plot-background);
 
         &::before{
             content: "📊";
@@ -249,7 +259,7 @@ a.modebar-btn {
     grid-area: stats_wrapper;
     width: 575px;
     /* max-content + some space for the graph ticks*/
-    border: 2px solid #ccc;
+    border: 2px solid var(--color-borders);
     position: relative;
     left: 0%;
 }
@@ -259,7 +269,7 @@ a.modebar-btn {
 }
 
 .stats_damage_table tr:nth-child(even) {
-    background-color: #f2f2f2;
+    background-color: var(--color-TR-even);
 }
 
 #stats_wrapper th {
@@ -268,42 +278,45 @@ a.modebar-btn {
 
 #stats_wrapper thead th {
     position: sticky;
-    background-color: #fff;
+    background-color: var(--color-TR-header);
     top: 0;
     z-index: 1;
     font-weight: normal;
 }
 
+/*
 #stats_wrapper tfoot tr:nth-child(even) {
     position: sticky;
-    background-color: #fff;
+    background-color: var(--color-TR-header);
     bottom: 0;
     z-index: 1;
+    background-color: red;
 }
+*/
 
 .separate>td {
-    border-bottom: 15px solid #ffffff;
+    border-bottom: 15px solid transparent;
 }
 
 .indented {
     padding-left: 1em;
-    color: grey;
+    color: var(--color-indented);
 }
 
 div.tooltip {
-    color: grey;
+    color: var(--color-tooltip);
     display: inline-block;
 }
 
 td.tooltip {
-    background-color: white;
+    background-color: var(--color-background);
     padding: 0;
 }
 
 .tooltip .tooltiptext {
     visibility: hidden;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
+    background: var(--color-tooltip-background);
+    color: var(--color-tooltip-text);
     text-align: center;
     border-radius: 3px;
     padding: 5px;
@@ -315,8 +328,8 @@ td.tooltip {
 
 .tooltip > .tooltiptable {
     visibility: hidden;
-    background: rgba(0, 0, 0, 0.7);
-    color: #fff;
+    background: var(--color-tooltip-background);
+    color: var(--color-tooltip-text);
     text-align: left;
     border-radius: 3px;
     padding: 5px;
@@ -343,10 +356,10 @@ td.tooltip {
 }
 
 .mod_buff, .less_is_more.mod_nerf {
-    color: green;
+    color: var(--color-modbuff);
 }
 .mod_nerf, .less_is_more.mod_buff {
-    color: red;
+    color: var(--color-modnerf);
 }
 
 .row_hide {
@@ -361,6 +374,12 @@ td.tooltip {
     height: 18px;
     width: 0%;
     white-space: nowrap;
+
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
+    border-left: none;
+    border-right: none;
 }
 
 .axis {
@@ -390,7 +409,7 @@ td.tooltip {
     width: var(--mod-width);
     height: var(--mod-height);
     border: 2px solid gold;
-    background: #dbdbdb;
+    background-color: rgba(0, 0, 0, 0.1);
     font-family: Arial, sans-serif;
     position: relative;
     overflow: hidden;
@@ -401,7 +420,7 @@ td.tooltip {
 /* Empty mod and buff slots show dashed border with "Empty" */
 .cell:empty {
     background: none;
-    border: 2px dashed #ccc;
+    border: 2px dashed var(--color-borders);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -411,7 +430,7 @@ td.tooltip {
     content: "+";
     position: absolute;
     font-size: 28px;
-    color: #3a3a3a;
+    color: var(--color-mod-empty-background);
     /* pointer-events: none; */
 }
 
@@ -420,9 +439,65 @@ td.tooltip {
     /* font-size: 18px; */
 }
 
-#buffs_wrapper>.cell:empty::after {
-    content: "buff";
-    /* font-size: 18px; */
+.cell.special-slot:empty::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    background-position: center;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.05);
+}
+.cell.special-slot[data-slot_type="arcane"]:empty {
+    &::after {
+        content: "";
+    }
+    &::before {
+        /* background-image: url("https://wiki.warframe.com/images/CosmeticEnhancer.png?6d4d8"); */
+        background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
+        background-size: 55%;
+        filter: var(--mod-empty-background-filter);
+
+    }
+}
+.cell.special-slot[data-slot_type="exilus"]:empty {
+    &::after {
+        content: "";
+    }
+    &::before {
+        background-image: url("https://static.overframe.gg/static/images/icon-exilus.png");
+        background-size: 55%;
+        filter: var(--mod-empty-background-filter);
+    }
+}
+
+#buffs_wrapper>.cell:empty {
+    &::after {
+        content: "buff";
+        /* font-size: 18px; */
+        /* content: ""; */
+    }
+    /*
+    &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        background-position: center;
+        background-repeat: no-repeat;
+        background-color: rgba(0, 0, 0, 0.05);
+
+        background-image: url("https://browse.wf/Lotus/Interface/Icons/MarketBundleUpgradeIcon.png");
+        background-size: 55%;
+        filter: var(--mod-empty-background-filter);
+    }
+    */
 }
 
 /* Stance slot styling */
@@ -537,6 +612,7 @@ td.tooltip {
         outline-offset: 1px;
         width: calc(100% - var(--unit-size));
         padding: 0;
+        color: inherit;
     }
 
     /* if span at the end */
@@ -586,4 +662,11 @@ td.tooltip {
 .hidden_input {
     border: none;
     background: transparent;
+}
+
+.damage-glyph {
+    font-size: small;
+    height:15px;
+    width:15px;
+    margin: -1px;
 }
