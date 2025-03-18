@@ -13,7 +13,7 @@
     <script src="mods.js" defer></script>
     <script src="Warframe_Melee_DPS.js" defer></script>
 
-    <script src="https://cdn.plot.ly/plotly-3.0.0.min.js" charset="utf-8" defer fetchpriority="low"></script>
+    <script src="https://cdn.plot.ly/plotly-3.0.1.min.js" charset="utf-8" defer fetchpriority="low"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
     <script type="module">
@@ -184,7 +184,7 @@
             <div class="cell special-slot" style="grid-area: arcane2;" data-slot_type="arcane"></div>
         </div>
         <div id="mod-list-wrapper">
-            <input id="mod_list_search" placeholder="filter mods" style="width:210px">
+            <input id="mod_list_search" placeholder="filter mods" style="width:12.5rem">
             <select id="mod_list_select_polarity">
                 <option value="" selected>Any</option>
                 <option>Madurai</option>
@@ -336,24 +336,24 @@
                             <!-- <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input" placeholder="Weapon select" onchange="loadWeaponStats()"
                         style="font-size: large; font-weight: bold;" size="17">
                     <br><br> -->
-                            <select id="weapon_type" disabled>
-                                <option value="melee">Melee</option>
-                                <option value="secondary">Secondary</option>
-                                <option value="primary">Primary</option>
-                                <option value="archgun">Archgun</option>
-                            </select>
-                            <br><br>
-
-                            <select id="weapon_subclass" onchange="saveWeapon()" disabled>
-                                <option selected disabled>Subclass</option>
-                                <!-- TODO could add bow/shotgun/sniper/etc but fuck it --></select>
-                            <br><br>
-
-                            <label for="riven_disposition_input">Riven disposition</label>
-                            <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6" style="width: 3.5rem"
-                                   onchange="saveWeapon()">
-                            <br> <!-- important for the width of the graph -->
-                            <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1"></meter>
+                            <div style="display: flex; justify-content: space-around; flex-direction: column; height: 150px; width: fit-content; padding-left: 2rem">
+                                <select id="weapon_type" disabled>
+                                    <option value="melee">Melee</option>
+                                    <option value="secondary">Secondary</option>
+                                    <option value="primary">Primary</option>
+                                    <option value="archgun">Archgun</option>
+                                </select>
+                                <select id="weapon_subclass" onchange="saveWeapon()" disabled>
+                                    <option selected disabled>Subclass</option>
+                                    <!-- TODO could add bow/shotgun/sniper/etc but fuck it -->
+                                </select>
+                                <label for="riven_disposition_input">Riven disposition
+                                    <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6" style="width: 3.5rem"
+                                           onchange="saveWeapon()">
+                                    <br>
+                                    <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1"></meter>
+                                </label>
+                            </div>
                         </td>
                     </tr>
                     <tr id="critical_damage" class="separate">
@@ -577,7 +577,7 @@
                     <tbody id="enemy_container"></tbody>
                     <tfoot>
                         <tr>
-                            <td colspan=4 class="container add-enemy">
+                            <td colspan=4 class="container" id="add-enemy">
                                 <button onclick="addEnemy()">+</button>
                             </td>
                         </tr>
@@ -597,15 +597,11 @@
                 <button onclick="displayAllRows()">Display All Rows</button>
                 -->
                 <button id="help_button">Help</button>
-                <label>Quantization:
-                    <input type="checkbox" id="quantization" checked onchange="saveWeapon()"/>
-                </label>
-                <label>Conditionals:
-                    <input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/>
-                </label>
+                <label>Quantization:<input type="checkbox" id="quantization" checked onchange="saveWeapon()"/></label>
+                <label>Conditionals:<input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/></label>
                 <button onclick="document.body.toggleAttribute('dark')">☀ / ⛭</button>
             </div>
-            <fieldset style="display: flex; justify-content: space-around; flex-wrap: wrap; padding: 5px; max-width: 100%;">
+            <fieldset id="kekrow">
                 <legend>Extra parameters</legend>
                 <label>iterations
                     <input type="number" value="10" min="1" id="iterations" style="width: 8ch;">
@@ -620,41 +616,21 @@
                 </label>
             </fieldset>
             <!--
-            <fieldset style="display: flex; justify-content: space-around; align-items: start; flex-wrap: wrap; padding: 5px; max-width: 150px;">
+            <fieldset id="kekcolumn">
                 <legend>Extra parameters</legend>
                 <label>iterations
-                    <input type="number" value="1" min="1" style="width: 8ch;">
+                    <input type="number" value="10" min="1" style="width: 8ch;">
                 </label>
-                <label>max time
-                    <input type="number" value="52.5" min="1" style="width: 7ch;">
-                    s
+                <label class="input_with_unit">max time
+                    <input type="number" value="30" min="1" style="width: 7ch;"
+                    ><span>s</span>
                 </label>
-                <label>tickrate
-                    <input type="number" value="60" min="1" style="width: 6ch;">
-                    /s
+                <label class="input_with_unit">tickrate
+                    <input type="number" value="60" min="1" style="width: 6ch;"
+                    ><span>/s</span>
                 </label>
-
-
-                <label>tickrate
-                    <input type="number" value="60" min="1" style="width: 6ch;">
-                    /s
-                </label>
-                <label>tickrate
-                    <input type="number" value="60" min="1" style="width: 6ch;">
-                    /s
-                </label>
-                <label>tickrate
-                    <input type="number" value="60" min="1" style="width: 6ch;">
-                    /s
-                </label>
-                <label>tickrate
-                    <input type="number" value="60" min="1" style="width: 6ch;">
-                    /s
-                </label>
-                <label>tickrate
-                    <input type="number" value="60" min="1" style="width: 6ch;">
-                    /s
-                </label>
+                <label>Quantization:<input type="checkbox" checked onchange="saveWeapon()"/></label>
+                <label>Conditionals:<input type="checkbox" checked onchange="saveWeapon()"/></label>
             </fieldset>
             -->
         </div>

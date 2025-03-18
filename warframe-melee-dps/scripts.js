@@ -224,6 +224,19 @@ function CppToColumnar(dataraw) {
     return ret;
 }
 
+function filterData(obj, timeArray) {
+    return Object.entries(obj).map(([key, values]) => {
+        const filtered = values
+            .map((value, index) => ({ time: timeArray[index], data: value }))
+            .filter(entry => entry.data !== 0);
+        return {
+            name: key,
+            time: filtered.map(entry => entry.time),
+            data: filtered.map(entry => entry.data),
+        };
+    });
+}
+
 let iterations;
 let time_max;
 let tickrate;
@@ -288,9 +301,9 @@ function changeStats() {
     const chart = document.getElementById('plot');
 
     // creates an object for each column of the CSV
-    const plotlyData = Object.entries(data).map(([name, data]) => ({
-        y: data,
-        x: time,
+    const plotlyData = filterData(data, time).map(data2 => ({
+        y: data2.data,
+        x: data2.time,
         type: 'histogram', //line //scatter //histogram
         //mode: 'lines',
         //mode: 'lines+markers',
@@ -300,14 +313,8 @@ function changeStats() {
         //fill: 'none', //tonexty //tozerox
         //stackgroup: 'one',
         hovertemplate: '%{x:.3f}s - %{y:.3s}',
-        // transforms: [{ //FIXME bug when filtering, plotly SUCKKKKS
-        //     type: 'filter',
-        //     target: 'y',
-        //     operation: '>',
-        //     value: 0
-        // }],
-        name: labels[name] ?? name, //if not found, use the header
-        marker: { color: colors[name] },
+        name: labels[data2.name] ?? data2.name, //if not found, use the header
+        marker: { color: colors[data2.name] },
         /*
         error_y: {
             type: 'data',
@@ -381,6 +388,12 @@ function changeStats() {
             y: 0.95,
         },
         updatemenus: updatemenus,
+        paper_bgcolor: "rgba(0, 0, 0, 0)",
+        /* plot_bgcolor: "rgba(0, 0, 0, 0)", */
+        font: {
+            "family": "Arial",
+            /* "color": "var(--color-text)", */
+        },
     };
 
     Plotly.newPlot(chart, plotlyData, layout, {
