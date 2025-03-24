@@ -254,6 +254,8 @@ function changeStats() {
         throw "missing stance/combo";
     }
 
+    status_proportion_graph();
+
     //TODO support multiple enemies
     let enemy;
     if(enemies.length !== 0) {
@@ -297,6 +299,15 @@ function changeStats() {
 
     const time = data.time;
     delete data.time;
+
+    /*
+    //TODO total damage, for the mod +% it might be useful?
+    let total = 0;
+    for (const key in filterData(data, time)) {
+        total += filtereddata[key].data.reduce((partialSum, a) => partialSum + a, 0);
+    }
+    console.log(total);
+    */
 
     const chart = document.getElementById('plot');
 

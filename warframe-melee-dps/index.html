@@ -84,7 +84,7 @@
     <!-- hidden input : style="border: none; background: transparent" -->
     <dialog id="enemy_edit_dialog">
         <form id="editEnemy" method="dialog">
-            <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" size="22" placeholder="enemy name" required>
+            <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" placeholder="enemy name" required style="margin-bottom: 10px; font-size: medium; width: 15rem">
             <br>
             <label>
                 Faction:
@@ -247,12 +247,32 @@
                                 ><span>/s</span>
                             </label>
                         </td>
-                        <td rowspan="2" colspan="3" style="text-align: center; background-color: var(--color-weapon-background);">
+                        <td></td>
+                        <td rowspan="12" colspan="3" style="border-left: 2px solid var(--color-borders); vertical-align: top;">
                             <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
-                            placeholder="Weapon select" onblur="loadWeaponStats()" style="font-size: large; font-weight: bold;" size="17">
+                            placeholder="Weapon select" onblur="loadWeaponStats()" size="17" style="font-size: large; font-weight: bold; margin: 20px;">
+
+                            <div style="display: flex; justify-content: space-around; flex-direction: column; height: 150px; width: fit-content; padding-left: 2rem">
+                                <select id="weapon_type" disabled>
+                                    <option value="melee">Melee</option>
+                                    <option value="secondary">Secondary</option>
+                                    <option value="primary">Primary</option>
+                                    <option value="archgun">Archgun</option>
+                                </select>
+                                <select id="weapon_subclass" onchange="saveWeapon()" disabled>
+                                    <option selected disabled>Subclass</option>
+                                    <!-- TODO could add bow/shotgun/sniper/etc but fuck it -->
+                                </select>
+                                <label for="riven_disposition_input">Riven disposition
+                                    <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6" style="width: 3.5rem"
+                                           onchange="saveWeapon()">
+                                    <br>
+                                    <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1"></meter>
+                                </label>
+                            </div>
                         </td>
                     </tr>
-                    <tr id="wind_up" class="separate">
+                    <tr id="wind_up">
                         <td class="indented">wind up</td>
                         <td>
                             <label class="input_with_unit">
@@ -267,7 +287,7 @@
                             </label>
                         </td>
                     </tr>
-                    <tr id="critical_chance">
+                    <tr id="critical_chance" class="separate">
                         <td>critical</td>
                         <td>
                             <label class="input_with_unit">
@@ -332,31 +352,8 @@
                                 </table>
                             </div>
                         </td>
-                        <td rowspan="10" colspan="2" style="border-left: 2px solid var(--color-borders);">
-                            <!-- <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input" placeholder="Weapon select" onchange="loadWeaponStats()"
-                        style="font-size: large; font-weight: bold;" size="17">
-                    <br><br> -->
-                            <div style="display: flex; justify-content: space-around; flex-direction: column; height: 150px; width: fit-content; padding-left: 2rem">
-                                <select id="weapon_type" disabled>
-                                    <option value="melee">Melee</option>
-                                    <option value="secondary">Secondary</option>
-                                    <option value="primary">Primary</option>
-                                    <option value="archgun">Archgun</option>
-                                </select>
-                                <select id="weapon_subclass" onchange="saveWeapon()" disabled>
-                                    <option selected disabled>Subclass</option>
-                                    <!-- TODO could add bow/shotgun/sniper/etc but fuck it -->
-                                </select>
-                                <label for="riven_disposition_input">Riven disposition
-                                    <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6" style="width: 3.5rem"
-                                           onchange="saveWeapon()">
-                                    <br>
-                                    <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1"></meter>
-                                </label>
-                            </div>
-                        </td>
                     </tr>
-                    <tr id="critical_damage" class="separate">
+                    <tr id="critical_damage">
                         <td class="indented">damage</td>
                         <td>
                             <label class="input_with_unit">
@@ -438,7 +435,7 @@
                         </td>
                     </tr>
 
-                    <tr id="multishot" class="d-none">
+                    <tr id="multishot" class="separate d-none">
                         <td>multishot</td>
                         <td>
                             <label class="input_with_unit">
@@ -468,7 +465,7 @@
                             </label>
                         </td>
                     </tr>
-                    <tr id="reload" class="separate d-none">
+                    <tr id="reload" class="d-none">
                         <td class="indented">reload</td>
                         <td>
                             <label class="input_with_unit">
@@ -484,7 +481,7 @@
                         </td>
                     </tr>
 
-                    <tr id="initial_combo">
+                    <tr id="initial_combo" class="separate">
                         <td>combo</td>
                         <td>
                             <label class="input_with_unit">
@@ -514,7 +511,7 @@
                             </label>
                         </td>
                     </tr>
-                    <tr id="combo_duration" class="separate">
+                    <tr id="combo_duration">
                         <td class="indented">duration</td>
                         <td>
                             <label class="input_with_unit">
@@ -531,7 +528,7 @@
                     </tr>
                 </tbody>
     
-                <tr>
+                <tr class="separate">
                     <td></td>
                     <th>
                         <div class="tooltip">🛈
@@ -563,45 +560,38 @@
             </table>
         </div>
 
-        <div class="other">
-            <div id="enemy_wrapper">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="position: sticky;">
-                        <tr>
-                            <th style="width: 18px;"></th>
-                            <th>Enemy</th>
-                            <th style="width: 50px;">Mean</th>
-                            <th style="width: 50px;">SD</th>
-                        </tr>
-                    </thead>
-                    <tbody id="enemy_container"></tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan=4 class="container" id="add-enemy">
-                                <button onclick="addEnemy()">+</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th colspan=2 style="text-align: right;">Average</th>
-                            <td class="TTK_mean" id="TTK_average_mean">0</td>
-                            <td class="TTK_std" id="TTK_average_std">0</td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+        <div id="other">
             <div>
-                <button onclick="changeStats()" style="font-size: large; color: darkred; margin: 10px">Simulate</button>
-                <button onclick="status_proportion_graph()">Status Proportion</button>
-                <!--
-                <button onclick="hideEmptyRows()">Hide Empty Rows</button>
-                <button onclick="displayAllRows()">Display All Rows</button>
-                -->
+                <div id="enemy_wrapper">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="position: sticky;">
+                            <tr>
+                                <th style="width: 18px;"></th>
+                                <th style="width: 230px;">Enemy</th>
+                                <th style="width: 50px;">Mean</th>
+                                <th style="width: 50px;">SD</th>
+                            </tr>
+                        </thead>
+                        <tbody id="enemy_container"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan=4 class="container" id="add-enemy">
+                                    <button onclick="addEnemy()">+</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th colspan=2 style="text-align: right;">Average</th>
+                                <td class="TTK_mean" id="TTK_average_mean">0</td>
+                                <td class="TTK_std" id="TTK_average_std">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <button onclick="changeStats()" style="font-size: 32px; color: darkred; margin: 5px">Simulate</button>
                 <button id="help_button">Help</button>
-                <label>Quantization:<input type="checkbox" id="quantization" checked onchange="saveWeapon()"/></label>
-                <label>Conditionals:<input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/></label>
                 <button onclick="document.body.toggleAttribute('dark')">☀ / ⛭</button>
             </div>
-            <fieldset id="kekrow">
+            <fieldset id="extra-parameters">
                 <legend>Extra parameters</legend>
                 <label>iterations
                     <input type="number" value="10" min="1" id="iterations" style="width: 8ch;">
@@ -614,25 +604,9 @@
                     <input type="number" value="60" min="1" id="tickrate" style="width: 6ch;"
                     ><span>/s</span>
                 </label>
+                <label>quantization<input type="checkbox" id="quantization" checked onchange="saveWeapon()"/></label>
+                <label>conditionals<input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/></label>
             </fieldset>
-            <!--
-            <fieldset id="kekcolumn">
-                <legend>Extra parameters</legend>
-                <label>iterations
-                    <input type="number" value="10" min="1" style="width: 8ch;">
-                </label>
-                <label class="input_with_unit">max time
-                    <input type="number" value="30" min="1" style="width: 7ch;"
-                    ><span>s</span>
-                </label>
-                <label class="input_with_unit">tickrate
-                    <input type="number" value="60" min="1" style="width: 6ch;"
-                    ><span>/s</span>
-                </label>
-                <label>Quantization:<input type="checkbox" checked onchange="saveWeapon()"/></label>
-                <label>Conditionals:<input type="checkbox" checked onchange="saveWeapon()"/></label>
-            </fieldset>
-            -->
         </div>
     </div>
 
@@ -781,33 +755,27 @@
 
     <!-- Dialog for Editing the Stance -->
     <dialog id="stance_edit_dialog">
-        <div id="stance_wrapper">
-            <form method="dialog">
+        <form method="dialog">
+            <div id="stance_wrapper">
                 <table id="hits_table">
                     <thead>
-                    <tr style="background-color: var(--color-TR-header);">
-                        <th width=63px>time</th>
-                        <th width=63px>damage</th>
-                        <th width=170px>forced procs</th>
-                        <th width=170px>bonus damage</th>
-                    </tr>
+                        <tr style="background-color: var(--color-TR-header);">
+                            <th style="width: 63px;">time</th>
+                            <th style="width: 63px;">damage</th>
+                            <th style="width: 170px;">forced procs</th>
+                            <th style="width: 170px;">bonus damage</th>
+                        </tr>
                     </thead>
                     <tbody id="hits_wrapper"></tbody>
-                    <tfoot>
-                    <tr>
-                        <td colspan=4>
-                            <button type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
-                            <button type="button" onclick="addHit()">Add a hit</button>
-                            <div class="tooltip">🛈
-                                <span class="tooltiptext">edit to 0 to delete proc or bonus damage</span>
-                            </div>
-                            <button type="submit" onclick="saveStance()" style="float: right;">Save</button>
-                        </td>
-                    </tr>
-                    </tfoot>
                 </table>
-            </form>
-        </div>
+            </div>
+            <button type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
+            <button type="button" onclick="addHit()">Add a hit</button>
+            <div class="tooltip">🛈
+                <span class="tooltiptext">edit to 0 to delete proc or bonus damage</span>
+            </div>
+            <button type="submit" onclick="saveStance()" style="float: right; margin-right: 18px">Save</button>
+        </form>
     </dialog>
 
     <!-- Templates for a Stat Line in Editing the Stance -->

@@ -1,7 +1,6 @@
 let stance = {};
 
 function editStance() {
-    // document.getElementById("stance_wrapper").querySelector("form").reset();
     document.getElementById('hits_wrapper').innerHTML = "";
 
     const combo_type = document.getElementById("combo_type").value;

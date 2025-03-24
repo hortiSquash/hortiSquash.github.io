@@ -83,35 +83,21 @@ body[dark] {
 
 #grid > * {
     border-radius: 15px;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
 }
 
-fieldset#kekrow {
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    padding: 5px;
-    max-width: 100%;
+fieldset#extra-parameters {
+    width: max-content;
+    margin: 0px;
+    padding: 10px;
     border: var(--border-style);
     border-radius: 15px;
-}
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
 
-fieldset#kekcolumn {
-    /*
-    display: flex;
-    justify-content: space-around;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    padding: 5px;
-    width: 200px;
-    gap: 5px;
-    */
     display: grid;
     grid-auto-rows: auto;
     grid-template-columns: max-content;
-    width: max-content;
     gap: 5px;
-    padding: 10px;
-    border-radius: 15px;
 }
 
 fieldset > legend {
@@ -123,6 +109,7 @@ dialog {
     color: inherit;
     background-color: inherit;
     border-color: var(--color-borders);
+    border-radius: 15px;
 }
 
 button {
@@ -180,7 +167,6 @@ input {
         text-align: right;
         outline-offset: 1px;
         width: calc(100% - var(--unit-size));
-        padding: 0;
     }
 
     /* if span at the end */
@@ -225,6 +211,10 @@ input {
     }
 }
 
+input.hidden_input {
+    padding: 0;
+}
+
 #stats_wrapper .input_with_unit {
     > input {
         height: 16px;
@@ -245,10 +235,11 @@ input {
 #enemy_wrapper {
     border: var(--border-style);
     border-radius: 15px;
-    width: 400px;
+    /* width: fit-content; */
     height: 200px;
     overflow-y: auto;
     scrollbar-gutter: stable;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
 
     & tr:nth-child(even) {
         background-color: var(--color-TR-even);
@@ -260,13 +251,6 @@ input {
         top: 0;
         z-index: 1;
     }
-
-    /*
-    > table > :is(td, th) {
-        border-left: 2px solid white;
-        padding: 1px;
-    }
-    */
 
     & tfoot > tr:last-child {
         > * {
@@ -307,24 +291,34 @@ input {
     text-shadow: 0px 0px 5px white;
 }
 
-#stance_wrapper > form > table > tfoot > tr:last-child > * {
-    z-index: 1;
-    position: sticky;
-    bottom: 0;
-}
-
 #stance_edit_dialog {
     background-color: var(--color-background);
-    /* min-width: 520px; */
-    max-height: 80lvh;
-    scrollbar-gutter: stable;
+    padding-right: 0;
+}
 
-    padding: 0 0 0 10px;
+#stance_wrapper {
+    max-height: 80lvh;
+    overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 #hits_table {
-    width: 100%;
     border-spacing: 3px 15px;
+    margin-top: -20px; /* slightly more than the vertical border spacing because i want to */
+    text-align: center;
+
+    > tfoot > tr:last-child > * {
+        z-index: 1;
+        position: sticky;
+        bottom: 0;
+        background-color: var(--color-background);
+    }
+    > thead > tr:first-child > * {
+        z-index: 1;
+        position: sticky;
+        top: 0;
+        background-color: inherit;
+    }
 }
 
 #hits_wrapper {
@@ -340,9 +334,12 @@ a.modebar-btn {
 }
 
 #grid {
+    margin: auto;
+    width: fit-content;
+
     display: grid;
     grid-template-columns: max-content max-content max-content;
-    grid-template-rows: max-content max-content max-content;
+    grid-template-rows: max-content max-content 1fr;
     gap: 10px 10px;
     grid-auto-flow: column;
     justify-content: start;
@@ -371,9 +368,15 @@ a.modebar-btn {
     to { transform: rotate(360deg); }
 }
 
-.other {
+#other {
     grid-area: other;
     width: 100%;
+    align-self: stretch;
+    box-shadow: none;
+
+    display: grid;
+    grid-template-columns: 1fr max-content;
+    gap: 10px;
 }
 
 #modding {
@@ -417,7 +420,6 @@ a.modebar-btn {
 
 #plot {
     grid-area: plot;
-    width: calc((3 * var(--mod-width) + (4 - 1) * 2 * var(--mod-margin-horizontal) + 5 * 2px /* mod border */ - 2 * 2px /* plot's own border */) - 10px /* grid gap */- 4px);
     /* MODDING = (5 * var(--mod-width) + (5 - 1) * 2 * var(--mod-margin-horizontal) + 2*10px) */
     /* MODLIST = (2 * var(--mod-width) + (2 - 1) * 2 * var(--mod-margin-horizontal) + 2*10px) */
     width: calc(3 * var(--mod-width) + (4 - 1) * 2 * var(--mod-margin-horizontal) - 10px /* grid gap */ - 2*2px /* plot's own border */);
@@ -487,8 +489,8 @@ a.modebar-btn {
 }
 */
 
-.separate>td {
-    border-bottom: 15px solid transparent;
+.separate > * {
+    padding-top: 15px;
 }
 
 .indented {
@@ -612,6 +614,7 @@ td.tooltip {
     overflow: hidden;
     box-sizing: border-box;
     cursor: pointer;
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
 }
 
 /* Empty mod and buff slots show dashed border with "Empty" */
@@ -622,6 +625,7 @@ td.tooltip {
     align-items: center;
     justify-content: center;
     cursor: default;
+    box-shadow: none;
 }
 .cell:empty::after {
     content: "+";
