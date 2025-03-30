@@ -53,8 +53,19 @@
             stances_list.appendChild(option);
         };
 
-        response = await fetch('./mods.json');
-        const data_mods = await response.json();
+        /*
+        //TODO maybe?
+        let startTime = performance.now();
+        let data_mods = await loadJsonGzip("./mods.json.gz");
+        let endTime = performance.now();
+        console.log(`gzip took ${endTime - startTime} milliseconds`);
+        */
+
+        let startTime = performance.now();
+        const data_mods = await loadJson("./mods.json");
+        let endTime = performance.now();
+        console.log(`undone took ${endTime - startTime} milliseconds`);
+
         window.data_mods = data_mods;
 
         for (let mod of data_mods) {
@@ -589,12 +600,12 @@
                 </div>
                 <button onclick="changeStats()" style="font-size: 32px; color: darkred; margin: 5px">Simulate</button>
                 <button id="help_button">Help</button>
-                <button onclick="document.body.toggleAttribute('dark')">☀ / ⛭</button>
+                <button id="dark_theme_button" onclick="document.body.toggleAttribute('dark')"></button>
             </div>
             <fieldset id="extra-parameters">
                 <legend>Extra parameters</legend>
                 <label>iterations
-                    <input type="number" value="10" min="1" id="iterations" style="width: 8ch;">
+                    <input type="number" value="10" min="1" id="iterations" style="width: 8ch; text-align: right;">
                 </label>
                 <label class="input_with_unit">max time
                     <input type="number" value="30" min="1" id="max_time" style="width: 7ch;"
@@ -674,12 +685,13 @@
             <table>
                 <thead>
                     <tr>
-                        <th style="width: 435px" colspan="3">buff</th>
-                        <th style="width: 125px">condition</th>
-                        <th style="width: 63px">duration</th>
-                        <th style="width: 63px">max stacks</th>
-                        <th style="width: 92px">expiry mode</th> <!-- decay? -->
-                        <th style="width: 100px">refresh mode</th>
+                        <th style="min-width: 540px; width: fit-content">buff</th>
+                        <th style="width: 130px">condition</th>
+                        <th style="width: 115px">chance</th>
+                        <th style="width: 98px">duration</th>
+                        <th style="width: 65px">max stacks</th>
+                        <th style="width: 65px">decay</th>
+                        <th style="width: 65px">refresh</th>
                     </tr>
                 </thead>
                 <tbody id="stats-tbody" style="text-align: center;"></tbody>
@@ -688,6 +700,14 @@
                     <td colspan="99">
                         <button type="button" onclick="removeStatLine()">Delete the last stat 🗑️</button>
                         <button type="button" onclick="addStatLine()">Add a stat</button>
+                        <div class="tooltip">🛈
+                            <span class="tooltiptext">
+                                decay: the stacks go down one by one<br>
+                                    &emsp;as opposed to all at once<br>
+                                <br>
+                                refresh: stacks can be refreshed while active
+                            </span>
+                        </div>
                         <button type="submit" id="save-button" style="float: right;">Save</button>
                     </td>
                 </tr>
@@ -703,11 +723,39 @@
                 <label class="input_with_unit border-1">
                     <input name="value" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem"><span></span>
                 </label>
-            </td>
-            <td>
                 <select name="buff"></select>
-            </td>
-            <td>
+                <select name="damage_type">
+                    <option value="DT_ANY">any</option>
+                    <option value="DT_IMPACT">impact</option>
+                    <option value="DT_PUNCTURE">puncture</option>
+                    <option value="DT_SLASH">slash</option>
+                    <option value="DT_FIRE">heat</option>
+                    <option value="DT_ELECTRICITY">electricity</option>
+                    <option value="DT_FREEZE">cold</option>
+                    <option value="DT_POISON">toxin</option>
+                    <option value="DT_VIRAL">viral</option>
+                    <option value="DT_CORROSIVE">corrosive</option>
+                    <option value="DT_RADIATION">radiation</option>
+                    <option value="DT_GAS">gas</option>
+                    <option value="DT_MAGNETIC">magnetic</option>
+                    <option value="DT_EXPLOSION">blast</option>
+                    <option value="DT_RADIANT">void</option>
+                    <!-- TODO weird ones? -->
+                </select>
+                <select name="symbol_filter">
+                    <option value="">None</option>
+                    <optgroup label="factions">
+                        <option value="Grineer">grineer</option>
+                        <option value="Corpus">corpus</option>
+                        <option value="Infestation">infested</option>
+                        <option value="Orokin">orokin</option>
+                        <option value="Sentient">sentient</option>
+                        <option value="MITW">MITW</option>
+                    </optgroup>
+                    <optgroup label="some random shit">
+                        <option value="none">none</option>
+                    </optgroup>
+                </select>
                 <select name="operation">
                     <option value="ADD">add flat</option>
                     <option value="MULTIPLY">multiply</option>
@@ -718,8 +766,8 @@
                 </select>
             </td>
             <td>
-                <select disabled name="condition">
-                    <option selected>None</option>
+                <select name="condition">
+                    <option value="" selected>None</option>
                     <option>On kill</option>
                     <option>On critical hit</option>
                     <option>On heavy attack</option>
@@ -731,24 +779,26 @@
             </td>
             <td>
                 <label class="input_with_unit">
-                    <input disabled name="duration" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="999" style="width: 2rem"
+                    <input name="upgrade_chance" type="number" inputmode="decimal" min="1" max="100" value="100" style="width: 3.7rem"
+                    ><span>%</span>
+                </label
+                ><input name="chance_scales" type="checkbox" title="scales with level">
+            </td>
+            <td>
+                <label class="input_with_unit">
+                    <input name="upgrade_duration" type="text" inputmode="decimal" pattern="-?(?:∞|\d+(?:[.,]\d+)?(?:%|e\d+)?)" value="∞" style="width: 2rem"
                     ><span>s</span>
-                </label>
+                </label
+                ><input name="duration_scales" type="checkbox" title="scales with level">
             </td>
             <td>
-                <input disabled name="maxStacks" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1" style="width: 40px">
+                <input name="max_stacks" type="number" inputmode="decimal" step="1" min="1" value="1" style="width: 3rem">
             </td>
             <td>
-                <select disabled name="expiryMode">
-                    <option>all at once</option>
-                    <option>per stack</option>
-                </select>
+                <input name="stack_mode" type="checkbox">
             </td>
             <td>
-                <select disabled name="refreshMode">
-                    <option>while active</option>
-                    <option>after expiry</option>
-                </select>
+                <input name="can_reproc" type="checkbox" checked>
             </td>
         </tr>
     </template>

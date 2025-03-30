@@ -24,43 +24,18 @@ const default_damage_types = {
     "microwave": 0,
 }
 
+const default_buff_line = {
+    "buff": "",
+    "operation": "",
+    "value": 0,
+    "damage_type": "DT_ANY",
+    "symbol_filter": "",
+}
+
 const default_modbuff = {
     "name": "unnamed mod",
 
-    "coaction_drift": false,
-    "condition_overload": false,
-
-    "madurai_phoenix_talons": 0,
-    "madurai_phoenix_spirit": 0,
-
-    "attack_speed": 0,
-    "attack_speed_multiplicative": 0,
-    "wind_up": 0,
-    "initial_combo": 0,
-    "combo_efficiency": 0,
-    "combo_duration": 0,
-    "combo_duration_multiplicative": 1,
-    "critical_damage": 0,
-    "critical_chance": 0,
-    "critical_chance_heavy": 0,
-    "critical_chance_per_combo": 0,
-    "critical_chance_multiplicative": 0,
-    "critical_chance_flat": 0,
-    "status": 0,
-    "status_per_combo": 0,
-    "status_multiplicative": 0,
-    "status_damage": 0,
-    "damage": 0,
-    "damage_heavy": 0,
-    "damage_multiplicative": 0,
-    "damage_multiplicative_grineer": 0,
-    "damage_multiplicative_corpus": 0,
-    "damage_multiplicative_corrupted": 0,
-    "damage_multiplicative_infested": 0,
-    "damage_multiplicative_sentient": 0,
-    "armor_reduction": 0,
-
-    "damage_types": default_value(default_damage_types, {}),
+    "buffs": [], //FIXME idk
 }
 
 const damage_order = [
@@ -620,20 +595,20 @@ Object.keys(melee_weapon_types).forEach(function (e) {
 
 function updateModding() {
     if(!weapon) return;
-    mods_buffs_cpp = Module.passVectorModBuffs(mods.map((mod) => {
-        let mod_new = {"name": mod.name}
-        const current_level = mod.current_level ?? mod.max_level;
-        for (let buff of mod.buffs) {
-            const parsed_value = Number(buff.value) * (current_level + 1);
-            if (buff.buff in default_damage_types) {
-                mod_new["damage_types"] ??= default_value(default_damage_types, {})
-                mod_new["damage_types"][buff.buff] = parsed_value;
-            } else {
-                mod_new[buff.buff] = parsed_value;
-            }
+    mods_buffs_cpp = mods.map((mod) => {
+        let mod_new = structuredClone(mod);
+        const current_level = mod_new.current_level ?? mod_new.max_level;
+        for (let i=0; i < mod_new.buffs.length; i++) {
+            const buff = mod_new.buffs[i];
+            buff.value = Number(buff.value) * (current_level + 1);
+            mod_new.buffs[i] = default_value(default_buff_line, buff);
         }
-        return default_value(default_modbuff, mod_new);
-    }));
+        mod_new = default_value(default_modbuff, mod_new);
+        mod_new.buffs = Module.passVectorBuffLines(mod_new.buffs);
+        return mod_new;
+    });
+
+    mods_buffs_cpp = Module.passVectorModBuffs(mods_buffs_cpp);
 
     // TODO calculate and display updated modded stats
     // FIXME not only the first enemy
@@ -777,7 +752,7 @@ document.getElementById("stats_wrapper").addEventListener('input', function () {
         if (e === "void_dmg") e = "void";
         damage_template.querySelector("td img").src = "https://browse.wf/Lotus/Interface/Icons/StatSymbols/"+ e.charAt(0).toUpperCase() + e.slice(1) +"Symbol.png";
         damage_template.querySelector("td .damage-name").innerText = e;
-        kek.insertBefore(damage_template, kek.firstChild);
+        kek.insertBefore(damage_template, kek.firstElementChild);
     }
 }
 
@@ -945,3 +920,24 @@ document.getElementById("help_svg").addEventListener("click", function(event) {
 document.getElementById("help_button").addEventListener("click", function() {
     document.getElementById("help_svg").style.display = "";
 })
+
+async function loadJsonGzip(path) {
+    try {
+        const ds = new DecompressionStream("gzip");
+        const response = await fetch(path);
+        const decompressedStream = response.body.pipeThrough(ds);
+        const text = await new Response(decompressedStream).text();
+        return JSON.parse(text);
+    } catch (error) {
+        console.error("Error loading JSON:", error);
+    }
+}
+
+async function loadJson(path) {
+    try {
+        const response = await fetch(path);
+        return await response.json();
+    } catch (error) {
+        console.error("Error loading JSON:", error);
+    }
+}

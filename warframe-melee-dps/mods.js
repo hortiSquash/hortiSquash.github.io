@@ -25,17 +25,28 @@ const polarity_unicode = {
     //viral is ea19
 }
 
-const statTypes = [
-    "attack_speed", "attack_speed_multiplicative", "wind_up", "initial_combo",
-    "combo_efficiency", "combo_duration", "combo_duration_multiplicative", "critical_damage",
-    "critical_chance", "critical_chance_heavy", "critical_chance_per_combo",
-    "critical_chance_multiplicative", "critical_chance_flat", "status", "status_per_combo",
-    "status_multiplicative", "status_damage", "damage", "condition_overload", "damage_heavy",
-    "damage_multiplicative", "damage_multiplicative_grineer", "damage_multiplicative_corpus",
-    "damage_multiplicative_corrupted", "damage_multiplicative_infested", "damage_multiplicative_sentient",
-    "armor_reduction", "impact", "puncture", "slash", "cold", "electricity", "heat", "toxin",
-    "blast", "corrosive", "gas", "magnetic", "radiation", "viral", "void_dmg"
-];
+const statTypes = {
+    "WEAPON_FIRE_RATE": "fire rate",
+    "WEAPON_MELEE_HEAVY_CHARGE_SPEED": "wind-up",
+
+    "WEAPON_MELEE_COMBO_INITIAL_BONUS": "initial combo",
+    "WEAPON_MELEE_COMBO_USAGE_EFFICIENCY": "combo efficiency",
+    "WEAPON_MELEE_COMBO_DURATION_BONUS": "combo duration",
+
+    "WEAPON_CRIT_CHANCE": "critical change",
+    "WEAPON_CRIT_DAMAGE": "critical damage",
+
+    "WEAPON_PROC_CHANCE": "status chance",
+    "WEAPON_PROC_DAMAGE": "status damage",
+
+    "WEAPON_PERCENT_BASE_DAMAGE_ADDED": "elemental damage",
+    "WEAPON_DAMAGE_AMOUNT": "weapon damage",
+    "WEAPON_MELEE_DAMAGE": "melee damage",
+
+    "GAMEPLAY_FACTION_DAMAGE": "faction damage",
+    "WEAPON_DAMAGE_IF_VICTIM_PROC_ACTIVE": "condition overload",
+    "AVATAR_ARMOUR": "enemy armor reduction",
+};
 
 function updateModsArray() {
     mods = [];
@@ -77,7 +88,7 @@ function updateCell(cell, modData, update_mods = true) {
             //TODO display_as with 100x if %, +1 with operationtype, etc
 
             const tdStat = document.createElement("td");
-            tdStat.textContent = ((!statTypes.includes(buff.buff)) ? `unknown:\u{00a0}` : "") + buff.buff;
+            tdStat.textContent = ((!Object.keys(statTypes).includes(buff.buff)) ? `unknown:\u{00a0}` : "") + buff.buff;
             tr.appendChild(tdValue);
             tr.appendChild(tdStat);
             tbody.appendChild(tr);
@@ -264,7 +275,8 @@ function checkBuffSlots() {
     }
 }
 
-const buff_keys = ["buff", "operation", "condition", "duration", "maxStacks", "expiryMode", "refreshMode"];
+const buff_keys_inputs = ["buff", "damage_type", "symbol_filter", "operation", "condition", "upgrade_duration", "max_stacks"];
+const buff_keys_checkboxes = ["chance_scales", "duration_scales", "stack_mode", "can_reproc"];
 
 /***** Modal Functions *****/
 function openEditModal(cell) {
@@ -305,14 +317,21 @@ function openEditModal(cell) {
         const statSelect = statLineClone.querySelector("[name='buff']");
         statSelect.innerHTML = "";
 
-        //FIXME wtf is this shit
-        [...statTypes, stat.buff].forEach(type => {
+        Object.entries(statTypes).forEach(([key, value]) => {
             const option = document.createElement("option");
-            option.value = type;
-            option.textContent = type;
-            if(type === stat.buff) option.disabled = true;
+            option.value = key;
+            option.textContent = value;
             statSelect.appendChild(option);
         });
+        if(!Object.keys(statTypes).includes(stat.buff)) {
+            const option = document.createElement("option");
+            option.value = stat.buff;
+            option.textContent = stat.buff;
+            option.disabled = true;
+            option.selected = true;
+            statSelect.appendChild(option);
+        }
+
         //valueUnit.innerText = stat.display_as; //TODO hide temporarily until fixed
         valueInput.value = formatDecimals(stat.value
             * (1 + modLevelInput.valueAsNumber)
@@ -321,10 +340,17 @@ function openEditModal(cell) {
             , 5);
         statSelect.value = stat.buff;
 
-        for(let name of buff_keys) {
+        const chance = statLineClone.querySelector(`[name='upgrade_chance']`);
+        if (stat.upgrade_chance) chance.value = formatDecimals(stat.upgrade_chance * 100, 2);
+
+        for(let name of buff_keys_inputs) {
             if(name === "buff") continue;
             const whatever = statLineClone.querySelector(`[name='${name}']`);
-            whatever.value = stat[name] ?? whatever.value;
+            if (stat[name]) whatever.value = stat[name];
+        }
+        for(let name of buff_keys_checkboxes) {
+            const whatever = statLineClone.querySelector(`[name='${name}']`);
+            if (stat[name]) whatever.checked = stat[name];
         }
 
         statsTbody.appendChild(statLineClone);
@@ -334,9 +360,20 @@ function openEditModal(cell) {
     modLevelInput.addEventListener("change", () => {
         const level_ratio = (1 + modLevelInput.valueAsNumber) / (1 + old_mod_level);
         for(let tr of statsTbody.children){
-            const cell = tr.querySelector(`[name='value']`);
-            cell.value = formatDecimals(
-                cell.value * level_ratio, 5);
+            const value = tr.querySelector(`[name='value']`);
+            value.value = formatDecimals(
+                value.value * level_ratio, 5);
+
+            if(tr.querySelector(`[name='chance_scales']`).checked) {
+                const chance = tr.querySelector(`[name='upgrade_chance']`);
+                chance.value = formatDecimals(
+                    chance.value * level_ratio, 2);
+            }
+            if(tr.querySelector(`[name='duration_scales']`).checked) {
+                const duration = tr.querySelector(`[name='upgrade_duration']`);
+                duration.value = formatDecimals(
+                    duration.value * level_ratio, 2);
+            }
 
             //FIXME NaN when parse % and text and , and shit
         }
@@ -365,20 +402,26 @@ function openEditModal(cell) {
         modData.buffs.length = statsTbody.children.length;
         for(let i=0; i < statsTbody.children.length; i++){
             const tr = statsTbody.children[i];
-            const cells = tr.children;
 
             modData.buffs[i] ??= {};
             const current_buff = modData.buffs[i];
 
-            const value = cells[0].querySelector("input").value;
+            const value = tr.querySelector("[name='value']").value;
             current_buff.value = value / (1 + modData.current_level);
             //TODO
             // -1 if stat.operation === "STACKING_MULTIPLY"
             // /100 if stat.display_as === "%"
 
             //FIXME NaN when parse % and text and , and shit
-            for(let name of buff_keys) {
+
+            const chance = tr.querySelector(`[name='upgrade_chance']`);
+            current_buff.upgrade_chance = chance.value / 100;
+
+            for(let name of buff_keys_inputs) {
                 current_buff[name]= tr.querySelector(`[name='${name}']`).value;
+            }
+            for(let name of buff_keys_checkboxes) {
+                current_buff[name]= tr.querySelector(`[name='${name}']`).checked;
             }
         }
 
@@ -394,10 +437,10 @@ function addStatLine() {
     const stat_line_template = document.getElementById("stat-line-template").content.cloneNode(true);
     const select_buffs = stat_line_template.querySelector("[name='buff']");
     select_buffs.innerHTML = "";
-    statTypes.forEach(type => {
+    Object.entries(statTypes).forEach(([key, value]) => {
         const option = document.createElement("option");
-        option.value = type;
-        option.textContent = type;
+        option.value = key;
+        option.textContent = value;
         select_buffs.appendChild(option);
     });
     stats_table.appendChild(stat_line_template);

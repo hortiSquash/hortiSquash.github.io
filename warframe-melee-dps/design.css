@@ -128,7 +128,7 @@ button {
 }
 
 select {
-    color: var(--color-button-text);
+    /* color: var(--color-button-text); */
     /* background-color: black; */
 
     &:disabled {
@@ -139,7 +139,7 @@ select {
 input {
     /* TODO it looks like shit with borders (default browser shit)
         background-color: var(--color-input-background); */
-    color: var(--color-input-text);
+    /* color: var(--color-input-text); */
 
     &::placeholder {
         color: var(--color-input-text-placeholder);
@@ -147,6 +147,45 @@ input {
 
     &:disabled {
         /* TODO */
+    }
+}
+
+input[type="checkbox"] {
+    --width: 2rem;
+    --height: 1rem;
+    --border-width: 0.1rem;
+
+    border-radius: 1rem; /* */
+    background: #aaa;
+    transform: translateY(25%);
+
+    appearance: none;
+    position: relative;
+    cursor: pointer;
+    width: var(--width);
+    height: var(--height);
+
+    &:checked {
+        background: cornflowerblue;
+
+        &::before {
+            left: calc(var(--width) - var(--height) + var(--border-width));
+        }
+    }
+
+    &::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        border-radius: 50%;
+        transform: translateY(-50%);
+        box-sizing: border-box; /* if you wanna add a border */
+        width: calc(var(--height) - var(--border-width) * 2);
+        height: calc(var(--height) - var(--border-width) * 2);
+        left: var(--border-width);
+
+        background: white;
+        transition: 0.3s;
     }
 }
 
@@ -409,6 +448,7 @@ a.modebar-btn {
 
     margin-top: 10px;
     overflow-x: scroll;
+    scroll-snap-type: x mandatory;
     width: calc(2 * var(--mod-width) + (2 - 1) * 2 * var(--mod-margin-horizontal));
     /* 3 mods + 2 gaps + 6 borders = 3*240 + 2*10 + 6*2 = 752 */
     height: calc(3 * var(--mod-height) + (3 - 1) * 2 * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
@@ -512,11 +552,11 @@ td.tooltip {
     visibility: hidden;
     background: var(--color-tooltip-background);
     color: var(--color-tooltip-text);
-    text-align: center;
+    text-align: left;
     border-radius: 3px;
     padding: 5px;
 
-    transform: translate(10px, -15%);
+    transform: translate(10px, -5px); /* 5px = padding */
     position: fixed;
     z-index: 1;
 }
@@ -615,6 +655,9 @@ td.tooltip {
     box-sizing: border-box;
     cursor: pointer;
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
 }
 
 /* Empty mod and buff slots show dashed border with "Empty" */
@@ -714,10 +757,8 @@ td.tooltip {
 #buffs_wrapper {
     width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal));
     overflow-x: scroll;
+    scroll-snap-type: x mandatory;
     display: flex;
-    /* align-items: center;
-    box-sizing: border-box;
-    padding: 0; */
     gap: var(--mod-gap);
 }
 
@@ -758,6 +799,7 @@ td.tooltip {
     /* height: calc(100% - 30px); */
     /* overflow-y: auto; */
     border-collapse: collapse;
+    text-wrap: nowrap;
 }
 .mod-stats td {
     /* border: 1px solid #ddd; */
@@ -767,6 +809,29 @@ td.tooltip {
 
 .d-none {
     display: none;
+}
+
+#help_button, #dark_theme_button {
+    min-height: 1.5rem;
+    min-width: 1.5rem;
+
+    font-size: large;
+}
+
+#dark_theme_button{
+    text-align: center;
+    padding: 0;
+
+    &::before {
+        content: "🌑";
+    }
+}
+body[dark] #dark_theme_button::before {
+    content: "☀️";
+}
+
+#stats-tbody input[type="checkbox"]{
+    margin: 0;
 }
 
 /* TODO better colors with unified contrast */
