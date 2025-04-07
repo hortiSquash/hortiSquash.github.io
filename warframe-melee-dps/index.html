@@ -58,13 +58,13 @@
         let startTime = performance.now();
         let data_mods = await loadJsonGzip("./mods.json.gz");
         let endTime = performance.now();
-        console.log(`gzip took ${endTime - startTime} milliseconds`);
+        console.log(`gzip mods json loaded in ${endTime - startTime} milliseconds`);
         */
 
         let startTime = performance.now();
         const data_mods = await loadJson("./mods.json");
         let endTime = performance.now();
-        console.log(`undone took ${endTime - startTime} milliseconds`);
+        console.log(`raw mods json loaded in ${endTime - startTime} milliseconds`);
 
         window.data_mods = data_mods;
 
@@ -572,35 +572,35 @@
         </div>
 
         <div id="other">
-            <div>
-                <div id="enemy_wrapper">
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <thead style="position: sticky;">
-                            <tr>
-                                <th style="width: 18px;"></th>
-                                <th style="width: 230px;">Enemy</th>
-                                <th style="width: 50px;">Mean</th>
-                                <th style="width: 50px;">SD</th>
-                            </tr>
-                        </thead>
-                        <tbody id="enemy_container"></tbody>
-                        <tfoot>
-                            <tr>
-                                <td colspan=4 class="container" id="add-enemy">
-                                    <button onclick="addEnemy()">+</button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th colspan=2 style="text-align: right;">Average</th>
-                                <td class="TTK_mean" id="TTK_average_mean">0</td>
-                                <td class="TTK_std" id="TTK_average_std">0</td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-                <button onclick="changeStats()" style="font-size: 32px; color: darkred; margin: 5px">Simulate</button>
+            <div id="enemy_wrapper">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="position: sticky;">
+                        <tr>
+                            <th style="width: 18px;"></th>
+                            <th style="width: 230px;">Enemy</th>
+                            <th style="width: 50px;">Mean</th>
+                            <th style="width: 50px;">SD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="enemy_container"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan=4 class="container" id="add-enemy">
+                                <button onclick="addEnemy()">+</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th colspan=2 style="text-align: right;">Average</th>
+                            <td class="TTK_mean" id="TTK_average_mean">0</td>
+                            <td class="TTK_std" id="TTK_average_std">0</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div id="other-buttons">
+                <button onclick="changeStats()" style="font-size: 32px; color: darkred; margin: 0 5px">Simulate</button>
                 <button id="help_button">Help</button>
-                <button id="dark_theme_button" onclick="document.body.toggleAttribute('dark')"></button>
+                <button id="dark_theme_button"></button>
             </div>
             <fieldset id="extra-parameters">
                 <legend>Extra parameters</legend>
@@ -670,10 +670,6 @@
                 <label class="input_with_unit">
                     ability strength:
                     <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1"><span>%</span>
-                    <!--
-                    <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1">
-                    <input type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0">
-                    >-->
                 </label>
                 <label>
                     capacity:
@@ -720,7 +716,7 @@
     <template id="stat-line-template">
         <tr>
             <td>
-                <label class="input_with_unit border-1">
+                <label class="input_with_unit">
                     <input name="value" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0" style="width: 3rem"><span></span>
                 </label>
                 <select name="buff"></select>
@@ -771,6 +767,7 @@
                     <option>On kill</option>
                     <option>On critical hit</option>
                     <option>On heavy attack</option>
+                    <option>Per combo tier</option>
                     <option disabled>On headshot</option>
                     <option disabled>On ability</option>
                     <option disabled>On wall-latch</option>

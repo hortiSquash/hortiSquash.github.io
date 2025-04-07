@@ -30,6 +30,12 @@ const default_buff_line = {
     "value": 0,
     "damage_type": "DT_ANY",
     "symbol_filter": "",
+
+    "condition_name": "",
+    "max_stacks": 1,
+    "upgrade_duration": 99999,
+    "can_reproc": true,
+    "stack_mode": false,
 }
 
 const default_modbuff = {
@@ -308,7 +314,7 @@ function changeStats() {
             visible: true
         },
         */
-    }));
+    })).filter(trace => trace.x.length > 0);
 
     const hist = {
         type: 'histogram',
@@ -382,6 +388,7 @@ function changeStats() {
         },
     };
 
+    Plotly.purge(chart);
     Plotly.newPlot(chart, plotlyData, layout, {
         // displaylogo: false,
         displayModeBar: true,
@@ -595,12 +602,22 @@ Object.keys(melee_weapon_types).forEach(function (e) {
 
 function updateModding() {
     if(!weapon) return;
+
+    const isHeavy = document.getElementById("combo_type").value === "heavy";
+
     mods_buffs_cpp = mods.map((mod) => {
         let mod_new = structuredClone(mod);
         const current_level = mod_new.current_level ?? mod_new.max_level;
         for (let i=0; i < mod_new.buffs.length; i++) {
             const buff = mod_new.buffs[i];
             buff.value = Number(buff.value) * (current_level + 1);
+            buff.condition_name = buff.conditional_upgrades?.at(0) ?? "";
+
+            //TODO fix this shit
+            if(!isHeavy && buff.valid_modifiers?.includes("PM_HEAVY_MELEE")){
+                buff.value = 0;
+            }
+
             mod_new.buffs[i] = default_value(default_buff_line, buff);
         }
         mod_new = default_value(default_modbuff, mod_new);
@@ -840,6 +857,7 @@ const colors = { //handmade
     "slash": "rgb(115,12,12)",
     "puncture": "rgb(227, 227, 105)",
     "impact": "rgb(75, 155, 166)",
+    "damage": "rgb(140,86,75)",
 }
 
 function niceNumber(range) {
@@ -941,3 +959,23 @@ async function loadJson(path) {
         console.error("Error loading JSON:", error);
     }
 }
+
+const isDarkMode = localStorage.getItem("darkMode") === "true" ?? window.matchMedia("(prefers-color-scheme: dark)").matches;
+document.body.toggleAttribute("dark", isDarkMode);
+
+document.getElementById("dark_theme_button").addEventListener("click", () => {
+    localStorage.setItem("darkMode", document.body.toggleAttribute("dark"));
+});
+
+document.getElementById("weapon_type").addEventListener("change", (e) => {
+    const boolean = e.target.value === "melee"
+
+    document.getElementById("wind_up").classList.toggle("d-none", !boolean);
+    document.getElementById("initial_combo").classList.toggle("d-none", !boolean);
+    document.getElementById("combo_efficiency").classList.toggle("d-none", !boolean);
+    document.getElementById("combo_duration").classList.toggle("d-none", !boolean);
+
+    document.getElementById("multishot").classList.toggle("d-none", boolean);
+    document.getElementById("magazine_capacity").classList.toggle("d-none", boolean);
+    document.getElementById("reload").classList.toggle("d-none", boolean);
+})

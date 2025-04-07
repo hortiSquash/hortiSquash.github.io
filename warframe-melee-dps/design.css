@@ -1,12 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
 @font-face {
     font-family: WarframeIcons;
     src: url(WarframeIcons.woff) format('woff');
 }
 
 body {
-    font-family: Arial, sans-serif, WarframeIcons;
-    background-color: var(--color-background);
+    font-family: Roboto, Arial, sans-serif, WarframeIcons;
+    background-color: var(--color-body-background);
     color: var(--color-text);
 }
 
@@ -23,8 +24,10 @@ body {
     /* TODO colors */
     --color-text: black;
     --color-background: #ddd;
+    --color-body-background: #ddd;
     --color-borders: #bbb;
     --border-style: 2px solid var(--color-borders);
+    --box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
 
     --color-input-text: black;
     --color-input-background: white;
@@ -53,9 +56,11 @@ body {
 body[dark] {
     /* TODO colors */
     --color-text: #ddd;
-    --color-background: #3a3b3c;
+    --color-background: #202024;
+    --color-body-background: #121214;
     --color-borders: #606060;
     --border-style: 2px solid var(--color-borders);
+    --box-shadow: 0 2px 12px 0 rgba(255, 255, 255, 0.2);
 
     --color-input-text: black;
     --color-input-background: white;
@@ -83,7 +88,8 @@ body[dark] {
 
 #grid > * {
     border-radius: 15px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: var(--box-shadow);
+    background-color: var(--color-background);
 }
 
 fieldset#extra-parameters {
@@ -92,7 +98,10 @@ fieldset#extra-parameters {
     padding: 10px;
     border: var(--border-style);
     border-radius: 15px;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: var(--box-shadow);
+
+    grid-column: 2;
+    grid-row: 1 / span 2; /* Span two rows */
 
     display: grid;
     grid-auto-rows: auto;
@@ -107,7 +116,7 @@ fieldset > legend {
 
 dialog {
     color: inherit;
-    background-color: inherit;
+    background-color: var(--color-background);
     border-color: var(--color-borders);
     border-radius: 15px;
 }
@@ -274,11 +283,10 @@ input.hidden_input {
 #enemy_wrapper {
     border: var(--border-style);
     border-radius: 15px;
-    /* width: fit-content; */
-    height: 200px;
     overflow-y: auto;
     scrollbar-gutter: stable;
-    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.2);
+    box-shadow: var(--box-shadow);
+    background-color: var(--color-background);
 
     & tr:nth-child(even) {
         background-color: var(--color-TR-even);
@@ -412,10 +420,21 @@ a.modebar-btn {
     width: 100%;
     align-self: stretch;
     box-shadow: none;
+    background-color: transparent;
 
     display: grid;
+    grid-auto-flow: column;
     grid-template-columns: 1fr max-content;
+    grid-template-rows: 1fr max-content;
     gap: 10px;
+
+    > * {
+        background-color: var(--color-background);
+    }
+
+    > #other-buttons {
+        background-color: transparent;
+    }
 }
 
 #modding {
@@ -648,8 +667,6 @@ td.tooltip {
     border: 2px solid gold;
     border-radius: 10px;
     background-color: var(--color-mod-background);
-    font-family: Arial, sans-serif;
-    /*font-family: Roboto, sans-serif;*/
     position: relative;
     overflow: hidden;
     box-sizing: border-box;

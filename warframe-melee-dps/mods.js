@@ -33,7 +33,7 @@ const statTypes = {
     "WEAPON_MELEE_COMBO_USAGE_EFFICIENCY": "combo efficiency",
     "WEAPON_MELEE_COMBO_DURATION_BONUS": "combo duration",
 
-    "WEAPON_CRIT_CHANCE": "critical change",
+    "WEAPON_CRIT_CHANCE": "critical chance",
     "WEAPON_CRIT_DAMAGE": "critical damage",
 
     "WEAPON_PROC_CHANCE": "status chance",
@@ -84,11 +84,12 @@ function updateCell(cell, modData, update_mods = true) {
         modData.buffs.forEach(buff => {
             const tr = document.createElement("tr");
             const tdValue = document.createElement("td");
+            tdValue.style.width = "1.5rem";
             tdValue.textContent = formatDecimals(buff.value * (1 + (modData.current_level ?? modData.max_level)), 3);
             //TODO display_as with 100x if %, +1 with operationtype, etc
 
             const tdStat = document.createElement("td");
-            tdStat.textContent = ((!Object.keys(statTypes).includes(buff.buff)) ? `unknown:\u{00a0}` : "") + buff.buff;
+            tdStat.textContent = ((!Object.keys(statTypes).includes(buff.buff)) ? `unknown:\u{00a0}` + buff.buff : statTypes[buff.buff]);
             tr.appendChild(tdValue);
             tr.appendChild(tdStat);
             tbody.appendChild(tr);
@@ -275,7 +276,8 @@ function checkBuffSlots() {
     }
 }
 
-const buff_keys_inputs = ["buff", "damage_type", "symbol_filter", "operation", "condition", "upgrade_duration", "max_stacks"];
+const buff_keys_text_inputs = ["buff", "damage_type", "symbol_filter", "operation", "condition", "upgrade_duration", "max_stacks"];
+const buff_keys_number_inputs = ["upgrade_duration", "max_stacks"];
 const buff_keys_checkboxes = ["chance_scales", "duration_scales", "stack_mode", "can_reproc"];
 
 /***** Modal Functions *****/
@@ -343,7 +345,7 @@ function openEditModal(cell) {
         const chance = statLineClone.querySelector(`[name='upgrade_chance']`);
         if (stat.upgrade_chance) chance.value = formatDecimals(stat.upgrade_chance * 100, 2);
 
-        for(let name of buff_keys_inputs) {
+        for(let name of [...buff_keys_text_inputs, ...buff_keys_number_inputs]) {
             if(name === "buff") continue;
             const whatever = statLineClone.querySelector(`[name='${name}']`);
             if (stat[name]) whatever.value = stat[name];
@@ -417,8 +419,11 @@ function openEditModal(cell) {
             const chance = tr.querySelector(`[name='upgrade_chance']`);
             current_buff.upgrade_chance = chance.value / 100;
 
-            for(let name of buff_keys_inputs) {
+            for(let name of [...buff_keys_text_inputs, ...buff_keys_number_inputs]) {
                 current_buff[name]= tr.querySelector(`[name='${name}']`).value;
+            }
+            for(let name of buff_keys_number_inputs) {
+                current_buff[name]= Number(current_buff[name]);
             }
             for(let name of buff_keys_checkboxes) {
                 current_buff[name]= tr.querySelector(`[name='${name}']`).checked;
