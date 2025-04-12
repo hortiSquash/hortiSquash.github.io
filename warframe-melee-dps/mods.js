@@ -43,9 +43,23 @@ const statTypes = {
     "WEAPON_DAMAGE_AMOUNT": "weapon damage",
     "WEAPON_MELEE_DAMAGE": "melee damage",
 
+    "WEAPON_FIRE_ITERATIONS": "multishot",
+    "WEAPON_CLIP_MAX": "magazine capacity",
+    "WEAPON_RELOAD_SPEED": "reload speed",
+
     "GAMEPLAY_FACTION_DAMAGE": "faction damage",
     "WEAPON_DAMAGE_IF_VICTIM_PROC_ACTIVE": "condition overload",
     "AVATAR_ARMOUR": "enemy armor reduction",
+};
+
+const conditionTypes = {
+    "": "None",
+    "/Lotus/Upgrades/CosmeticEnhancers/Offensive/OnKillCondition": "On kill",
+    "/Lotus/Upgrades/CosmeticEnhancers/Offensive/OnCritCondition": "On critical hit",
+    //"TODO_heavy_attack": "On heavy attack",
+    "/Lotus/Upgrades/CosmeticEnhancers/Offensive/OnComboTierCondition": "Per combo tier",
+    //"/Lotus/Upgrades/CosmeticEnhancers/Offensive/OnHeadshotCondition": "On headshot",
+    "/Lotus/Upgrades/CosmeticEnhancers/Offensive/OnColdProcCondition": "On cold proc",
 };
 
 function updateModsArray() {
@@ -55,7 +69,7 @@ function updateModsArray() {
             mods.push(cell.modData);
         }
     });
-    console.trace("Mods array updated:", mods);
+    console.log("Mods array updated:", mods);
 
     updateModding();
 }
@@ -318,7 +332,6 @@ function openEditModal(cell) {
 
         const statSelect = statLineClone.querySelector("[name='buff']");
         statSelect.innerHTML = "";
-
         Object.entries(statTypes).forEach(([key, value]) => {
             const option = document.createElement("option");
             option.value = key;
@@ -332,6 +345,27 @@ function openEditModal(cell) {
             option.disabled = true;
             option.selected = true;
             statSelect.appendChild(option);
+        }
+
+        const conditionSelect = statLineClone.querySelector("[name='condition']");
+        conditionSelect.innerHTML = "";
+        Object.entries(conditionTypes).forEach(([key, value]) => {
+            const option = document.createElement("option");
+            option.value = key;
+            option.textContent = value;
+            conditionSelect.appendChild(option);
+        });
+        if(stat.conditional_upgrades) {
+            const conditional_upgrade = stat.conditional_upgrades[0];
+            if(!Object.keys(conditionTypes).includes(conditional_upgrade)) {
+                const option = document.createElement("option");
+                option.value = conditional_upgrade;
+                option.textContent = conditional_upgrade;
+                option.disabled = true;
+                option.selected = true;
+                conditionSelect.appendChild(option);
+            }
+            conditionSelect.value = conditional_upgrade;
         }
 
         //valueUnit.innerText = stat.display_as; //TODO hide temporarily until fixed

@@ -53,8 +53,8 @@ body {
     --color-tooltip-text: white;
 }
 
-body[dark] {
-    /* TODO colors */
+body[theme="1"] {
+    /* TODO dark theme colors */
     --color-text: #ddd;
     --color-background: #202024;
     --color-body-background: #121214;
@@ -69,7 +69,7 @@ body[dark] {
     --color-button-background: white;
     --color-mod-background: #3c3c3c;
     --color-weapon-background: rgba(0, 0, 0, 0.1);
-    --color-indented: #bbb;
+    --color-indented: #a6a6a6;
     --color-hovered: #69b5fb;
     --color-modbuff: #62c162;
     --color-modnerf: #f63939;
@@ -84,6 +84,47 @@ body[dark] {
     --color-tooltip: #bbb;
     --color-tooltip-background: rgba(0, 0, 0, 0.7);
     --color-tooltip-text: white;
+}
+
+body[theme="2"] {
+    /* TODO Naktix theme colors */
+    --color-text: #ddd;
+    --color-background: #330033;
+    --color-body-background: #231934;
+    --color-borders: #606060;
+    --border-style: 2px solid var(--color-borders);
+    --box-shadow: 0 2px 12px 0 rgba(255, 255, 255, 0.2);
+
+    --color-input-text: black;
+    --color-input-background: white;
+    --color-input-text-placeholder: grey;
+    --color-button-text: black;
+    --color-button-background: white;
+    --color-mod-background: #3c3c3c;
+    --color-weapon-background: rgba(0, 0, 0, 0.1);
+    --color-indented: #a6a6a6;
+    --color-hovered: #69b5fb;
+    --color-modbuff: #62c162;
+    --color-modnerf: #f63939;
+    --mod-empty-background-filter: opacity(30%);
+    --color-mod-empty-background: rgba(255, 255, 255, 0.7);
+    --color-hits-background: #5b5c5c;
+    --color-plot-background: #333;
+
+    --color-TR-even: rgba(0, 0, 0, 0.05);
+    --color-TR-header: #606060;
+
+    --color-tooltip: #bbb;
+    --color-tooltip-background: rgba(0, 0, 0, 0.7);
+    --color-tooltip-text: white;
+}
+
+{
+    color: #330033;
+    color: #34192B;
+    color: #343019;
+    color: #193430;
+    color: #231934;
 }
 
 #grid > * {
@@ -552,9 +593,27 @@ a.modebar-btn {
     padding-top: 15px;
 }
 
-.indented {
-    padding-left: 1em;
-    color: var(--color-indented);
+tr.indented {
+    > td:first-of-type {
+        padding-left: 1em;
+        color: var(--color-indented);
+
+        &::after{
+            content:"├";
+            position: absolute;
+            left: 0;
+            font-size: larger;
+        }
+    }
+
+    &:has(+ tr:not(.indented)),
+    &:last-child {
+        > td:first-of-type {
+            &::after{
+                content:"└";
+            }
+        }
+    }
 }
 
 div.tooltip {
@@ -664,7 +723,7 @@ td.tooltip {
 .cell {
     width: var(--mod-width);
     height: var(--mod-height);
-    border: 2px solid gold;
+    border: 2px solid var(--metal-color);
     border-radius: 10px;
     background-color: var(--color-mod-background);
     position: relative;
@@ -675,6 +734,15 @@ td.tooltip {
 
     scroll-snap-align: start;
     scroll-snap-stop: always;
+
+    /* FIXME no rounded borders anymore :c
+    border-image: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--metal-color) 100%, white 40%),
+        var(--metal-color),
+        color-mix(in srgb, var(--metal-color) 100%, black 40%)
+    ) 1;
+    */
 }
 
 /* Empty mod and buff slots show dashed border with "Empty" */
@@ -828,22 +896,22 @@ td.tooltip {
     display: none;
 }
 
-#help_button, #dark_theme_button {
+#help_button, #theme_button {
     min-height: 1.5rem;
     min-width: 1.5rem;
 
     font-size: large;
 }
 
-#dark_theme_button{
+#theme_button{
     text-align: center;
     padding: 0;
 
     &::before {
-        content: "🌑";
+        content: "🌑"; /* TODO */
     }
 }
-body[dark] #dark_theme_button::before {
+body[theme="1"] #theme_button::before {
     content: "☀️";
 }
 
@@ -851,30 +919,38 @@ body[dark] #dark_theme_button::before {
     margin: 0;
 }
 
+select[name="buff"] {
+    max-width: 170px;
+}
+
+select[name="condition"] {
+    max-width: 130px;
+}
+
 /* TODO better colors with unified contrast */
 .mod-rarity-common {
-    border-color: darkgoldenrod;
+    --metal-color: darkgoldenrod;
 }
 .mod-rarity-uncommon {
-    border-color: silver;
+    --metal-color: silver;
 }
 .mod-rarity-rare {
-    border-color: gold;
+    --metal-color: gold;
 }
 .mod-rarity-legendary {
-    border-color: lightblue;
+    --metal-color: lightblue;
 }
 .mod-rarity-archon {
-    border-color: orange;
+    --metal-color: orange;
 }
 .mod-rarity-galvanized {
-    border-color: slategray;
+    --metal-color: slategray;
 }
 .mod-rarity-riven {
-    border-color: darkorchid;
+    --metal-color: darkorchid;
 }
 .mod-rarity-amalgam {
-    border-color: peachpuff;
+    --metal-color: peachpuff;
 }
 
 .damage-glyph {
@@ -882,4 +958,8 @@ body[dark] #dark_theme_button::before {
     height:15px;
     width:15px;
     margin: -1px;
+}
+
+#grid:has(#weapon_type option[value="melee"]:checked) .stance-slot {
+    background-color: red;
 }

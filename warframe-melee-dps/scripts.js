@@ -1,3 +1,29 @@
+/*
+const worker = new Worker('./wasmWorker.js');
+
+let next_id = 0;
+const promises = {};
+
+function call_worker(message) {
+    return new Promise((resolve, reject) => {
+        const id = next_id++;
+        promises[id] = {resolve, reject};
+        message.id = id;
+        worker.postMessage(message);
+    });
+}
+
+worker.onmessage = function(event) {
+    const {id, data} = event.data;
+    promises[id].resolve(data);
+}
+
+async function bite(arg){
+    let result = await call_worker({func: "passVectorBuffLines", arg: arg});
+    console.log(result);
+}
+*/
+
 function default_value(defaults, new_values){
     return {...defaults, ...new_values};
 }
@@ -483,15 +509,19 @@ function loadWeaponStats() {
 
     // convert from the DB
     weapon = {
-        "attack_speed": weaponTemp.fireRate || 0,
-        "wind_up": weaponTemp.windUp || 0,
+        "attack_speed": weaponTemp.fireRate || 1,
+        "wind_up": weaponTemp.windUp || 1,
         "critical_chance": weaponTemp.criticalChance || 0,
-        "critical_damage": weaponTemp.criticalMultiplier || 0,
+        "critical_damage": weaponTemp.criticalMultiplier || 1,
         "status": weaponTemp.procChance || 0,
-        "initial_combo": weaponTemp.whateveritscalled || 0, // TODO
-        "combo_duration": weaponTemp.comboDuration || 0,
-        "combo_efficiency": weaponTemp.whateveritscalled || 0, // TODO
+        "initial_combo": weaponTemp.whateveritscalled || 0, //TODO
+        "combo_duration": weaponTemp.comboDuration || 5,
+        "combo_efficiency": weaponTemp.whateveritscalled || 0, //TODO
         "riven_disposition": weaponTemp.omegaAttenuation || 0,
+        "multishot": weaponTemp.whateveritscalled || 1, //TODO
+        "magazine_capacity": weaponTemp.whateveritscalled || 1, //TODO
+        "reload": weaponTemp.whateveritscalled || 0, //TODO
+
 
         //"damage_types": weaponTemp.damage, // because keep names
          "damage_types": {
@@ -529,6 +559,9 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
     document.getElementById("initial_combo").cells[column].querySelector("input").value = formatAdditive(weapon_to_display.initial_combo);
     document.getElementById("combo_duration").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.combo_duration, 0, 3);
     document.getElementById("combo_efficiency").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.combo_efficiency * 100, 0, 2);
+    document.getElementById("multishot").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.multishot, 1, 2);
+    document.getElementById("magazine_capacity").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.magazine_capacity, 0, 2);
+    document.getElementById("reload").cells[column].querySelector("input").value = formatDecimalsMinMax(weapon_to_display.reload, 0, 2);
 
     let crit_table = document.getElementById("crit_tier").cells;
 
@@ -593,6 +626,18 @@ const melee_weapon_types = {
     "Warfan":              5,
     "Whip":                4.5
 }
+const primary_weapon_types = {
+    "Assault Rifle":    1,
+    "Bow":              1,
+    "Shotgun":          1,
+    "Sniper":           1,
+}
+const secondary_weapon_types = {
+    "Pistol":   1,
+    "Thrown":   1,
+    "Tome":     1,
+}
+
 const weapon_type_list = document.getElementById("weapon_subclass");
 Object.keys(melee_weapon_types).forEach(function (e) {
     const option = document.createElement('option');
@@ -611,7 +656,9 @@ function updateModding() {
         for (let i=0; i < mod_new.buffs.length; i++) {
             const buff = mod_new.buffs[i];
             buff.value = Number(buff.value) * (current_level + 1);
-            buff.condition_name = buff.conditional_upgrades?.at(0) ?? "";
+            if(!buff.condition){
+                buff.condition = buff.conditional_upgrades?.at(0) ?? "";
+            }
 
             //TODO fix this shit
             if(!isHeavy && buff.valid_modifiers?.includes("PM_HEAVY_MELEE")){
@@ -621,6 +668,7 @@ function updateModding() {
             mod_new.buffs[i] = default_value(default_buff_line, buff);
         }
         mod_new = default_value(default_modbuff, mod_new);
+
         mod_new.buffs = Module.passVectorBuffLines(mod_new.buffs);
         return mod_new;
     });
@@ -659,7 +707,7 @@ function saveWeapon() {
         "max_combo": 12,
     };
     weapon.damage_types = default_value(default_damage_types, Object.fromEntries(damage_order.map(e =>
-        [e, (document.getElementById(e)?.cells[1].querySelector("input").value) | 0]
+        [e, (document.getElementById(e)?.cells[1].querySelector("input").value) || 0]
     )));
 
     // remove the % and shit
@@ -705,6 +753,9 @@ function calculateModding(weapon, mod_buffs_cpp = [], enemies) {
     weaponModded.critical_chance = finalStats.critical_chance;
     weaponModded.critical_damage = finalStats.critical_damage;
     weaponModded.status = finalStats.status;
+    weaponModded.multishot = finalStats.multishot;
+    weaponModded.magazine_capacity = finalStats.magazine_capacity;
+    weaponModded.reload = finalStats.reload;
 
     weaponModded.initial_combo = finalStats.initial_combo;
     weaponModded.combo_duration = finalStats.combo_duration;
@@ -960,11 +1011,13 @@ async function loadJson(path) {
     }
 }
 
-const isDarkMode = localStorage.getItem("darkMode") === "true" ?? window.matchMedia("(prefers-color-scheme: dark)").matches;
-document.body.toggleAttribute("dark", isDarkMode);
+let theme = localStorage.getItem("theme") ?? window.matchMedia("(prefers-color-scheme: dark)").matches;
+document.body.setAttribute("theme", theme);
 
-document.getElementById("dark_theme_button").addEventListener("click", () => {
-    localStorage.setItem("darkMode", document.body.toggleAttribute("dark"));
+document.getElementById("theme_button").addEventListener("click", () => {
+    theme = (theme + 1) % 3;
+    document.body.setAttribute("theme", theme);
+    localStorage.setItem("theme", theme);
 });
 
 document.getElementById("weapon_type").addEventListener("change", (e) => {
@@ -978,4 +1031,21 @@ document.getElementById("weapon_type").addEventListener("change", (e) => {
     document.getElementById("multishot").classList.toggle("d-none", boolean);
     document.getElementById("magazine_capacity").classList.toggle("d-none", boolean);
     document.getElementById("reload").classList.toggle("d-none", boolean);
+
+    const weapon_type_list = document.getElementById("weapon_subclass");
+    let list;
+    if(e.target.value === "melee"){
+        list = melee_weapon_types;
+    }else if(e.target.value === "primary"){
+        list = primary_weapon_types;
+    }else if(e.target.value === "secondary"){
+        list = secondary_weapon_types;
+    }
+
+    while (weapon_type_list.options.length > 1) weapon_type_list.remove(1);
+    Object.keys(list).forEach(function (e) {
+        const option = document.createElement('option');
+        option.text = e;
+        weapon_type_list.appendChild(option);
+    });
 })

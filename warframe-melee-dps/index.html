@@ -4,6 +4,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- TODO -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hortiSquash.github.io/warframe-melee-dps/">
+    <meta property="og:site_name" content="Warframe Melee DPS">
+    <meta property="og:title" content="Warframe Melee DPS · The most accurate WF builder">
+    <meta property="og:description" content="The most accurate warframe builder, entirely simulated and running in your browser at light speeds.">
+    <meta property="og:image" content="https://hortisquash.github.io/warframe-melee-dps/icon.png">
+    <meta content="#d59c84" data-react-helmet="true" name="theme-color" />
+    <meta name="twitter:creator" content="@hortiSquash">
+    <meta name="twitter:site" content="@WF:MD">
+
     <title>Warframe Melee DPS</title>
     <link rel="shortcut icon" href="icon.png">
 
@@ -264,15 +276,14 @@
                             placeholder="Weapon select" onblur="loadWeaponStats()" size="17" style="font-size: large; font-weight: bold; margin: 20px;">
 
                             <div style="display: flex; justify-content: space-around; flex-direction: column; height: 150px; width: fit-content; padding-left: 2rem">
-                                <select id="weapon_type" disabled>
+                                <select id="weapon_type">
                                     <option value="melee">Melee</option>
                                     <option value="secondary">Secondary</option>
                                     <option value="primary">Primary</option>
                                     <option value="archgun">Archgun</option>
                                 </select>
-                                <select id="weapon_subclass" onchange="saveWeapon()" disabled>
+                                <select id="weapon_subclass" onchange="saveWeapon()">
                                     <option selected disabled>Subclass</option>
-                                    <!-- TODO could add bow/shotgun/sniper/etc but fuck it -->
                                 </select>
                                 <label for="riven_disposition_input">Riven disposition
                                     <input id="riven_disposition_input" type="number" min="0.50" max="1.55" step="0.05" size="6" style="width: 3.5rem"
@@ -283,8 +294,8 @@
                             </div>
                         </td>
                     </tr>
-                    <tr id="wind_up">
-                        <td class="indented">wind up</td>
+                    <tr id="wind_up" class="indented">
+                        <td>wind up</td>
                         <td>
                             <label class="input_with_unit">
                                 <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="1"
@@ -364,8 +375,8 @@
                             </div>
                         </td>
                     </tr>
-                    <tr id="critical_damage">
-                        <td class="indented">damage</td>
+                    <tr id="critical_damage" class="indented">
+                        <td>damage</td>
                         <td>
                             <label class="input_with_unit">
                                 <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="2.0"
@@ -450,7 +461,7 @@
                         <td>multishot</td>
                         <td>
                             <label class="input_with_unit">
-                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="1.0"
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="1.0"
                                 ><span></span>
                             </label>
                         </td>
@@ -461,11 +472,11 @@
                             </label>
                         </td>
                     </tr>
-                    <tr id="magazine_capacity" class="d-none">
-                        <td class="indented">magazine</td>
+                    <tr id="magazine_capacity" class="indented d-none">
+                        <td>magazine</td>
                         <td>
                             <label class="input_with_unit">
-                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="10"
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="10"
                                 ><span></span>
                             </label>
                         </td>
@@ -476,15 +487,15 @@
                             </label>
                         </td>
                     </tr>
-                    <tr id="reload" class="d-none">
-                        <td class="indented">reload</td>
+                    <tr id="reload" class="indented d-none">
+                        <td>reload</td>
                         <td>
                             <label class="input_with_unit">
-                                <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
+                                <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0"
                                 ><span>s</span>
                             </label>
                         </td>
-                        <td>
+                        <td class="less_is_more">
                             <label class="input_with_unit">
                                 <input class="hidden_input" disabled type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" placeholder="0"
                                 ><span>s</span>
@@ -507,8 +518,8 @@
                             </label>
                         </td>
                     </tr>
-                    <tr id="combo_efficiency">
-                        <td class="indented">efficiency</td>
+                    <tr id="combo_efficiency" class="indented">
+                        <td>efficiency</td>
                         <td>
                             <label class="input_with_unit">
                                 <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="0"
@@ -522,8 +533,8 @@
                             </label>
                         </td>
                     </tr>
-                    <tr id="combo_duration">
-                        <td class="indented">duration</td>
+                    <tr id="combo_duration" class="indented">
+                        <td>duration</td>
                         <td>
                             <label class="input_with_unit">
                                 <input class="hidden_input" type="text" inputmode="decimal" pattern="-?\d+(?:[.,]\d+)?(?:%|e\d+)?" value="5"
@@ -600,7 +611,7 @@
             <div id="other-buttons">
                 <button onclick="changeStats()" style="font-size: 32px; color: darkred; margin: 0 5px">Simulate</button>
                 <button id="help_button">Help</button>
-                <button id="dark_theme_button"></button>
+                <button id="theme_button"></button>
             </div>
             <fieldset id="extra-parameters">
                 <legend>Extra parameters</legend>
@@ -762,17 +773,7 @@
                 </select>
             </td>
             <td>
-                <select name="condition">
-                    <option value="" selected>None</option>
-                    <option>On kill</option>
-                    <option>On critical hit</option>
-                    <option>On heavy attack</option>
-                    <option>Per combo tier</option>
-                    <option disabled>On headshot</option>
-                    <option disabled>On ability</option>
-                    <option disabled>On wall-latch</option>
-                    <option disabled>On slide attack</option>
-                </select>
+                <select name="condition"></select>
             </td>
             <td>
                 <label class="input_with_unit">
