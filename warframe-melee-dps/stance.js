@@ -88,9 +88,17 @@ function saveStance() {
     stance[document.getElementById("combo_type").value].hits = hits;
 }
 
-function convertStance(){
+function convertStance(is_melee){
     let combo_type = document.getElementById("combo_type").value;
-    let hits = structuredClone(stance[combo_type].hits);
+    let hits;
+    if(is_melee){
+        hits = structuredClone(stance[combo_type].hits);
+    } else {
+        hits = [{
+            "damage": 100,
+            "time": 1,
+        }];
+    }
     for (let e of hits){
         e.damage /= 100;
         e.combo ??= 1;

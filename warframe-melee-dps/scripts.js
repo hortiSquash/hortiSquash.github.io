@@ -256,7 +256,9 @@ function changeStats() {
         alert("Select a weapon");
         throw "missing weapon";
     }
-    if(stance == null || stance[document.getElementById("combo_type").value] == null){
+    const is_melee = document.getElementById("weapon_type").value === "melee";
+
+    if(is_melee && (stance == null || stance[document.getElementById("combo_type").value] == null)){
         alert("Select a stance and combo");
         throw "missing stance/combo";
     }
@@ -294,7 +296,7 @@ function changeStats() {
     // TODO why only first enemy?
     const data = CppToColumnar(Module.stats(
         weapon,
-        convertStance(),
+        convertStance(is_melee),
         enemy,
         mods_buffs_cpp,
         iterations, time_max, tickrate, quantization, conditionals

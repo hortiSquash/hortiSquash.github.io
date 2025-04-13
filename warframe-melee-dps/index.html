@@ -150,8 +150,8 @@
                     <td><input type="number" id="shield" value="0" min="0" max="2147483647" style="width: 3.5rem"></td>
                 </tr>
             </table>
-            <input type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
-            <input type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
+            <input class="button-stylized" type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
+            <input class="button-stylized" type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
         </form>
     </dialog>
 
@@ -160,7 +160,7 @@
 
     <div id="grid">
         <div id="modding">
-            <div class="stance-slot">
+            <div id="stance-slot">
                 <div style="display: flex; justify-content: space-evenly; flex-direction: column; height: 100%">
                     <div>
                         <input type="text" id="stance_name" placeholder="stance name" list="stances_list" style="font-size: initial">
@@ -186,25 +186,25 @@
             </div>
 
             <!-- Exilus slot -->
-            <div class="cell special-slot" style="grid-area: exilus;" data-slot_type="exilus"></div>
+            <div class="cell special-slot" data-slot_type="exilus"></div>
 
             <!-- Buffs wrapper (horizontally scrollable) -->
-            <div id="buffs_wrapper" style="grid-area: buffs_wrapper;">
+            <div id="buffs_wrapper">
                 <!-- Initially one buff slot -->
                 <div class="cell buff-slot"></div>
             </div>
 
-            <div class="cell mod-slot" id="mod1" style="grid-area: mod1;"></div>
-            <div class="cell mod-slot" id="mod2" style="grid-area: mod2;"></div>
-            <div class="cell mod-slot" id="mod3" style="grid-area: mod3;"></div>
-            <div class="cell mod-slot" id="mod4" style="grid-area: mod4;"></div>
-            <div class="cell mod-slot" id="mod5" style="grid-area: mod5;"></div>
-            <div class="cell mod-slot" id="mod6" style="grid-area: mod6;"></div>
-            <div class="cell mod-slot" id="mod7" style="grid-area: mod7;"></div>
-            <div class="cell mod-slot" id="mod8" style="grid-area: mod8;"></div>
+            <div class="cell mod-slot" id="mod1"></div>
+            <div class="cell mod-slot" id="mod2"></div>
+            <div class="cell mod-slot" id="mod3"></div>
+            <div class="cell mod-slot" id="mod4"></div>
+            <div class="cell mod-slot" id="mod5"></div>
+            <div class="cell mod-slot" id="mod6"></div>
+            <div class="cell mod-slot" id="mod7"></div>
+            <div class="cell mod-slot" id="mod8"></div>
 
-            <div class="cell special-slot" style="grid-area: arcane1;" data-slot_type="arcane"></div>
-            <div class="cell special-slot" style="grid-area: arcane2;" data-slot_type="arcane"></div>
+            <div class="cell special-slot" id="arcane1" data-slot_type="arcane"></div>
+            <div class="cell special-slot" id="arcane2" data-slot_type="arcane"></div>
         </div>
         <div id="mod-list-wrapper">
             <input id="mod_list_search" placeholder="filter mods" style="width:12.5rem">
@@ -609,9 +609,9 @@
                 </table>
             </div>
             <div id="other-buttons">
-                <button onclick="changeStats()" style="font-size: 32px; color: darkred; margin: 0 5px">Simulate</button>
-                <button id="help_button">Help</button>
-                <button id="theme_button"></button>
+                <button class="button-stylized" onclick="changeStats()" style="font-size: 32px; color: darkred; margin: 0 5px">Simulate</button>
+                <button class="button-stylized" id="help_button">Help</button>
+                <button class="button-stylized" id="theme_button">Theme</button>
             </div>
             <fieldset id="extra-parameters">
                 <legend>Extra parameters</legend>
@@ -705,8 +705,8 @@
                 <tfoot>
                 <tr>
                     <td colspan="99">
-                        <button type="button" onclick="removeStatLine()">Delete the last stat 🗑️</button>
-                        <button type="button" onclick="addStatLine()">Add a stat</button>
+                        <button class="button-stylized" type="button" onclick="removeStatLine()">Delete the last stat 🗑️</button>
+                        <button class="button-stylized" type="button" onclick="addStatLine()">Add a stat</button>
                         <div class="tooltip">🛈
                             <span class="tooltiptext">
                                 decay: the stacks go down one by one<br>
@@ -715,7 +715,7 @@
                                 refresh: stacks can be refreshed while active
                             </span>
                         </div>
-                        <button type="submit" id="save-button" style="float: right;">Save</button>
+                        <button class="button-stylized" type="submit" id="save-button" style="float: right;">Save</button>
                     </td>
                 </tr>
                 </tfoot>
@@ -817,12 +817,12 @@
                     <tbody id="hits_wrapper"></tbody>
                 </table>
             </div>
-            <button type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
-            <button type="button" onclick="addHit()">Add a hit</button>
+            <button class="button-stylized" type="button" onclick="removeHit()">Delete the last hit 🗑️</button>
+            <button class="button-stylized" type="button" onclick="addHit()">Add a hit</button>
             <div class="tooltip">🛈
                 <span class="tooltiptext">edit to 0 to delete proc or bonus damage</span>
             </div>
-            <button type="submit" onclick="saveStance()" style="float: right; margin-right: 18px">Save</button>
+            <button class="button-stylized" type="submit" onclick="saveStance()" style="float: right; margin-right: 18px">Save</button>
         </form>
     </dialog>
 

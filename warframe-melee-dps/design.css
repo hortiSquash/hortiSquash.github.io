@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: Roboto, Arial, sans-serif, WarframeIcons;
+    font-family: Roboto, Arial, "Segoe UI Symbol", sans-serif, WarframeIcons;
     background-color: var(--color-body-background);
     color: var(--color-text);
 }
@@ -36,8 +36,8 @@ body {
     --color-button-background: white;
     --color-mod-background: #c6c6c6;
     --color-weapon-background: rgba(0, 0, 0, 0.1);
-    --color-indented: grey;
-    --color-hovered: blue;
+    --color-indented: color-mix(in srgb, var(--color-text) 50%, white);
+    --color-hovered: #5a86d5;
     --color-modbuff: green;
     --color-modnerf: red;
     --mod-empty-background-filter: invert() opacity(30%);
@@ -63,13 +63,13 @@ body[theme="1"] {
     --box-shadow: 0 2px 12px 0 rgba(255, 255, 255, 0.2);
 
     --color-input-text: black;
-    --color-input-background: white;
+    --color-input-background: #606060;
     --color-input-text-placeholder: grey;
     --color-button-text: black;
     --color-button-background: white;
     --color-mod-background: #3c3c3c;
     --color-weapon-background: rgba(0, 0, 0, 0.1);
-    --color-indented: #a6a6a6;
+    --color-indented: color-mix(in srgb, var(--color-text) 70%, black);
     --color-hovered: #69b5fb;
     --color-modbuff: #62c162;
     --color-modnerf: #f63939;
@@ -87,31 +87,31 @@ body[theme="1"] {
 }
 
 body[theme="2"] {
-    /* TODO Naktix theme colors */
-    --color-text: #ddd;
-    --color-background: #330033;
-    --color-body-background: #231934;
-    --color-borders: #606060;
+    /* TODO Vitruvian theme colors */
+    --color-text: #9c8a57;
+    --color-background: #19161b;
+    --color-body-background: #0b0b16;
+    --color-borders: #5c4f34;
     --border-style: 2px solid var(--color-borders);
-    --box-shadow: 0 2px 12px 0 rgba(255, 255, 255, 0.2);
+    --box-shadow: 0 2px 12px 0 rgba(92, 79, 52, 0.3);
 
     --color-input-text: black;
-    --color-input-background: white;
+    --color-input-background: #14131b;
     --color-input-text-placeholder: grey;
     --color-button-text: black;
     --color-button-background: white;
     --color-mod-background: #3c3c3c;
     --color-weapon-background: rgba(0, 0, 0, 0.1);
-    --color-indented: #a6a6a6;
-    --color-hovered: #69b5fb;
-    --color-modbuff: #62c162;
-    --color-modnerf: #f63939;
+    --color-indented: color-mix(in srgb, var(--color-text) 70%, black);
+    --color-hovered: #f5e3ad;
+    --color-modbuff: #3c9309;
+    --color-modnerf: #db1f1f;
     --mod-empty-background-filter: opacity(30%);
     --color-mod-empty-background: rgba(255, 255, 255, 0.7);
     --color-hits-background: #5b5c5c;
     --color-plot-background: #333;
 
-    --color-TR-even: rgba(0, 0, 0, 0.05);
+    --color-TR-even: #22212a;
     --color-TR-header: #606060;
 
     --color-tooltip: #bbb;
@@ -482,15 +482,24 @@ a.modebar-btn {
     grid-area: modding;
 
     display: grid;
-    grid-template-areas:
-        "stance exilus buffs_wrapper buffs_wrapper buffs_wrapper"
-        "mod1 mod2 mod3 mod4 arcane1"
-        "mod5 mod6 mod7 mod8 arcane2";
+    grid-auto-columns: 240px;
+    grid-auto-flow: row;
+
     gap: var(--mod-gap);
     width: fit-content;
     border: var(--border-style);
     padding: 10px;
 }
+#mod1 { grid-column: 1; grid-row: 2; }
+#mod2 { grid-column: 2; grid-row: 2; }
+#mod3 { grid-column: 3; grid-row: 2; }
+#mod4 { grid-column: 4; grid-row: 2; }
+#arcane1 { grid-column: 5; grid-row: 2; }
+#mod5 { grid-column: 1; grid-row: 3; }
+#mod6 { grid-column: 2; grid-row: 3; }
+#mod7 { grid-column: 3; grid-row: 3; }
+#mod8 { grid-column: 4; grid-row: 3; }
+#arcane2 { grid-column: 5; grid-row: 3; }
 
 #mod-list-wrapper{
     grid-area: mod-list;
@@ -803,7 +812,7 @@ td.tooltip {
     }
 }
 
-#buffs_wrapper>.cell:empty {
+#buffs_wrapper > .cell:empty {
     &::after {
         content: "buff";
         /* font-size: 18px; */
@@ -829,8 +838,8 @@ td.tooltip {
 }
 
 /* Stance slot styling */
-.stance-slot {
-    grid-area: stance;
+#stance-slot {
+    /* grid-area: stance; */
 
     display: flex;
     align-items: center;
@@ -840,11 +849,21 @@ td.tooltip {
 
 /* Scrollable buffs_wrapper container with calculated width */
 #buffs_wrapper {
-    width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal));
+    /* width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal)); */
+    grid-column: span 3;
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     display: flex;
     gap: var(--mod-gap);
+}
+
+#grid:has(#weapon_type option:not([value="melee"]):checked) > #modding {
+    #stance-slot {
+        display: none;
+    }
+    #buffs_wrapper {
+        grid-column: span 4;
+    }
 }
 
 /* Buff slots inherit the same fixed cell size */
@@ -896,25 +915,6 @@ td.tooltip {
     display: none;
 }
 
-#help_button, #theme_button {
-    min-height: 1.5rem;
-    min-width: 1.5rem;
-
-    font-size: large;
-}
-
-#theme_button{
-    text-align: center;
-    padding: 0;
-
-    &::before {
-        content: "🌑"; /* TODO */
-    }
-}
-body[theme="1"] #theme_button::before {
-    content: "☀️";
-}
-
 #stats-tbody input[type="checkbox"]{
     margin: 0;
 }
@@ -929,7 +929,7 @@ select[name="condition"] {
 
 /* TODO better colors with unified contrast */
 .mod-rarity-common {
-    --metal-color: darkgoldenrod;
+    --metal-color: #a67c68;
 }
 .mod-rarity-uncommon {
     --metal-color: silver;
@@ -960,6 +960,29 @@ select[name="condition"] {
     margin: -1px;
 }
 
-#grid:has(#weapon_type option[value="melee"]:checked) .stance-slot {
-    background-color: red;
+.button-stylized {
+    font-size: small;
+    font-family: inherit;
+    background: var(--color-input-background);
+    color: var(--color-text);
+    border: 1px solid transparent;
+    border-bottom: 3px solid color-mix(in srgb, var(--color-text) 40%, black);
+    padding: 0 0.5rem;
+    min-height: 2rem;
+    min-width: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+
+    &:hover {
+        border: 1px solid color-mix(in srgb, var(--color-hovered) 30%, black);
+        border-bottom: 3px solid var(--color-hovered);
+        color: var(--color-hovered);
+        background: radial-gradient(
+            ellipse at bottom center,
+            color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background)),
+            var(--color-input-background) 70%
+        );
+    }
 }
