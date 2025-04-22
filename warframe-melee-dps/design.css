@@ -5,14 +5,19 @@
     src: url(WarframeIcons.woff) format('woff');
 }
 
+@font-face {
+    font-family: Info_Source;
+    src: url(info_source.woff2) format('woff2');
+}
+
 body {
-    font-family: Roboto, Arial, "Segoe UI Symbol", sans-serif, WarframeIcons;
+    font-family: Roboto, Arial, sans-serif, WarframeIcons, Info_Source;
     background-color: var(--color-body-background);
     color: var(--color-text);
 }
 
 :root {
-    --mod-width: 240px;
+    --mod-width: clamp(160px, calc((100vw - 2 * var(--mod-margin-horizontal)) / 2), 240px);
     --mod-height: 120px;
     --buff-count: 3;
     --mod-margin-horizontal: 5px;
@@ -133,7 +138,7 @@ body[theme="2"] {
     background-color: var(--color-background);
 }
 
-fieldset#extra-parameters {
+#extra-parameters {
     width: max-content;
     margin: 0px;
     padding: 10px;
@@ -141,8 +146,7 @@ fieldset#extra-parameters {
     border-radius: 15px;
     box-shadow: var(--box-shadow);
 
-    grid-column: 2;
-    grid-row: 1 / span 2; /* Span two rows */
+    grid-row: span 2;
 
     display: grid;
     grid-auto-rows: auto;
@@ -317,6 +321,10 @@ input.hidden_input {
     }
 }
 
+#mod-dialog > form {
+    overflow: auto;
+}
+
 #mod-dialog table > thead {
     background-color: var(--color-TR-header);
 }
@@ -464,7 +472,7 @@ a.modebar-btn {
     background-color: transparent;
 
     display: grid;
-    grid-auto-flow: column;
+    grid-auto-flow: column dense;
     grid-template-columns: 1fr max-content;
     grid-template-rows: 1fr max-content;
     gap: 10px;
@@ -482,7 +490,7 @@ a.modebar-btn {
     grid-area: modding;
 
     display: grid;
-    grid-auto-columns: 240px;
+    grid-auto-columns: var(--mod-width);
     grid-auto-flow: row;
 
     gap: var(--mod-gap);
@@ -490,16 +498,9 @@ a.modebar-btn {
     border: var(--border-style);
     padding: 10px;
 }
-#mod1 { grid-column: 1; grid-row: 2; }
-#mod2 { grid-column: 2; grid-row: 2; }
-#mod3 { grid-column: 3; grid-row: 2; }
-#mod4 { grid-column: 4; grid-row: 2; }
 #arcane1 { grid-column: 5; grid-row: 2; }
-#mod5 { grid-column: 1; grid-row: 3; }
-#mod6 { grid-column: 2; grid-row: 3; }
-#mod7 { grid-column: 3; grid-row: 3; }
-#mod8 { grid-column: 4; grid-row: 3; }
 #arcane2 { grid-column: 5; grid-row: 3; }
+#buffs_wrapper { grid-column: 3 / span 3; grid-row: 1; }
 
 #mod-list-wrapper{
     grid-area: mod-list;
@@ -509,6 +510,7 @@ a.modebar-btn {
 }
 
 #mod-list {
+    --mod_count_x: 2;
     display: grid;
     gap: var(--mod-gap);
     grid-auto-flow: column;
@@ -518,10 +520,11 @@ a.modebar-btn {
     margin-top: 10px;
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
-    width: calc(2 * var(--mod-width) + (2 - 1) * 2 * var(--mod-margin-horizontal));
+    width: calc(var(--mod_count_x) * var(--mod-width) + (var(--mod_count_x) - 1) * 2 * var(--mod-margin-horizontal));
     /* 3 mods + 2 gaps + 6 borders = 3*240 + 2*10 + 6*2 = 752 */
-    height: calc(3 * var(--mod-height) + (3 - 1) * 2 * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
+    /* height: calc(var(--mod_count_y) * var(--mod-height) + (var(--mod_count_y) - 1) * 2 * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
     /* 3*120 + 2*2*8 + 3*2 * 2px = 409px */
+    height: max-content;
 
     /* TODO darkmode
         scrollbar-color: blue red; */
@@ -554,7 +557,9 @@ a.modebar-btn {
             position: absolute;
             font-size: 36px;
             color: grey;
-            transform: translateY(-150%);
+            transform: translateY(calc(-50% - 50px));
+            width: 95%;
+            text-align: center;
         }
     }
 }
@@ -628,6 +633,10 @@ tr.indented {
 div.tooltip {
     color: var(--color-tooltip);
     display: inline-block;
+
+    &::before {
+        content: "🛈";
+    }
 }
 
 td.tooltip {
@@ -643,8 +652,10 @@ td.tooltip {
     border-radius: 3px;
     padding: 5px;
 
+    word-break: break-word;
+
     transform: translate(10px, -5px); /* 5px = padding */
-    position: fixed;
+    position: absolute;
     z-index: 1;
 }
 
@@ -657,8 +668,9 @@ td.tooltip {
     padding: 5px;
 
     transform: translate(24px, -50%);
-    position: fixed;
+    position: absolute;
     z-index: 1;
+    width: max-content;
 }
 
 .tooltiptable th{
@@ -840,17 +852,24 @@ td.tooltip {
 /* Stance slot styling */
 #stance-slot {
     /* grid-area: stance; */
+    background: none;
+    box-shadow: none;
 
     display: flex;
     align-items: center;
     justify-content: center;
     height: var(--mod-height);
+    width: var(--mod-width);
+    padding: 5px;
+
+    #stance_name{
+        width: 90%;
+    }
 }
 
 /* Scrollable buffs_wrapper container with calculated width */
 #buffs_wrapper {
     /* width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal)); */
-    grid-column: span 3;
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     display: flex;
@@ -984,5 +1003,77 @@ select[name="condition"] {
             color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background)),
             var(--color-input-background) 70%
         );
+    }
+}
+
+#editEnemyTable {
+    margin-top: 1rem;
+    border-spacing: 0;
+
+    th {
+        width: 4.5rem;
+    }
+}
+
+.pulse {
+    animation: pulse 1.2s infinite;
+    --color-pulse: rgb(246, 143, 133);
+}
+@keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 var(--color-pulse); }
+    70%  { box-shadow: 0 0 0 10px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+}
+
+#enemy_wrapper{
+    > table {
+        > thead > tr > th{
+            &:nth-child(1) { width: 18px; }
+            /* &:nth-child(2) { width: 230px; } */
+            &:nth-child(3) { width: 50px; }
+            &:nth-child(4) { width: 50px; }
+        }
+    }
+}
+
+#stats_wrapper{
+    > table {
+        > thead > tr > th{
+            &:nth-child(1) { width: 100px; background: inherit }
+            &:nth-child(2) { width: 65px; }
+            &:nth-child(3) { width: 65px; }
+            &:nth-child(4) { width: 40px; background: inherit }
+        }
+    }
+}
+
+#weapon_selection{
+    position: absolute;
+    z-index: 1;
+    left: 300px;
+    top: 25px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    border-left: var(--border-style);
+    border-radius: 15px;
+
+    #weapon_name_input{
+        width: 14rem;
+        font-size: large;
+        font-weight: bold;
+        margin: 20px;
+        margin-bottom: 0;
+    }
+
+    > div {
+        display: flex;
+        justify-content: space-evenly;
+        flex-direction: column;
+        height: 150px;
+        width: fit-content;
     }
 }

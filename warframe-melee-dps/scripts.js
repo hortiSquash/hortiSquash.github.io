@@ -151,6 +151,7 @@ function loadEnemyStats() {
         document.getElementById("level_current").value = enemy.BaseLevel; //TODO spawn level
         document.getElementById("faction").value = enemy.Faction;
     }
+    scaleEnemy();
 }
 
 function saveEnemy() {
@@ -262,6 +263,8 @@ function changeStats() {
         alert("Select a stance and combo");
         throw "missing stance/combo";
     }
+
+    document.getElementById('simulate_button').classList.remove('pulse');
 
     status_proportion_graph();
 
@@ -680,6 +683,7 @@ function updateModding() {
     // TODO calculate and display updated modded stats
     // FIXME not only the first enemy
     displayWeaponStats(calculateModding(weapon, mods_buffs_cpp, enemies), 2);
+    document.getElementById('simulate_button').classList.add('pulse');
 }
 
 function saveWeapon() {
@@ -1013,7 +1017,7 @@ async function loadJson(path) {
     }
 }
 
-let theme = localStorage.getItem("theme") ?? window.matchMedia("(prefers-color-scheme: dark)").matches;
+let theme = localStorage.getItem("theme") ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "1" : "0");
 document.body.setAttribute("theme", theme);
 
 document.getElementById("theme_button").addEventListener("click", () => {
@@ -1051,3 +1055,24 @@ document.getElementById("weapon_type").addEventListener("change", (e) => {
         weapon_type_list.appendChild(option);
     });
 })
+    const shield_mul_array = enemy_faction_shield_multipliers[faction] ?? enemy_faction_shield_multipliers["Neutral"];
+    const shield_f1 = 1 + shield_mul_array[0] * Math.pow(level_difference, shield_mul_array[1]);
+    const shield_f2 = 1 + shield_mul_array[2] * Math.pow(level_difference, shield_mul_array[3]);
+    const shield_mult = shield_f1 * (1 - S) + shield_f2 * S;
+    const shield = document.getElementById("shield").value;
+    const shield_final = shield * shield_mult;
+    document.getElementById("shield_current").innerText = formatDecimalsMinMax(shield_final, 0, 1);
+
+    const armor_f1 = 1 + 0.005 * Math.pow(level_difference, 1.75);
+    const armor_f2 = 1 + 0.4 * Math.pow(level_difference, 0.75);
+    const armor_mult = armor_f1 * (1 - S) + armor_f2 * S;
+    const armor = document.getElementById("armor").value;
+    const armor_final = Math.min(2700, armor * armor_mult); //cap at 2700
+    document.getElementById("armor_current").innerText = formatDecimalsMinMax(armor_final, 0, 1);
+
+    //TODO need testing and output
+    const Soverguard = Sfunc(Tfunc(level_difference, 5));
+    const overguard_f1 = 1 + 0.0015 * Math.pow(level_difference, 4);
+    const overguard_f2 = 1 + 260 * Math.pow(level_difference, 0.9);
+    const overguard_mult = overguard_f1 * (1 - Soverguard) + overguard_f2 * Soverguard;
+}

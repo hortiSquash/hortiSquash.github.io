@@ -1,0 +1,134 @@
+@media only screen and (max-width: 1300px) {
+    body {
+        margin: 0;
+    }
+
+    #help_svg{
+        display: none;
+    }
+
+    #grid {
+        grid-template-areas:
+            "weapon_selection"
+            "stats_wrapper"
+            "modding"
+            "mod-list"
+            "other"
+            "plot";
+        grid-template-columns: 1fr;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    #weapon_selection{
+        width: 100%;
+        grid-area: weapon_selection;
+        position: unset;
+        border: var(--border-style);
+
+        > div {
+            flex-direction: row;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 5px;
+            height: unset;
+            width: unset;
+            margin: 10px;
+        }
+    }
+
+    #stats_wrapper {
+        width: 100%;
+        max-width: 575px;
+
+        box-sizing: border-box;
+
+        > table {
+            > thead > tr > th{
+                &:nth-child(4) { width: 20px; }
+            }
+        }
+
+        #weapon_name_input{
+            margin: 5px;
+        }
+    }
+
+    #modding {
+        grid-template-columns: repeat(auto-fit, minmax(var(--mod-width), auto));
+        justify-content: space-evenly;
+
+        width: 100%;
+        box-sizing: border-box;
+
+        padding-left: 0;
+        padding-right: 0;
+    }
+    #arcane1 { grid-column: unset; grid-row: unset; }
+    #arcane2 { grid-column: unset; grid-row: unset; }
+    #buffs_wrapper { grid-column: 1 / -1; grid-row: unset; }
+
+    #mod-list-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        box-sizing: border-box;
+
+        > #mod-list {
+            width: 100%;
+        }
+    }
+
+    #other {
+        width: 100%;
+        box-sizing: border-box;
+        gap: 5px;
+    }
+
+    #enemy_wrapper {
+        max-height: 180px;
+    }
+
+    #plot {
+        width: 100%;
+        aspect-ratio: 1.2;
+        min-height: 25rem;
+        box-sizing: border-box;
+        overflow: hidden;
+    }
+
+    #grid:has(#weapon_type option:not([value="melee"]):checked) > #modding {
+        #stance-slot {
+            display: flex;
+        }
+        #buffs_wrapper {
+            grid-column: 1 / -1;
+        }
+    }
+
+    #grid > * {
+        border-left: none;
+        border-right: none;
+    }
+    #enemy_wrapper{ border-left: none; }
+    #extra-parameters{ border-right: none; }
+
+    .tooltip > .tooltiptable {
+        transform: translate(-42%, 200%) rotate(90deg);
+    }
+    .tooltip .tooltiptext {
+        transform: translate(-50%, 24px);
+    }
+}
+
+@media only screen and (max-width: 450px) {
+    #other{
+        grid-template-rows: repeat(3, max-content);
+        grid-template-columns: 1fr;
+        #enemy_wrapper{ border-right: none }
+        #extra-parameters{
+            grid-column: unset;
+            grid-row: unset;
+            border-right: var(--border-style);
+        }
+    }
+}

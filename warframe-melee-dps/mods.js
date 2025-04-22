@@ -474,6 +474,7 @@ function openEditModal(cell) {
 function addStatLine() {
     const stats_table = document.getElementById('stats-tbody');
     const stat_line_template = document.getElementById("stat-line-template").content.cloneNode(true);
+
     const select_buffs = stat_line_template.querySelector("[name='buff']");
     select_buffs.innerHTML = "";
     Object.entries(statTypes).forEach(([key, value]) => {
@@ -481,6 +482,14 @@ function addStatLine() {
         option.value = key;
         option.textContent = value;
         select_buffs.appendChild(option);
+    });
+    const conditionSelect = stat_line_template.querySelector("[name='condition']");
+    conditionSelect.innerHTML = "";
+    Object.entries(conditionTypes).forEach(([key, value]) => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.textContent = value;
+        conditionSelect.appendChild(option);
     });
     stats_table.appendChild(stat_line_template);
 }
