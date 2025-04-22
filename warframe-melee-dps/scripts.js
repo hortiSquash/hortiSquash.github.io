@@ -1026,6 +1026,10 @@ document.getElementById("theme_button").addEventListener("click", () => {
     localStorage.setItem("theme", theme);
 });
 
+document.getElementById("help_button").addEventListener("click", () => {
+    alert(localStorage.getItem("theme"));
+})
+
 document.getElementById("weapon_type").addEventListener("change", (e) => {
     const boolean = e.target.value === "melee"
 
@@ -1055,6 +1059,87 @@ document.getElementById("weapon_type").addEventListener("change", (e) => {
         weapon_type_list.appendChild(option);
     });
 })
+
+document.getElementById("editEnemy").addEventListener("change", () => scaleEnemy());
+
+function Tfunc(x, mult) {
+    return Math.max(0, Math.min(1, x/mult - 7));
+}
+
+const enemy_faction_health_multipliers = {
+    "Grineer": [
+        0.015,
+        2.12,
+        24 * Math.sqrt(5) / 5,
+        0.72
+    ],
+    "Corpus": [
+        0.015,
+        2.12,
+        30 * Math.sqrt(5) / 5,
+        0.55
+    ],
+    "Infested": [
+        0.0225,
+        2.12,
+        36 * Math.sqrt(5) / 5,
+        0.72
+    ],
+    "Neutral": [
+        0.015,
+        2.1,
+        24 * Math.sqrt(5) / 5,
+        0.685
+    ]
+};
+
+const enemy_faction_shield_multipliers = {
+    "Grineer": [
+        0.02,
+        1.75,
+        1.6,
+        0.75
+    ],
+    "Corpus": [
+        0.02,
+        1.76,
+        2,
+        0.76
+    ],
+    "Neutral": [ //=Corrupted
+        0.02,
+        1.75,
+        2,
+        0.75
+    ]
+};
+
+function Sfunc(x) {
+    return 3 * Math.pow(x, 2) - 2 * Math.pow(x,3);
+}
+
+function scaleEnemy(){
+    const level_current = document.getElementById("level_current").value;
+    const level_base = document.getElementById("level_base").value;
+
+    const level_difference = level_current - level_base;
+
+    const S = Sfunc(Tfunc(level_difference, 10));
+
+    let faction = document.getElementById("faction").value;
+    if(faction === "Kuva Grineer" || faction === "Grineer"){ faction = "Grineer"; }
+    else if(faction === "Corpus Amalgam" || faction === "Corpus"){ faction = "Corpus"; }
+    else if(faction === "Infested Deimos" || faction === "Infested"){ faction = "Infested"; }
+    else{ faction = "Neutral" }
+
+    const health_mul_array = enemy_faction_health_multipliers[faction]
+    const health_f1 = 1 + health_mul_array[0] * Math.pow(level_difference, health_mul_array[1]);
+    const health_f2 = 1 + health_mul_array[2] * Math.pow(level_difference, health_mul_array[3]);
+    const health_mult = health_f1 * (1 - S) + health_f2 * S;
+    const health = document.getElementById("health").value;
+    const health_final = health * health_mult;
+    document.getElementById("health_current").innerText = formatDecimalsMinMax(health_final, 0, 1);
+
     const shield_mul_array = enemy_faction_shield_multipliers[faction] ?? enemy_faction_shield_multipliers["Neutral"];
     const shield_f1 = 1 + shield_mul_array[0] * Math.pow(level_difference, shield_mul_array[1]);
     const shield_f2 = 1 + shield_mul_array[2] * Math.pow(level_difference, shield_mul_array[3]);
