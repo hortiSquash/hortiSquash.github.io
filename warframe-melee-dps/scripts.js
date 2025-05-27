@@ -215,8 +215,10 @@ function updateAverageTTK() {
 
 const labels = {
     slash: "slash DoT",
-    heat: "heat DoT", electricity: "electricity DoT",
-    toxin: "toxin DoT", gas: "gas DoT"
+    heat: "heat DoT",
+    electricity: "electricity DoT",
+    toxin: "toxin DoT",
+    gas: "gas DoT"
 };
 
 function CppToColumnar(dataraw) {
@@ -251,6 +253,8 @@ let tickrate;
 let quantization = true;
 let conditionals = true;
 let mods_buffs_cpp;
+let filtered_data;
+let total_each_damage;
 
 function changeStats() {
     if(weapon == null){
@@ -311,23 +315,24 @@ function changeStats() {
 
     const time = data.time;
     delete data.time;
+    filtered_data = filterData(data, time);
 
-    /*
-    //TODO total damage, for the mod +% it might be useful?
-    let total = 0;
-    for (const key in filterData(data, time)) {
-        total += filtereddata[key].data.reduce((partialSum, a) => partialSum + a, 0);
-    }
-    console.log(total);
-    */
+    //for the mod +% it might be useful?
+    total_each_damage = Object.fromEntries(
+        Object.entries(data).map(([key, arr]) => [key, arr.reduce((a, b) => a + b, 0)])
+        .filter(([_, v]) => v > 0)
+    );
 
-    const chart = document.getElementById('plot');
+    document.querySelector('input[name="plotType"]:checked')?.click();
+}
 
+const chart = document.getElementById('plot');
+function plotData() {
     // creates an object for each column of the CSV
-    const plotlyData = filterData(data, time).map(data2 => ({
+    const plotlyData = filtered_data.map(data2 => ({
         y: data2.data,
         x: data2.time,
-        type: 'histogram', //line //scatter //histogram
+        type: 'histogram',
         //mode: 'lines',
         //mode: 'lines+markers',
         mode: 'markers',
@@ -346,37 +351,6 @@ function changeStats() {
         },
         */
     })).filter(trace => trace.x.length > 0);
-
-    const hist = {
-        type: 'histogram',
-    }
-
-    const scatter = {
-        type: 'scatter',
-    }
-
-    const updatemenus = [{
-        buttons: [
-            {
-                args: [hist],
-                label: 'histogram',
-                method: 'update'
-            },
-            {
-                args: [scatter],
-                label: 'scatter',
-                method: 'update'
-            },
-        ],
-        direction: 'bottom',
-        pad: { l: 10, t: 10, b: 10, r: 10 },
-        showactive: true,
-        type: 'buttons',
-        x: 1.0,
-        xanchor: 'left',
-        y: 0.5,
-        yanchor: 'top'
-    }]
 
     const layout = {
         xaxis: {
@@ -410,7 +384,58 @@ function changeStats() {
             x: 1.0,
             y: 0.95,
         },
-        updatemenus: updatemenus,
+        paper_bgcolor: "rgba(0, 0, 0, 0)",
+        /* plot_bgcolor: "rgba(0, 0, 0, 0)", */
+        font: {
+            "family": "Arial",
+            /* "color": "var(--color-text)", */
+        },
+        showlegend: true
+    };
+
+    Plotly.react(chart, plotlyData, layout, {
+        // displaylogo: false,
+        displayModeBar: true,
+        showEditInChartStudio: true,
+        plotlyServerURL: "https://chart-studio.plotly.com",
+    });
+}
+
+function showHistogram() {
+    plotData();
+    Plotly.restyle(chart, {
+        type: 'histogram',
+    });
+}
+function showScatter() {
+    plotData();
+    Plotly.restyle(chart, {
+        type: 'scatter',
+    });
+}
+function showPie() {
+    const data = [{
+        type: 'pie',
+        values: Object.values(total_each_damage),
+        labels: Object.keys(total_each_damage).map((name) => labels[name] ?? name),
+        hovertemplate: '%{label} - %{value:.3s}',
+        marker: { colors: Object.keys(total_each_damage).map((name) => colors[name]) },
+        name: "",
+    }];
+    const layout = {
+        margin: {
+            b: 20,
+            l: 50,
+            r: 0,
+            t: 15,
+        },
+        modebar: {
+            // orientation: "v",
+        },
+        legend: {
+            x: 1.0,
+            y: 0.95,
+        },
         paper_bgcolor: "rgba(0, 0, 0, 0)",
         /* plot_bgcolor: "rgba(0, 0, 0, 0)", */
         font: {
@@ -418,13 +443,11 @@ function changeStats() {
             /* "color": "var(--color-text)", */
         },
     };
-
-    Plotly.purge(chart);
-    Plotly.newPlot(chart, plotlyData, layout, {
+    Plotly.react(chart, data, layout, {
         // displaylogo: false,
         displayModeBar: true,
-        showEditInChartStudio: true,
-        plotlyServerURL: "https://chart-studio.plotly.com",
+            showEditInChartStudio: true,
+            plotlyServerURL: "https://chart-studio.plotly.com",
     });
 }
 
@@ -510,7 +533,7 @@ function loadWeaponStats() {
     const weaponSelected = document.getElementById("weapon_name_input").value;
 
     // retrieve enemy data
-    const weaponTemp = data.find((e) => e.name === weaponSelected);
+    const weaponTemp = Object.values(data).find((e) => e.name === weaponSelected);
 
     // convert from the DB
     weapon = {
@@ -523,9 +546,9 @@ function loadWeaponStats() {
         "combo_duration": weaponTemp.comboDuration || 5,
         "combo_efficiency": weaponTemp.whateveritscalled || 0, //TODO
         "riven_disposition": weaponTemp.omegaAttenuation || 0,
-        "multishot": weaponTemp.whateveritscalled || 1, //TODO
-        "magazine_capacity": weaponTemp.whateveritscalled || 1, //TODO
-        "reload": weaponTemp.whateveritscalled || 0, //TODO
+        "multishot": weaponTemp.multishot || 1,
+        "magazine_capacity": weaponTemp.magazineSize || 1,
+        "reload": weaponTemp.reloadTime || 0,
 
 
         //"damage_types": weaponTemp.damage, // because keep names
@@ -545,7 +568,7 @@ function loadWeaponStats() {
              "magnetic": weaponTemp.damage.magnetic || 0,
              "radiation": weaponTemp.damage.radiation || 0,
              "viral": weaponTemp.damage.viral || 0,
-             "void_dmg": weaponTemp.damage.void || 0,
+             "void_dmg": weaponTemp.damage.void_dmg || 0,
          }
     };
 
@@ -595,7 +618,7 @@ function displayWeaponStats(weapon_to_display, column = 2) { // column 1 for bas
     for (const [key, value] of Object.entries(weapon_to_display.damage_types)) {
         let cell = document.getElementById(key)?.cells[column];
         if(cell){
-            cell.querySelector("input").value = formatDecimals(value, 1);
+            cell.querySelector("input").value = formatDecimals(value, 2);
         }
     }
 
@@ -830,12 +853,12 @@ document.getElementById("stats_wrapper").addEventListener('input', function () {
     }
 }
 
-function hideEmptyRows(table) {
+function hideEmptyRows() {
     displayRows("stats_damage", false);
     //displayRows("stats", false);
 }
 
-function displayAllRows(table) {
+function displayAllRows() {
     displayRows("stats_damage", true);
     //displayRows("stats", true);
 }
@@ -854,7 +877,7 @@ function displayRows(table, display) {
             continue;
         }
 
-        if (display || parseFloat(cells[1].innerText) || parseFloat(cells[2].innerText)) {
+        if (display || parseFloat(cells[1].querySelector("input").value) || parseFloat(cells[2].querySelector("input").value)) {
             row.classList.add("row_show");
             row.classList.remove("row_hide");
         }
@@ -1026,10 +1049,6 @@ document.getElementById("theme_button").addEventListener("click", () => {
     localStorage.setItem("theme", theme);
 });
 
-document.getElementById("help_button").addEventListener("click", () => {
-    alert(localStorage.getItem("theme"));
-})
-
 document.getElementById("weapon_type").addEventListener("change", (e) => {
     const boolean = e.target.value === "melee"
 
@@ -1121,6 +1140,7 @@ function Sfunc(x) {
 function scaleEnemy(){
     const level_current = document.getElementById("level_current").value;
     const level_base = document.getElementById("level_base").value;
+    const enemy_scaling_multiplier = document.getElementById("enemy_scaling_multiplier").value;
 
     const level_difference = level_current - level_base;
 
@@ -1137,7 +1157,7 @@ function scaleEnemy(){
     const health_f2 = 1 + health_mul_array[2] * Math.pow(level_difference, health_mul_array[3]);
     const health_mult = health_f1 * (1 - S) + health_f2 * S;
     const health = document.getElementById("health").value;
-    const health_final = health * health_mult;
+    const health_final = health * health_mult * enemy_scaling_multiplier;
     document.getElementById("health_current").innerText = formatDecimalsMinMax(health_final, 0, 1);
 
     const shield_mul_array = enemy_faction_shield_multipliers[faction] ?? enemy_faction_shield_multipliers["Neutral"];
@@ -1145,14 +1165,14 @@ function scaleEnemy(){
     const shield_f2 = 1 + shield_mul_array[2] * Math.pow(level_difference, shield_mul_array[3]);
     const shield_mult = shield_f1 * (1 - S) + shield_f2 * S;
     const shield = document.getElementById("shield").value;
-    const shield_final = shield * shield_mult;
+    const shield_final = shield * shield_mult * enemy_scaling_multiplier;
     document.getElementById("shield_current").innerText = formatDecimalsMinMax(shield_final, 0, 1);
 
     const armor_f1 = 1 + 0.005 * Math.pow(level_difference, 1.75);
     const armor_f2 = 1 + 0.4 * Math.pow(level_difference, 0.75);
     const armor_mult = armor_f1 * (1 - S) + armor_f2 * S;
     const armor = document.getElementById("armor").value;
-    const armor_final = Math.min(2700, armor * armor_mult); //cap at 2700
+    const armor_final = Math.min(2700, armor * armor_mult); //cap at 2700 //doesnt scale with SP
     document.getElementById("armor_current").innerText = formatDecimalsMinMax(armor_final, 0, 1);
 
     //TODO need testing and output
@@ -1160,4 +1180,5 @@ function scaleEnemy(){
     const overguard_f1 = 1 + 0.0015 * Math.pow(level_difference, 4);
     const overguard_f2 = 1 + 260 * Math.pow(level_difference, 0.9);
     const overguard_mult = overguard_f1 * (1 - Soverguard) + overguard_f2 * Soverguard;
+    //scale with SP ?
 }

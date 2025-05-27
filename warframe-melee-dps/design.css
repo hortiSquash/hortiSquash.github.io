@@ -204,7 +204,7 @@ input {
     }
 }
 
-input[type="checkbox"] {
+input[type="checkbox"].fancy_checkbox {
     --width: 2rem;
     --height: 1rem;
     --border-width: 0.1rem;
@@ -248,7 +248,6 @@ input[type="checkbox"] {
         font-size: small;
         display: inline-block;
         width: var(--unit-size);
-        position: relative;
         color: var(--color-input-text);
 
         &:empty {
@@ -336,27 +335,37 @@ input.hidden_input {
     scrollbar-gutter: stable;
     box-shadow: var(--box-shadow);
     background-color: var(--color-background);
+    /* max-height: 190px; */
 
-    & tr:nth-child(even) {
-        background-color: var(--color-TR-even);
-    }
-
-    & thead > tr {
-        position: sticky;
-        background-color: var(--color-TR-header);
-        top: 0;
-        z-index: 1;
-    }
-
-    & tfoot > tr:last-child {
-        > * {
-            z-index: 1;
-            position: sticky;
-            bottom: 0;
+    > table {
+        > thead > tr > th{
+            &:nth-child(1) { width: 18px; }
+            /* &:nth-child(2) { width: 230px; } */
+            &:nth-child(3) { width: 50px; }
+            &:nth-child(4) { width: 50px; }
         }
 
-        > :is(td, th) {
-            background-color: var(--color-borders);
+        tr:nth-child(even) {
+            background-color: var(--color-TR-even);
+        }
+
+        thead > tr {
+            position: sticky;
+            background-color: var(--color-TR-header);
+            top: 0;
+            z-index: 1;
+        }
+
+        tfoot > tr:last-child {
+            > * {
+                z-index: 1;
+                position: sticky;
+                bottom: 0;
+            }
+
+            > :is(td, th) {
+                background-color: var(--color-borders);
+            }
         }
     }
 }
@@ -437,7 +446,7 @@ a.modebar-btn {
     grid-template-columns: max-content max-content max-content;
     grid-template-rows: max-content max-content 1fr;
     gap: 10px 10px;
-    grid-auto-flow: column;
+    grid-auto-flow: row;
     justify-content: start;
     justify-items: start;
     grid-template-areas:
@@ -497,6 +506,8 @@ a.modebar-btn {
     width: fit-content;
     border: var(--border-style);
     padding: 10px;
+
+    perspective: none;
 }
 #arcane1 { grid-column: 5; grid-row: 2; }
 #arcane2 { grid-column: 5; grid-row: 3; }
@@ -545,8 +556,12 @@ a.modebar-btn {
     align-items: center;
     justify-content: center;
 
-    &:empty{
+    &:has(> :only-child){
         background: var(--color-plot-background);
+
+        > :only-child {
+            visibility: hidden;
+        }
 
         &::before{
             content: "📊";
@@ -574,7 +589,7 @@ a.modebar-btn {
 }
 
 .stats_damage_table {
-    position: relative;
+    position: relative; /* to crop the stacks count graph bars inside the damage table */
 }
 
 .stats_damage_table tr:nth-child(even) {
@@ -740,7 +755,6 @@ td.tooltip {
     bottom: 0;
 }
 
-/* All cells are fixed to the mod size */
 .cell {
     width: var(--mod-width);
     height: var(--mod-height);
@@ -766,7 +780,6 @@ td.tooltip {
     */
 }
 
-/* Empty mod and buff slots show dashed border with "Empty" */
 .cell:empty {
     background: none;
     border: 2px dashed var(--color-borders);
@@ -801,7 +814,15 @@ td.tooltip {
     background-repeat: no-repeat;
     background-color: rgba(0, 0, 0, 0.05);
 }
+
+/*
+.cell.special-slot[data-slot_type="arcane"]{
+    padding-top: 20px;
+    border-radius: 75px 75px 10px 10px;
+}
+*/
 .cell.special-slot[data-slot_type="arcane"]:empty {
+    /* border-radius: 100px 100px 10px 10px; */
     &::after {
         content: "";
     }
@@ -849,7 +870,6 @@ td.tooltip {
     */
 }
 
-/* Stance slot styling */
 #stance-slot {
     /* grid-area: stance; */
     background: none;
@@ -867,21 +887,32 @@ td.tooltip {
     }
 }
 
-/* Scrollable buffs_wrapper container with calculated width */
 #buffs_wrapper {
     /* width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal)); */
     overflow-x: scroll;
     scroll-snap-type: x mandatory;
     display: flex;
     gap: var(--mod-gap);
+
+    /*
+    background: repeating-linear-gradient(30deg,
+        rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 20px,
+        rgba(0, 0, 0, 0) 20px, rgba(0, 0, 0, 0) 40px
+    );
+
+    > .cell:empty {
+        background: var(--color-background);
+    }
+    */
 }
 
+/* FIXME inputs/selects are not reset on refresh on firefox */
 #grid:has(#weapon_type option:not([value="melee"]):checked) > #modding {
     #stance-slot {
         display: none;
     }
     #buffs_wrapper {
-        grid-column: span 4;
+        grid-column: 2 / span 4;
     }
 }
 
@@ -897,6 +928,7 @@ td.tooltip {
     min-height: 30px;
     text-align: center;
     align-content: center;
+    position: relative;
 }
 .remove {
     position: absolute;
@@ -972,6 +1004,52 @@ select[name="condition"] {
     --metal-color: peachpuff;
 }
 
+.cell.Madurai:empty::after { content: "\ea02" }
+.cell.Vazarin:empty::after { content: "\ea03" }
+.cell.Zenurik:empty::after { content: "\ea04" }
+.cell.Penjaga:empty::after { content: "\ea05" }
+.cell.Naramon:empty::after { content: "\ea06" }
+.cell.Umbra:empty::after { content: "\ea07" }
+.cell.Unairu:empty::after { content: "\ea08" }
+
+#forma {
+    background-image: url("forma.webp");
+    background-position: center;
+
+    appearance: none;
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    width: 32px;            /* Size of the image */
+    height: 32px;
+    vertical-align: top; /* Align with surrounding text */
+    display: inline-block;
+    line-height: 0;         /* Prevent affecting line height */
+    margin: 0;
+    padding: 0;
+    border: none;
+    translate: 0 -6px;
+
+    &:not(:checked) {
+        filter: grayscale(100%);
+    }
+}
+
+#capacity-wrapper {
+    &:has(#forma:checked) :is(#mod-capacity-after-forma, #polarity) {
+        color: var(--color-modbuff);
+    }
+    &:has(#forma[wrong]) :is(#mod-capacity-after-forma, #polarity) {
+        color: var(--color-modnerf);
+    }
+    &:has(#forma:not(:is(:checked, [wrong]))) #mod-capacity-after-forma {
+        display: none;
+    }
+}
+#mod-capacity-after-forma {
+    color: var(--color-modbuff);
+}
+
 .damage-glyph {
     font-size: small;
     height:15px;
@@ -979,7 +1057,7 @@ select[name="condition"] {
     margin: -1px;
 }
 
-.button-stylized {
+.button-stylized, .hidden-radio {
     font-size: small;
     font-family: inherit;
     background: var(--color-input-background);
@@ -993,25 +1071,34 @@ select[name="condition"] {
     align-items: center;
     justify-content: center;
     vertical-align: middle;
+    cursor: pointer;
 
-    &:hover {
+    > input[type="radio"] { display: none; }
+
+    &:hover, &:has(:checked) {
         border: 1px solid color-mix(in srgb, var(--color-hovered) 30%, black);
         border-bottom: 3px solid var(--color-hovered);
         color: var(--color-hovered);
         background: radial-gradient(
-            ellipse at bottom center,
-            color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background)),
-            var(--color-input-background) 70%
+                ellipse at bottom center,
+                color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background)),
+                var(--color-input-background) 70%
         );
     }
 }
 
+#editEnemy{
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
 #editEnemyTable {
-    margin-top: 1rem;
     border-spacing: 0;
 
     th {
         width: 4.5rem;
+        text-align: left;
     }
 }
 
@@ -1023,17 +1110,6 @@ select[name="condition"] {
     0%   { box-shadow: 0 0 0 0 var(--color-pulse); }
     70%  { box-shadow: 0 0 0 10px transparent; }
     100% { box-shadow: 0 0 0 0 transparent; }
-}
-
-#enemy_wrapper{
-    > table {
-        > thead > tr > th{
-            &:nth-child(1) { width: 18px; }
-            /* &:nth-child(2) { width: 230px; } */
-            &:nth-child(3) { width: 50px; }
-            &:nth-child(4) { width: 50px; }
-        }
-    }
 }
 
 #stats_wrapper{

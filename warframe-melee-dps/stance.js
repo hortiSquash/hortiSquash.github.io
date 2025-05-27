@@ -5,7 +5,7 @@ function editStance() {
 
     const combo_type = document.getElementById("combo_type").value;
 
-    let hits = stance[combo_type]?.hits;
+    let hits = stance?.[combo_type]?.hits;
     if (hits) {
         for (let hit of hits) {
             addHit();
@@ -85,7 +85,10 @@ function saveStance() {
             bonus_damage: bonus_damage,
         })
     }
-    stance[document.getElementById("combo_type").value].hits = hits;
+
+    const combo_type = document.getElementById("combo_type").value;
+    stance[combo_type] ??= {};
+    stance[combo_type]["hits"] = hits;
 }
 
 function convertStance(is_melee){
@@ -138,9 +141,16 @@ document.getElementById("hits_wrapper").addEventListener('change', function (eve
 
 document.querySelectorAll("#stance_name, #combo_type").forEach(function (target) {
     target.addEventListener('change', function () {
+        const weapon_type = document.getElementById("weapon_subclass").value;
         const name = document.getElementById("stance_name").value;
         const combo_type = document.getElementById("combo_type").value;
-        stance = data_stances?.[name];
+        stance = data_stances?.[weapon_type]?.[name];
+
+        if(!stance){ //custom stance
+            stance = {};
+            data_stances[weapon_type][name] = stance;
+        }
+
         const attack = stance?.[combo_type];
         document.getElementById("combo_name").innerText = attack?.name ?? "combo does not exist";
 })})
@@ -149,9 +159,18 @@ document.getElementById("combo_type").addEventListener('change', function () {
     displayWeaponStats(calculateModding(weapon, mods_buffs_cpp, enemies), 2);
 })
 
-document.getElementById("weapon_subclass").addEventListener('change', function (event) {
-    //TODO hide from stances_list those that arent of the right weapon subclass
-    // cant use sword stances on a staff
+document.getElementById("weapon_subclass").addEventListener('change', function (e) {
+    //hide from stances_list those that arent of the right weapon subclass
+    //cant use sword stances on a staff
+    const type = e.target.value;
+    const stances_list = document.getElementById('stance_name');
+    stances_list.innerHTML = "";
+    for(let stances of [...Object.values(data_stances[type] ?? []), { "name": `Custom ${type} stance` }]){
+        const option = document.createElement('option');
+        option.value = stances["name"];
+        option.innerText = stances["name"];
+        stances_list.appendChild(option);
+    }
 });
 
 /*

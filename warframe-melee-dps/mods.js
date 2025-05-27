@@ -71,6 +71,10 @@ function updateModsArray() {
     });
     console.log("Mods array updated:", mods);
 
+    //TODO need to count formas (both right and wrong)
+    //const total_capacity = mods.reduce((sum, mod) => sum + mod.base_drain + (mod.current_level ?? mod.max_level), 0);
+    //console.log("total capacity:", total_capacity);
+
     updateModding();
 }
 
@@ -178,6 +182,7 @@ function createDelegatedEvent(selector, fn) {
 }
 
 function deleteMod(cell) {
+    if(!cell.hasChildNodes()) { return; }
     const mod_list_slots = Array.from(mod_list.querySelectorAll('.cell'));
     // An "empty" slot is one with no modData or no modData.name.
     const emptySlots = mod_list_slots.filter(slot => !(slot.modData && slot.modData.name));
@@ -313,13 +318,23 @@ function openEditModal(cell) {
     const abilityStrengthInput = document.getElementById("ability-strength-input");
     abilityStrengthInput.value = modData.current_strength ?? abilityStrengthInput.value;
 
+    const forma = document.getElementById("forma");
+    forma.checked = cell.classList.contains(modData.polarity);
     const polarity = polarity_unicode[modData.polarity] ?? (modData.polarity || " any");
     const modCapacity = document.getElementById("mod-capacity");
-    modCapacity.innerText = modData.base_drain + modLevelInput.valueAsNumber + polarity;
+    const capacity = modData.base_drain + modLevelInput.valueAsNumber;
+    modCapacity.value = capacity;
+    document.getElementById("polarity").innerText = polarity;
+
+    let wrong_polarity = Object.keys(polarity_unicode).some((pol) => cell.classList.contains(pol) && pol !== modData.polarity);
+    forma.toggleAttribute("wrong", wrong_polarity);
+
+    document.getElementById("mod-capacity-after-forma").innerText = !forma.checked ? (!wrong_polarity ? capacity : Math.round(capacity * 1.25)) : Math.ceil(capacity / 2);
 
     const isAbility = modData.type === "ability";
+    const isArcane = modData.type === "arcane";
     abilityStrengthInput.parentElement.classList.toggle("d-none", !isAbility);
-    modCapacity.parentElement.classList.toggle("d-none", isAbility);
+    document.getElementById("capacity-wrapper").classList.toggle("d-none", isAbility || isArcane);
     modLevelInput.parentElement.classList.toggle("d-none", isAbility);
 
     const statsTbody = document.getElementById("stats-tbody");
@@ -429,11 +444,27 @@ function openEditModal(cell) {
         old_ability_strength = abilityStrengthInput.valueAsNumber ?? 100;
     })
 
+    document.getElementById("capacity-wrapper").addEventListener("change", function(e) {
+        const target = e.target;
+        if(target === document.getElementById("forma")){
+            wrong_polarity = !forma.checked && Object.keys(polarity_unicode).some((pol) => cell.classList.contains(pol) && pol !== modData.polarity);
+            forma.toggleAttribute("wrong", wrong_polarity);
+        }
+
+        const capacity_tmp = modCapacity.valueAsNumber;
+        document.getElementById("mod-capacity-after-forma").innerText = !forma.checked ? (!wrong_polarity ? capacity_tmp : Math.round(capacity_tmp * 1.25)) : Math.ceil(capacity_tmp / 2);
+    })
+
     modDialog.querySelector("form").addEventListener("submit", function(e) {
         e.preventDefault();
         modData.name = modNameInput.value;
         modData.current_level = modLevelInput.valueAsNumber;
+        modData.base_drain = modCapacity.valueAsNumber - modLevelInput.valueAsNumber;
         if(isAbility) modData.current_strength = abilityStrengthInput.valueAsNumber;
+
+        const polarity = modData.polarity;
+        Object.entries(polarity_unicode).forEach(([key, _]) => { cell.classList.remove(key) });
+        cell.classList.toggle(polarity, document.getElementById("forma").checked);
 
         modData.buffs.length = statsTbody.children.length;
         for(let i=0; i < statsTbody.children.length; i++){
@@ -497,3 +528,30 @@ function addStatLine() {
 function removeStatLine() {
     document.getElementById('stats-tbody').lastElementChild?.remove();
 }
+
+/*
+document.addEventListener("DOMContentLoaded", function() {
+    document.querySelectorAll("#modding > .cell").forEach(mod_card => {
+        mod_card.addEventListener("mousemove", (e) => {
+            if(!mod_card.hasChildNodes()) return; //dont rotate empty slots
+            const rect = mod_card.getBoundingClientRect();
+
+            // Normalize mouse position relative to the card's center
+            const x = (e.clientX - rect.left) / rect.width - 0.5;
+            const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+            const distance = 1;
+
+            // Adjust rotation values for a natural effect
+            const rotateY = Math.atan(x / distance);
+            const rotateX = Math.atan(-y / distance);
+
+            mod_card.style.transform = `rotateX(${rotateX}rad) rotateY(${rotateY}rad)`;
+        });
+
+        mod_card.addEventListener("mouseleave", () => {
+            mod_card.style.transform = "rotateX(0deg) rotateY(0deg)";
+        });
+    });
+});
+*/

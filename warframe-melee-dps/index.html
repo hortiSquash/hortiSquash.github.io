@@ -42,27 +42,20 @@
             enemy_list.appendChild(option);
         });
 
-        response = await fetch('./modified Melee.json');
+        response = await fetch('./weapons.json');
         const data_weapons_melee = await response.json();
         window.data_weapons_melee = data_weapons_melee;
     
         const melee_weapon_list = document.getElementById('weapon_list');
-        data_weapons_melee.forEach(function (e) {
+        for(let e of Object.values(data_weapons_melee)){
             const option = document.createElement('option');
             option.value = e.name;
             melee_weapon_list.appendChild(option);
-        });
+        };
 
         response = await fetch('./stances.json');
         const data_stances = await response.json();
         window.data_stances = data_stances;
-
-        const stances_list = document.getElementById('stances_list');
-        for(let e of Object.values(data_stances)){
-            const option = document.createElement('option');
-            option.value = e["name"];
-            stances_list.appendChild(option);
-        };
 
         /*
         //TODO maybe?
@@ -99,15 +92,51 @@
             <td class="TTK_std">0</td>
         </tr>
     </template>
+
+    <svg id="patternSvg" xmlns="http://www.w3.org/2000/svg"
+        style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index:-100;
+            filter: blur(3px);
+            opacity: 0.1;
+        ">
+        <defs>
+            <pattern id="coolPattern" width="64" height="64" patternUnits="userSpaceOnUse"
+                    patternTransform="rotate(45)">
+                <path
+                    style="
+                        display: inline;
+                        fill: currentColor;
+                        fill-opacity: 1;
+                        stroke: #000000;
+                        stroke-width: 1.05268;
+                        stroke-linecap: square;
+                        stroke-linejoin: miter;
+                        stroke-dasharray: none;
+                        stroke-opacity: 1;
+                        paint-order: markers fill stroke;
+                    "
+                    d="m 9.8654792,55.136325 18.2399998,-20.54 -8.92,-10.81 -8.74,5.7 c 1.34,3.18 4.35,6.66 4.09,12.09 -2.3,-4.3 -5.0999998,-10.48 -12.4599998,-13.31 5.44,-0.78 14.2699998,-9.11 14.2699998,-9.11 0,0 -6.9399998,-7.09 -8.4999998,-13.37 2.5599998,2.57 11.3199998,10.69 11.3199998,10.69 4.23,-3.38 10.77,-10.74 12.88,-15.28 3.86,7.49 10.21,12.92 12.87,15.32 3.47,-3.74 8.44,-8.86 11.34,-10.66 -1.78,3.85 -6.18,9.5 -8.36,13.34 0,0 7.69,7.36 14.06,9.22 -6.97,1.69 -9.04,6.89 -12.23,12.85 -0.49,-3.32 3.15,-8.58 3.76,-11.82 l -8.64,-5.64 -8.74,10.87 c 0,0 12.65,13.69 18.23,20.5 0,0 -12.91,1.42 -17.66,-0.08 4.49,-0.96 7.41,-2.09 7.41,-2.09 l -12.02,-13.71 -12.11,13.72 c 0,0 2.95,0.85 7.48,2.08 -4.2,1.13 -17.5699998,0.04 -17.5699998,0.04 z m 22.1499998,-42.46 -8.54,8.07 8.5,9.38 8.92,-9.32 z"
+                />
+            </pattern>
+        </defs>
+
+        <!--
+        <animate attributeName="color" values="red;orange;yellow;green;blue;indigo;violet;red" dur="5s" repeatCount="indefinite"/>
+        -->
+        <rect width="100%" height="100%" fill="url(#coolPattern)" />
+    </svg>
 </head>
 
 <body>
     <img src="help.svg" style="position: absolute; z-index: 999; backdrop-filter: blur(1px);" id="help_svg"/>
-    <!-- hidden input : style="border: none; background: transparent" -->
     <dialog id="enemy_edit_dialog">
         <form id="editEnemy" method="dialog">
             <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" placeholder="enemy name" required style="margin-bottom: 10px; font-size: medium; width: 15rem">
-            <br>
             <label>
                 Faction:
                 <select id="faction">
@@ -124,6 +153,17 @@
                     <option value="Narmer">Narmer</option>
                     <option value="Murmur">Murmur</option>
                     <option value="Zariman">Zariman</option>
+                </select>
+            </label>
+            <label>
+                Scaling:
+                <select id="enemy_scaling_multiplier">
+                    <option value="1.0" selected>Normal</option>
+                    <option value="2.5">Steel Path</option>
+                    <option value="2.5">Archimedea - 1 player</option>
+                    <option value="3.0">Archimedea - 2 players</option>
+                    <option value="3.5">Archimedea - 3 players</option>
+                    <option value="4.0">Archimedea - 4 players</option>
                 </select>
             </label>
             <table id="editEnemyTable">
@@ -155,8 +195,10 @@
                     <td id="shield_current">0</td>
                 </tr>
             </table>
-            <input class="button-stylized" type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
-            <input class="button-stylized" type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
+            <div>
+                <input class="button-stylized" type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
+                <input class="button-stylized" type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
+            </div>
         </form>
     </dialog>
 
@@ -191,7 +233,7 @@
         <div id="modding">
             <div id="stance-slot">
                 <div style="display: flex; justify-content: space-evenly; flex-direction: column; height: 100%; width: 100%;">
-                    <input type="text" id="stance_name" placeholder="stance name" list="stances_list" style="font-size: initial; min-width: 20px; !important;">
+                    <select id="stance_name" onchange="saveStance()" style="font-size: initial; min-width: 20px; !important;"></select>
                     <label>
                         select an attack:
                         <select id="combo_type" required>
@@ -265,7 +307,22 @@
             </select>
             <div id="mod-list"></div>
         </div>
-        <div id="plot"></div>
+        <div id="plot">
+            <div style="display: flex; flex-direction: column; width: max-content; gap: 0.2em; position: absolute ; right: 1em; bottom: 3em">
+                <label class="hidden-radio">
+                    <input type="radio" name="plotType" onclick="showHistogram()" checked>
+                    Histogram
+                </label>
+                <label class="hidden-radio">
+                    <input type="radio" name="plotType" onclick="showScatter()">
+                    Scatter
+                </label>
+                <label class="hidden-radio">
+                    <input type="radio" name="plotType" onclick="showPie()">
+                    Pie Chart
+                </label>
+            </div>
+        </div>
         <div id="stats_wrapper">
             <table style="width: 100%">
                 <thead style="position: sticky;">
@@ -620,7 +677,7 @@
             <fieldset id="extra-parameters">
                 <legend>Extra parameters</legend>
                 <label>iterations
-                    <input type="number" value="10" min="1" id="iterations" style="width: 8ch; text-align: right;">
+                    <input type="number" value="100" min="1" id="iterations" style="width: 8ch; text-align: right;">
                 </label>
                 <label class="input_with_unit">max time
                     <input type="number" value="30" min="1" id="max_time" style="width: 7ch;"
@@ -630,8 +687,8 @@
                     <input type="number" value="60" min="1" id="tickrate" style="width: 6ch;"
                     ><span>/s</span>
                 </label>
-                <label>quantization<input type="checkbox" id="quantization" checked onchange="saveWeapon()"/></label>
-                <label>conditionals<input type="checkbox" id="conditionals" checked onchange="saveWeapon()"/></label>
+                <label>quantization<input type="checkbox" class="fancy_checkbox" id="quantization" checked onchange="saveWeapon()"/></label>
+                <label>conditionals<input type="checkbox" class="fancy_checkbox" id="conditionals" checked onchange="saveWeapon()"/></label>
             </fieldset>
         </div>
     </div>
@@ -686,12 +743,15 @@
                     ability strength:
                     <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1"><span>%</span>
                 </label>
-                <label>
-                    capacity:
-                    <span id="mod-capacity">
-                        9&#xEA03;
-                    </span>
-                </label>
+                <div id="capacity-wrapper">
+                    <label>
+                        capacity:
+                        <input type="number" id="mod-capacity" style="width: 2.25rem" min="0">
+                        <span id="mod-capacity-after-forma">9</span>
+                        <span id="polarity">&#xEA03;</span>
+                    </label>
+                    <input type="checkbox" id="forma" src="forma.webp">
+                </div>
             </div>
             <table>
                 <thead>
@@ -714,9 +774,13 @@
                         <div class="tooltip">
                             <span class="tooltiptext">
                                 decay: the stacks go down one by one<br>
-                                    &emsp;as opposed to all at once<br>
+                                    &emsp;as opposed to all at once
+                                <br>
                                 <br>
                                 refresh: stacks can be refreshed while active
+                                <br>
+                                <br>
+                                chance/duration: whether it scales with the mod level
                             </span>
                         </div>
                         <button class="button-stylized" type="submit" id="save-button" style="float: right;">Save</button>
@@ -784,23 +848,23 @@
                     <input name="upgrade_chance" type="number" inputmode="decimal" min="1" max="100" value="100" style="width: 3.7rem"
                     ><span>%</span>
                 </label
-                ><input name="chance_scales" type="checkbox" title="scales with level">
+                ><input name="chance_scales" type="checkbox" class="fancy_checkbox" title="scales with level">
             </td>
             <td>
                 <label class="input_with_unit">
                     <input name="upgrade_duration" type="text" inputmode="decimal" pattern="-?(?:∞|\d+(?:[.,]\d+)?(?:%|e\d+)?)" value="∞" style="width: 2rem"
                     ><span>s</span>
                 </label
-                ><input name="duration_scales" type="checkbox" title="scales with level">
+                ><input name="duration_scales" type="checkbox" class="fancy_checkbox" title="scales with level">
             </td>
             <td>
                 <input name="max_stacks" type="number" inputmode="decimal" step="1" min="1" value="1" style="width: 3rem">
             </td>
             <td>
-                <input name="stack_mode" type="checkbox">
+                <input name="stack_mode" type="checkbox" class="fancy_checkbox">
             </td>
             <td>
-                <input name="can_reproc" type="checkbox" checked>
+                <input name="can_reproc" type="checkbox" class="fancy_checkbox" checked>
             </td>
         </tr>
     </template>
