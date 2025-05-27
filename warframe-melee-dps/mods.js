@@ -256,16 +256,12 @@ document.querySelectorAll("#mod_list_search, #mod_list_select_polarity, #mod_lis
 
         const li = mod_list.querySelectorAll(".cell");
         for (let element of li) {
+            const { modData } = element;
             let txtValue = element.textContent || element.innerText;
             const included = txtValue.toUpperCase().includes(filter_text)
-                && (filter_rarity === "" || element.modData.rarity === filter_rarity)
-                && (filter_type === "" || element.modData.type === filter_type)
-                && (filter_polarity === "" || element.modData.polarity === filter_polarity);
-            /*
-                && (element.modData.rarity?.includes(filter_rarity) ?? true)
-                && (element.modData.type?.includes(filter_type) ?? true)
-                && (element.modData.polarity?.includes(filter_polarity) ?? true);
-            */
+                && (!filter_rarity || modData?.rarity === filter_rarity)
+                && (!filter_type || modData?.type === filter_type)
+                && (!filter_polarity || modData?.polarity === filter_polarity);
             element.classList.toggle("d-none", !included);
         }
 })})
