@@ -751,45 +751,43 @@
     <dialog id="mod-dialog" style="overflow: inherit">
         <form method="dialog">
             <table>
+                <caption style="caption-side: top">
+                    <div style="display: flex; justify-content: space-between;">
+                        <input type="text" id="mod-name-input" placeholder="mod name" style="font-size: large; margin-bottom: 10px; width: 280px;">
+                        <label>
+                            rank:
+                            <input type="number" id="mod-level-input" style="width: 2.25rem" min="0">
+                        </label>
+                        <label class="input_with_unit">
+                            ability strength:
+                            <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1"><span>%</span>
+                        </label>
+                        <div id="capacity-wrapper">
+                            <label>
+                                capacity:
+                                <input type="number" id="mod-capacity" style="width: 2.25rem" min="0">
+                                <span id="mod-capacity-after-forma">9</span>
+                                <span id="polarity">&#xEA03;</span>
+                            </label>
+                            <input type="checkbox" id="forma" class="checkbox_grey_image">
+                        </div>
+                    </div>
+                </caption>
                 <thead>
                     <tr>
-                        <td colspan="99">
-                            <div style="display: flex; justify-content: space-between;">
-                                <input type="text" id="mod-name-input" placeholder="mod name" style="font-size: large; margin-bottom: 10px; width: 280px;">
-                                <label>
-                                    rank:
-                                    <input type="number" id="mod-level-input" style="width: 2.25rem" min="0">
-                                </label>
-                                <label class="input_with_unit">
-                                    ability strength:
-                                    <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1"><span>%</span>
-                                </label>
-                                <div id="capacity-wrapper">
-                                    <label>
-                                        capacity:
-                                        <input type="number" id="mod-capacity" style="width: 2.25rem" min="0">
-                                        <span id="mod-capacity-after-forma">9</span>
-                                        <span id="polarity">&#xEA03;</span>
-                                    </label>
-                                    <input type="checkbox" id="forma" class="checkbox_grey_image">
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
                         <th style="min-width: 540px; width: fit-content">buff</th>
-                        <th style="width: 130px">condition</th>
-                        <th style="width: 115px">chance</th>
-                        <th style="width: 98px">duration</th>
-                        <th style="width: 65px">max stacks</th>
-                        <th style="width: 65px">decay</th>
-                        <th style="width: 65px">refresh</th>
+                        <th style="min-width: 130px; width: min-content">condition</th>
+                        <th style="min-width: 120px; width: min-content">chance</th>
+                        <th style="min-width: 98px; width: min-content">duration</th>
+                        <th style="min-width: 65px; width: min-content">max stacks</th>
+                        <th style="min-width: 65px; width: min-content">decay</th>
+                        <th style="min-width: 65px; width: min-content">refresh</th>
                     </tr>
                 </thead>
                 <tbody id="stats-tbody" style="text-align: center;"></tbody>
                 <tfoot>
                 <tr>
-                    <td colspan="99">
+                    <td colspan="7">
                         <button class="button-stylized" type="button" onclick="removeStatLine()">Delete the last stat 🗑️</button>
                         <button class="button-stylized" type="button" onclick="addStatLine()">Add a stat</button>
                         <div class="tooltip">

@@ -1025,7 +1025,7 @@ select[name="condition"] {
     vertical-align: middle; /* Align with surrounding text */
     display: inline-block;
     line-height: 0;         /* Prevent affecting line height */
-    margin: -0.5em;
+    margin: -0.5em 0 -0.5em 0;
     padding: 0;
     border: none;
 
@@ -1146,7 +1146,7 @@ select[name="condition"] {
 
     #weapon_name_input{
         width: 14rem;
-        font-size: large;<
+        font-size: large;
         font-weight: bold;
         margin: 20px;
         margin-bottom: 0;
