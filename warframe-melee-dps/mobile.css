@@ -98,7 +98,7 @@
 
     #grid:has(#weapon_type option:not([value="melee"]):checked) > #modding {
         #stance-slot {
-            display: flex;
+            /* display: flex; FIXME why did i add this again? */
         }
         #buffs_wrapper {
             grid-column: 1 / -1;

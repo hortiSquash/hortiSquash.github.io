@@ -66,14 +66,19 @@ function updateModsArray() {
     mods = [];
     modding.querySelectorAll('.cell').forEach(cell => {
         if (cell.modData) {
+            const forma_polarity = Object.keys(polarity_unicode).find(key => cell.classList.contains(key)) || "";
+            const capacity = cell.modData.base_drain + (cell.modData.current_level ?? cell.modData.max_level);
+            const wrong_polarity = forma_polarity !== cell.modData.polarity;
+            cell.modData.capacity_after_forma = !forma_polarity ? capacity : (wrong_polarity ? Math.round(capacity * 1.25) : Math.ceil(capacity / 2));
+
             mods.push(cell.modData);
         }
     });
-    console.log("Mods array updated:", mods);
 
-    //TODO need to count formas (both right and wrong)
-    //const total_capacity = mods.reduce((sum, mod) => sum + mod.base_drain + (mod.current_level ?? mod.max_level), 0);
-    //console.log("total capacity:", total_capacity);
+    const total_capacity = mods.reduce((sum, mod) => sum + mod.capacity_after_forma, 0);
+    console.log("Mods array updated:", mods);
+    document.getElementById("mod_capacity_current").innerText = total_capacity;
+    document.getElementById("mod_capacity_meter").value = total_capacity;
 
     updateModding();
 }
@@ -524,6 +529,10 @@ function addStatLine() {
 function removeStatLine() {
     document.getElementById('stats-tbody').lastElementChild?.remove();
 }
+
+document.getElementById("potato").addEventListener("change", function(e) {
+    updateModding();
+})
 
 /*
 document.addEventListener("DOMContentLoaded", function() {

@@ -324,7 +324,7 @@ input.hidden_input {
     overflow: auto;
 }
 
-#mod-dialog table > thead {
+#mod-dialog table > thead > tr > th {
     background-color: var(--color-TR-header);
 }
 
@@ -1012,27 +1012,34 @@ select[name="condition"] {
 .cell.Umbra:empty::after { content: "\ea07" }
 .cell.Unairu:empty::after { content: "\ea08" }
 
-#forma {
-    background-image: url("forma.webp");
+.checkbox_grey_image {
+    background-image: url("https://wiki.warframe.com/images/thumb/Forma.png/32px-Forma.png");
     background-position: center;
 
     appearance: none;
     cursor: pointer;
     background-size: contain;
     background-repeat: no-repeat;
-    width: 32px;            /* Size of the image */
-    height: 32px;
-    vertical-align: top; /* Align with surrounding text */
+    height: 2.5em;
+    aspect-ratio: 1;
+    vertical-align: middle; /* Align with surrounding text */
     display: inline-block;
     line-height: 0;         /* Prevent affecting line height */
-    margin: 0;
+    margin: -0.5em;
     padding: 0;
     border: none;
-    translate: 0 -6px;
 
     &:not(:checked) {
         filter: grayscale(100%);
     }
+}
+
+#forma{
+    background-image: url("https://wiki.warframe.com/images/thumb/Forma.png/32px-Forma.png");
+}
+
+#potato{
+    background-image: url("https://wiki.warframe.com/images/thumb/OrokinCatalyst.png/32px-OrokinCatalyst.png");
 }
 
 #capacity-wrapper {
@@ -1139,7 +1146,7 @@ select[name="condition"] {
 
     #weapon_name_input{
         width: 14rem;
-        font-size: large;
+        font-size: large;<
         font-weight: bold;
         margin: 20px;
         margin-bottom: 0;
@@ -1149,7 +1156,9 @@ select[name="condition"] {
         display: flex;
         justify-content: space-evenly;
         flex-direction: column;
-        height: 150px;
+        height: fit-content;
         width: fit-content;
+        gap: 0.8em;
+        padding: 0.8em;
     }
 }

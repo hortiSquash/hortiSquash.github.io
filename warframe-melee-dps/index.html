@@ -228,6 +228,16 @@
                         <meter id="riven_disposition_meter" min="0.45" max="1.55" low="0.7" high="1.11" optimum="1.6" style="width: 12rem;" value="1"></meter>
                     </label>
                 </div>
+                <div>
+                    <label>Mod capacity
+                        <span id="mod_capacity_current">0</span>
+                        /
+                        <span id="mod_capacity_max">30</span>
+                        <input type="checkbox" id="potato" class="checkbox_grey_image">
+                        <br>
+                        <meter id="mod_capacity_meter" min="0" max="30" low="25" high="29" optimum="0" value="0" style="width: 12rem;"></meter>
+                    </label>
+                </div>
             </div>
         </div>
         <div id="modding">
@@ -740,28 +750,32 @@
     <!-- Dialog for Editing a Mod -->
     <dialog id="mod-dialog" style="overflow: inherit">
         <form method="dialog">
-            <div style="display: flex; justify-content: space-between;">
-                <input type="text" id="mod-name-input" placeholder="mod name" style="font-size: large; margin-bottom: 10px; width: 280px;">
-                <label>
-                    rank:
-                    <input type="number" id="mod-level-input" style="width: 2.25rem" min="0">
-                </label>
-                <label class="input_with_unit">
-                    ability strength:
-                    <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1"><span>%</span>
-                </label>
-                <div id="capacity-wrapper">
-                    <label>
-                        capacity:
-                        <input type="number" id="mod-capacity" style="width: 2.25rem" min="0">
-                        <span id="mod-capacity-after-forma">9</span>
-                        <span id="polarity">&#xEA03;</span>
-                    </label>
-                    <input type="checkbox" id="forma" src="forma.webp">
-                </div>
-            </div>
             <table>
                 <thead>
+                    <tr>
+                        <td colspan="99">
+                            <div style="display: flex; justify-content: space-between;">
+                                <input type="text" id="mod-name-input" placeholder="mod name" style="font-size: large; margin-bottom: 10px; width: 280px;">
+                                <label>
+                                    rank:
+                                    <input type="number" id="mod-level-input" style="width: 2.25rem" min="0">
+                                </label>
+                                <label class="input_with_unit">
+                                    ability strength:
+                                    <input type="number" id="ability-strength-input" style="width: 4rem" min="0" value="100" step="0.1"><span>%</span>
+                                </label>
+                                <div id="capacity-wrapper">
+                                    <label>
+                                        capacity:
+                                        <input type="number" id="mod-capacity" style="width: 2.25rem" min="0">
+                                        <span id="mod-capacity-after-forma">9</span>
+                                        <span id="polarity">&#xEA03;</span>
+                                    </label>
+                                    <input type="checkbox" id="forma" class="checkbox_grey_image">
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
                     <tr>
                         <th style="min-width: 540px; width: fit-content">buff</th>
                         <th style="width: 130px">condition</th>

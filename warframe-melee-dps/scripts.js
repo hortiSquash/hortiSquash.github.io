@@ -535,6 +535,9 @@ function loadWeaponStats() {
     // retrieve enemy data
     const weaponTemp = Object.values(data).find((e) => e.name === weaponSelected);
 
+    //TODO
+    // Update saveWeapon() as well if you wanna edit the fields here
+
     // convert from the DB
     weapon = {
         "attack_speed": weaponTemp.fireRate || 1,
@@ -549,7 +552,7 @@ function loadWeaponStats() {
         "multishot": weaponTemp.multishot || 1,
         "magazine_capacity": weaponTemp.magazineSize || 1,
         "reload": weaponTemp.reloadTime || 0,
-
+        "max_level": weaponTemp.maxLevelCap || 30,
 
         //"damage_types": weaponTemp.damage, // because keep names
          "damage_types": {
@@ -676,6 +679,13 @@ Object.keys(melee_weapon_types).forEach(function (e) {
 function updateModding() {
     if(!weapon) return;
 
+    const max_capacity = (weapon.max_level ?? 30) * (document.getElementById("potato").checked ? 2 : 1);
+    document.getElementById("mod_capacity_max").innerText = max_capacity;
+    const meter = document.getElementById("mod_capacity_meter");
+    meter.max = max_capacity;
+    meter.low = max_capacity / 2;
+    meter.high = max_capacity - 1;
+
     const isHeavy = document.getElementById("combo_type").value === "heavy";
 
     mods_buffs_cpp = mods.map((mod) => {
@@ -715,7 +725,7 @@ function saveWeapon() {
 
     document.getElementById("riven_disposition_meter").value = document.getElementById("riven_disposition_input").value;
 
-    weapon = {
+    weapon = default_value(weapon, {
         "attack_speed": document.getElementById("attack_speed").cells[1].querySelector("input").value,
         "wind_up": document.getElementById("wind_up").cells[1].querySelector("input").value,
 
@@ -734,7 +744,7 @@ function saveWeapon() {
 
         "riven_disposition": document.getElementById("riven_disposition_input").value,
         "max_combo": 12,
-    };
+    });
     weapon.damage_types = default_value(default_damage_types, Object.fromEntries(damage_order.map(e =>
         [e, (document.getElementById(e)?.cells[1].querySelector("input").value) || 0]
     )));
