@@ -1178,12 +1178,12 @@ select[name="condition"] {
 
 /* big ass screens be like */
 /* yes its a hack, fuck off */
-@media only screen and (min-height: 1350px) {
+@media only screen and (min-height: 1300px) {
     body {
         zoom: 1.33;
     }
 }
-@media only screen and (min-height: 2000px) {
+@media only screen and (min-height: 1900px) {
     body {
         zoom: 2.0;
     }
