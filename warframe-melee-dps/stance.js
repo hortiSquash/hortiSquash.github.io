@@ -12,7 +12,7 @@ function editStance() {
             const hit_html = document.getElementById('hits_wrapper').lastElementChild; //the last one that got added, in other words this one
 
             const time = hit_html.querySelector(".containerTime");
-            time.querySelector("input").value = hit.time;
+            time.querySelector("input").value = formatDecimalsMinMax(hit.time, 1, 4);
 
             const damage = hit_html.querySelector(".containerDamage");
             damage.querySelector("input").value = hit.damage;
@@ -31,7 +31,7 @@ function editStance() {
                 for (let e of Object.entries(hit.bonus_damage)) {
                     const bonusDamage = document.getElementById("templateBonusDamage").content.cloneNode(true);
                     bonusDamage.querySelector("select").value = e[0];
-                    bonusDamage.querySelector("input").value = e[1];
+                    bonusDamage.querySelector("input").value = e[1] * 100; //%
                     bonusDamages.appendChild(bonusDamage);
                 }
             }
@@ -75,7 +75,7 @@ function saveStance() {
         }
         for (let i = 0; i < bonus_damage_rows.length - 1; i++) {
             const r = bonus_damage_rows[i].cells;
-            incrementCounter(bonus_damage, r[1].querySelector("select").value, Number(r[0].querySelector("input").value));
+            incrementCounter(bonus_damage, r[1].querySelector("select").value, Number(r[0].querySelector("input").value) / 100); //%
         }
 
         hits.push({
@@ -129,7 +129,7 @@ document.getElementById("hits_wrapper").addEventListener('click', function (even
 });
 
 document.getElementById("hits_wrapper").addEventListener('change', function (event) {
-    if (event.target.value == 0) {
+    if (event.target.value === 0) {
         if (event.target.name === 'inputForcedProc') {
             event.target.closest('tr').remove();
         }
