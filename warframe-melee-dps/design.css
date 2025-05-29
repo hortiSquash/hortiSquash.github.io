@@ -1175,3 +1175,16 @@ select[name="condition"] {
 #weapon_subclass:has(option[value="unselected"]:checked){
     background: red;
 }
+
+/* big ass screens be like */
+/* yes its a hack, fuck off */
+@media only screen and (min-height: 1350px) {
+    body {
+        zoom: 1.33;
+    }
+}
+@media only screen and (min-height: 2000px) {
+    body {
+        zoom: 2.0;
+    }
+}
