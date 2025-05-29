@@ -442,6 +442,7 @@ a.modebar-btn {
     margin: auto;
     width: fit-content;
 
+    position: relative;
     display: grid;
     grid-template-columns: max-content max-content max-content;
     grid-template-rows: max-content max-content 1fr;
@@ -1133,7 +1134,7 @@ select[name="condition"] {
 #weapon_selection{
     position: absolute;
     z-index: 1;
-    left: 300px;
+    left: 280px;
     top: 25px;
 
     display: flex;
@@ -1148,8 +1149,7 @@ select[name="condition"] {
         width: 14rem;
         font-size: large;
         font-weight: bold;
-        margin: 20px;
-        margin-bottom: 0;
+        margin: 0 20px 0 20px;
     }
 
     > div {
@@ -1160,5 +1160,18 @@ select[name="condition"] {
         width: fit-content;
         gap: 0.8em;
         padding: 0.8em;
+        padding-bottom: 0;
     }
+}
+
+#help_svg{
+    position: absolute;
+    z-index: 999;
+    backdrop-filter: blur(1px);
+    left: 50%;
+    translate: -50% 0;
+}
+
+#weapon_subclass:has(option[value="unselected"]:checked){
+    background: red;
 }

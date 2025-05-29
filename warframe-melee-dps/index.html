@@ -106,7 +106,7 @@
         ">
         <defs>
             <pattern id="coolPattern" width="64" height="64" patternUnits="userSpaceOnUse"
-                    patternTransform="rotate(45)">
+                    patternTransform="rotate(40)">
                 <path
                     style="
                         display: inline;
@@ -133,7 +133,7 @@
 </head>
 
 <body>
-    <img src="help.svg" style="position: absolute; z-index: 999; backdrop-filter: blur(1px);" id="help_svg"/>
+    <img src="help.svg" id="help_svg"/>
     <dialog id="enemy_edit_dialog">
         <form id="editEnemy" method="dialog">
             <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" placeholder="enemy name" required style="margin-bottom: 10px; font-size: medium; width: 15rem">
@@ -218,7 +218,9 @@
                     <option value="archgun">Archgun</option>
                 </select>
                 <select id="weapon_subclass" onchange="saveWeapon()">
-                    <option selected disabled>Subclass</option>
+                    <!--
+                    <option selected disabled value="unselected">Select a subclass</option>
+                    -->
                 </select>
                 <div>
                     <label for="riven_disposition_input">Riven disposition
@@ -348,7 +350,7 @@
                     <col class="weapon_stats_base" />
                     <col class="weapon_stats_modded" />
                 </colgroup>
-    
+
                 <tbody id="stats">
                     <tr id="attack_speed">
                         <td>attack speed</td>
@@ -622,7 +624,7 @@
                         </td>
                     </tr>
                 </tbody>
-    
+
                 <tr class="separate">
                     <td></td>
                     <th>
@@ -639,7 +641,7 @@
                         <label>average count of status stacks</label>
                     </td>
                 </tr>
-    
+
                 <tbody class="stats_damage_table" id="stats_damage">
                     <!-- space for the axis of the graph -->
                     <tr style="height:15px;">
@@ -705,7 +707,7 @@
     <div id="footer" style="display: flex; width: 100%; align-items: center; justify-content: space-evenly;">
         <label>
             Request features or Report a bug:
-            <a href="https://github.com/hortiSquash/hortiSquash.github.io/issues/new" style="color:blue">GitHub Issues</a>
+            <a href="https://github.com/hortiSquash/hortiSquash.github.io/issues/new/choose" style="color:blue">GitHub Issues</a>
             - or contact me on Discord @hortiSquash
         </label>
     </div>
