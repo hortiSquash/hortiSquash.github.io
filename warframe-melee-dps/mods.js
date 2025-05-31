@@ -201,6 +201,8 @@ function deleteMod(cell) {
     }
 
     if (cell.classList.contains("buff-slot")) checkBuffSlots();
+
+    mod_search(); //if you delete a mod, it might go back to a slot thats hidden from the current mod list, so update that slot
 }
 
 modding.addEventListener("click", createDelegatedEvent(".cell", function (event, cell) {
@@ -254,22 +256,26 @@ mod_list.addEventListener("drop", createDelegatedEvent(".cell", function (event,
 
 document.querySelectorAll("#mod_list_search, #mod_list_select_polarity, #mod_list_select_type, #mod_list_select_rarity").forEach(function (target) {
     target.addEventListener('change', function () {
-        const filter_text = document.getElementById("mod_list_search").value.toUpperCase();
-        const filter_polarity = document.getElementById("mod_list_select_polarity").value;
-        const filter_type = document.getElementById("mod_list_select_type").value;
-        const filter_rarity = document.getElementById("mod_list_select_rarity").value;
-
-        const li = mod_list.querySelectorAll(".cell");
-        for (let element of li) {
-            const { modData } = element;
-            let txtValue = element.textContent || element.innerText;
-            const included = txtValue.toUpperCase().includes(filter_text)
-                && (!filter_rarity || modData?.rarity === filter_rarity)
-                && (!filter_type || modData?.type === filter_type)
-                && (!filter_polarity || modData?.polarity === filter_polarity);
-            element.classList.toggle("d-none", !included);
-        }
+        mod_search();
 })})
+
+function mod_search(){
+    const filter_text = document.getElementById("mod_list_search").value.toUpperCase();
+    const filter_polarity = document.getElementById("mod_list_select_polarity").value;
+    const filter_type = document.getElementById("mod_list_select_type").value;
+    const filter_rarity = document.getElementById("mod_list_select_rarity").value;
+
+    const li = mod_list.querySelectorAll(".cell");
+    for (let element of li) {
+        const { modData } = element;
+        let txtValue = element.textContent || element.innerText;
+        const included = txtValue.toUpperCase().includes(filter_text)
+            && (!filter_rarity || modData?.rarity === filter_rarity)
+            && (!filter_type || modData?.type === filter_type)
+            && (!filter_polarity || modData?.polarity === filter_polarity);
+        element.classList.toggle("d-none", !included);
+    }
+}
 
 /***** Buff Slot Management *****/
 function addBuffSlot() {

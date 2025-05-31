@@ -1166,14 +1166,11 @@ select[name="condition"] {
 
 #help_svg{
     position: absolute;
+    margin: auto;
+    left: 0;
+    right: 0;
     z-index: 999;
     backdrop-filter: blur(1px);
-    left: 50%;
-    translate: -50% 0;
-}
-
-#weapon_subclass:has(option[value="unselected"]:checked){
-    background: red;
 }
 
 /* big ass screens be like */

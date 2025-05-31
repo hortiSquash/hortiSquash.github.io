@@ -634,7 +634,7 @@
                     </th>
                     <th>
                         <div class="tooltip">
-                            <span class="tooltiptext">can be affected by external factors (stance, etc)</span>
+                            <span class="tooltiptext">external factors not shown here<br>(stance, conditional "on crit" mods, etc)</span>
                         </div>
                     </th>
                     <td colspan="3">
@@ -699,8 +699,16 @@
                     <input type="number" value="60" min="1" id="tickrate" style="width: 6ch;"
                     ><span>/s</span>
                 </label>
-                <label>quantization<input type="checkbox" class="fancy_checkbox" id="quantization" checked onchange="saveWeapon()"/></label>
-                <label>conditionals<input type="checkbox" class="fancy_checkbox" id="conditionals" checked onchange="saveWeapon()"/></label>
+                <label>quantization<input type="checkbox" class="fancy_checkbox" id="quantization" checked onchange="saveWeapon()"/>
+                    <div class="tooltip">
+                        <span class="tooltiptext">
+                            the game uses invisible rounded values instead of the stats you see in the Arsenal
+                        </span>
+                    </div>
+                </label>
+
+                <!-- TODO do something with it or remove it -->
+                <label style="display: none">conditionals<input type="checkbox" class="fancy_checkbox" id="conditionals" checked onchange="saveWeapon()"/></label>
             </fieldset>
         </div>
     </div>

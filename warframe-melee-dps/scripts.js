@@ -531,6 +531,7 @@ function loadWeaponStats() {
     const data = window.data_weapons_melee;
 
     const weaponSelected = document.getElementById("weapon_name_input").value;
+    if(!weaponSelected) return;
 
     // retrieve enemy data
     const weaponTemp = Object.values(data).find((e) => e.name === weaponSelected);
