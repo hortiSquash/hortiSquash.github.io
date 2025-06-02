@@ -302,7 +302,7 @@ function checkBuffSlots() {
     }
 }
 
-const buff_keys_text_inputs = ["buff", "damage_type", "symbol_filter", "operation", "condition", "upgrade_duration", "max_stacks"];
+const buff_keys_text_inputs = ["buff", "damage_type", "symbol_filter", "operation", "condition"];
 const buff_keys_number_inputs = ["upgrade_duration", "max_stacks"];
 const buff_keys_checkboxes = ["chance_scales", "duration_scales", "stack_mode", "can_reproc"];
 
@@ -403,12 +403,10 @@ function openEditModal(cell) {
 
         for(let name of [...buff_keys_text_inputs, ...buff_keys_number_inputs]) {
             if(name === "buff") continue;
-            const whatever = statLineClone.querySelector(`[name='${name}']`);
-            if (stat[name]) whatever.value = stat[name];
+            if (stat[name]) statLineClone.querySelector(`[name='${name}']`).value = stat[name];
         }
         for(let name of buff_keys_checkboxes) {
-            const whatever = statLineClone.querySelector(`[name='${name}']`);
-            if (stat[name]) whatever.checked = stat[name];
+            if (stat[name] != null) statLineClone.querySelector(`[name='${name}']`).checked = stat[name];
         }
 
         statsTbody.appendChild(statLineClone);
@@ -466,8 +464,11 @@ function openEditModal(cell) {
         e.preventDefault();
         modData.name = modNameInput.value;
         modData.current_level = modLevelInput.valueAsNumber;
-        modData.base_drain = modCapacity.valueAsNumber - modLevelInput.valueAsNumber;
-        if(isAbility) modData.current_strength = abilityStrengthInput.valueAsNumber;
+        if(isAbility){
+            modData.current_strength = abilityStrengthInput.valueAsNumber;
+        }else{
+            modData.base_drain = modCapacity.valueAsNumber - modLevelInput.valueAsNumber;
+        }
 
         const polarity = modData.polarity;
         Object.entries(polarity_unicode).forEach(([key, _]) => { cell.classList.remove(key) });
@@ -492,13 +493,13 @@ function openEditModal(cell) {
             current_buff.upgrade_chance = chance.value / 100;
 
             for(let name of [...buff_keys_text_inputs, ...buff_keys_number_inputs]) {
-                current_buff[name]= tr.querySelector(`[name='${name}']`).value;
+                current_buff[name] = tr.querySelector(`[name='${name}']`).value;
             }
             for(let name of buff_keys_number_inputs) {
-                current_buff[name]= Number(current_buff[name]);
+                current_buff[name] = Number(current_buff[name]);
             }
             for(let name of buff_keys_checkboxes) {
-                current_buff[name]= tr.querySelector(`[name='${name}']`).checked;
+                current_buff[name] = tr.querySelector(`[name='${name}']`).checked;
             }
         }
 

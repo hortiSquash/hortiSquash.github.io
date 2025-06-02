@@ -496,6 +496,12 @@ a.modebar-btn {
     }
 }
 
+#simulate_button {
+    font-size: 32px;
+    color: darkred;
+    margin: 0 5px;
+}
+
 #modding {
     grid-area: modding;
 
