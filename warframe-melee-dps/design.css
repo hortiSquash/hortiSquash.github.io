@@ -159,6 +159,18 @@ fieldset > legend {
     user-select: none;
 }
 
+#build_share_dialog fieldset {
+    margin: 0;
+    padding: 10px;
+    border: var(--border-style);
+    border-radius: 15px;
+    box-shadow: var(--box-shadow);
+
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+}
+
 dialog {
     color: inherit;
     background-color: var(--color-background);
@@ -785,6 +797,35 @@ td.tooltip {
         color-mix(in srgb, var(--metal-color) 100%, black 40%)
     ) 1;
     */
+
+    &:not(:empty)::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+
+        background-position: bottom right;
+        background-repeat: no-repeat;
+        background-size: 30%;
+        background-color: rgba(0, 0, 0, 0.05);
+        filter: var(--mod-empty-background-filter) opacity(50%);
+    }
+}
+
+.cell[type="ability"]::before{
+    background-image: url("https://browse.wf/Lotus/Interface/Icons/Categories/IconWarframe_256.png");
+}
+.cell[type="exilus"]::before{
+    background-image: url("https://static.overframe.gg/static/images/icon-exilus.png");
+}
+.cell[type="arcane"]::before{
+    background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
+}
+.cell[type="none"]::before{
+    background-image: url("mod.png");
+    filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
 }
 
 .cell:empty {
@@ -801,7 +842,6 @@ td.tooltip {
     position: absolute;
     font-size: 28px;
     color: var(--color-mod-empty-background);
-    /* pointer-events: none; */
 }
 
 .cell.special-slot:empty::after {
@@ -838,10 +878,9 @@ td.tooltip {
         background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
         background-size: 55%;
         filter: var(--mod-empty-background-filter);
-
     }
 }
-.cell.special-slot[data-slot_type="exilus"]:empty {
+.cell.special-slot[data-slot_type="exilus"]:empty { /* #exilus */
     &::after {
         content: "";
     }
@@ -986,28 +1025,28 @@ select[name="condition"] {
 }
 
 /* TODO better colors with unified contrast */
-.mod-rarity-common {
+.cell[rarity="common"] {
     --metal-color: #a67c68;
 }
-.mod-rarity-uncommon {
+.cell[rarity="uncommon"] {
     --metal-color: silver;
 }
-.mod-rarity-rare {
+.cell[rarity="rare"] {
     --metal-color: gold;
 }
-.mod-rarity-legendary {
+.cell[rarity="legendary"] {
     --metal-color: lightblue;
 }
-.mod-rarity-archon {
+.cell[rarity="archon"] {
     --metal-color: orange;
 }
-.mod-rarity-galvanized {
+.cell[rarity="galvanized"] {
     --metal-color: slategray;
 }
-.mod-rarity-riven {
+.cell[rarity="riven"] {
     --metal-color: darkorchid;
 }
-.mod-rarity-amalgam {
+.cell[rarity="amalgam"] {
     --metal-color: peachpuff;
 }
 

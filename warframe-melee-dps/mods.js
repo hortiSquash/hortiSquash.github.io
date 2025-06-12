@@ -67,7 +67,7 @@ function updateModsArray() {
     modding.querySelectorAll('.cell').forEach(cell => {
         if (cell.modData) {
             const forma_polarity = Object.keys(polarity_unicode).find(key => cell.classList.contains(key)) || "";
-            const capacity = cell.modData.base_drain + (cell.modData.current_level ?? cell.modData.max_level);
+            const capacity = (cell.modData.base_drain ?? 0) + (cell.modData.current_level ?? cell.modData.max_level ?? 0);
             const wrong_polarity = forma_polarity !== cell.modData.polarity;
             cell.modData.capacity_after_forma = !forma_polarity ? capacity : (wrong_polarity ? Math.round(capacity * 1.25) : Math.ceil(capacity / 2));
 
@@ -108,7 +108,7 @@ function updateCell(cell, modData, update_mods = true) {
             const tr = document.createElement("tr");
             const tdValue = document.createElement("td");
             tdValue.style.width = "1.5rem";
-            tdValue.textContent = formatDecimals(buff.value * (1 + (modData.current_level ?? modData.max_level)), 3);
+            tdValue.textContent = formatDecimals(buff.value * (1 + (modData.current_level ?? modData.max_level ?? 0)), 3);
             //TODO display_as with 100x if %, +1 with operationtype, etc
 
             const tdStat = document.createElement("td");
@@ -119,12 +119,8 @@ function updateCell(cell, modData, update_mods = true) {
         });
         cell.modData = modData;
 
-        for(let classname of cell.classList){
-            if(classname.startsWith("mod-rarity-")){
-                cell.classList.remove(classname);
-            }
-        }
-        cell.classList.add("mod-rarity-" + modData.rarity);
+        cell.setAttribute("rarity", modData.rarity);
+        cell.setAttribute("type", modData.type);
 
         if(cell.closest("#modding") && update_mods) {
             updateModsArray();
@@ -143,6 +139,8 @@ function updateCell(cell, modData, update_mods = true) {
 function emptyCell(cell, update_mods = true) {
     cell.draggable = false;
     delete cell.modData;
+    cell.removeAttribute("rarity");
+    cell.removeAttribute("type");
     if(cell.hasChildNodes()){
         cell.innerHTML = "";
 

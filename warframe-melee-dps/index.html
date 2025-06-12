@@ -45,7 +45,7 @@
         response = await fetch('./weapons.json');
         const data_weapons_melee = await response.json();
         window.data_weapons_melee = data_weapons_melee;
-    
+
         const melee_weapon_list = document.getElementById('weapon_list');
         for(let e of Object.values(data_weapons_melee)){
             const option = document.createElement('option');
@@ -78,6 +78,8 @@
             updateCell(cell, mod);
             mod_list.appendChild(cell);
         }
+
+        document.dispatchEvent(new Event('module_loading_finished'));
     </script>
 
     <datalist id="enemy_list"></datalist>
@@ -134,6 +136,24 @@
 
 <body>
     <img src="help.svg" id="help_svg"/>
+    <dialog id="build_share_dialog">
+        <form method="dialog" style="display: flex; flex-direction: column; gap: 1em;">
+            <fieldset>
+                <legend>Share</legend>
+                <button class="button-stylized" onclick="saveToClipboard()">Save to clipboard</button>
+                <button class="button-stylized" onclick="saveToFile()">Save to file</button>
+            </fieldset>
+            <fieldset>
+                <legend>Load</legend>
+                <button class="button-stylized" onclick="loadFromClipboard()">Load from clipboard</button>
+                <label class="button-stylized">
+                    Load from file
+                    <input class="d-none" type="file" id="loadFromFileButton" accept=".txt">
+                </label>
+            </fieldset>
+        </form>
+    </dialog>
+
     <dialog id="enemy_edit_dialog">
         <form id="editEnemy" method="dialog">
             <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" placeholder="enemy name" required style="margin-bottom: 10px; font-size: medium; width: 15rem">
@@ -268,7 +288,7 @@
                 </div>
             </div>
 
-            <div class="cell special-slot" data-slot_type="exilus"></div>
+            <div class="cell special-slot" id="exilus" data-slot_type="exilus"></div>
 
             <div class="cell mod-slot" id="mod1"></div>
             <div class="cell mod-slot" id="mod2"></div>
@@ -684,7 +704,8 @@
             <div id="other-buttons">
                 <button class="button-stylized" id="simulate_button" onclick="changeStats()">Simulate</button>
                 <button class="button-stylized" id="help_button">Help</button>
-                <button class="button-stylized" id="theme_button">Theme</button>
+                <button class="button-stylized" id="theme_button">🎨 Theme</button>
+                <button class="button-stylized" onclick="shareBuild()">🔗 Share build</button>
             </div>
             <fieldset id="extra-parameters">
                 <legend>Extra parameters</legend>

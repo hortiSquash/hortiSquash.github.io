@@ -52,7 +52,7 @@ const default_damage_types = {
 
 const default_buff_line = {
     "buff": "",
-    "operation": "",
+    "operation": "STACKING_MULTIPLY",
     "value": 0,
     "damage_type": "DT_ANY",
     "symbol_filter": "",
@@ -360,7 +360,8 @@ function plotData() {
             autorangeoptions:{
                 minallowed: -1,
                 // maxallowed: 50,
-            }
+            },
+            ticksuffix: "s",
         },
         yaxis: {
             // range: [0, 10],
@@ -368,6 +369,9 @@ function plotData() {
             autorange: true,
             autorangeoptions:{
                 minallowed: -1,
+            },
+            title: {
+                text: "damage"
             }
         },
         barmode: "stack",
@@ -377,20 +381,34 @@ function plotData() {
             r: 0,
             t: 15,
         },
-        modebar: {
+        modebar: { //the plotly top right menu bar
             // orientation: "v",
+
         },
         legend: {
             x: 1.0,
             y: 0.95,
         },
+        annotations: [
+            {
+                xref: 'paper',
+                yref: 'paper',
+                xanchor: 'left',
+                yanchor: 'top',
+                x: 1.01,
+                y: 0.01,
+                text: 'time',
+                showarrow: false
+            }
+        ],
         paper_bgcolor: "rgba(0, 0, 0, 0)",
         /* plot_bgcolor: "rgba(0, 0, 0, 0)", */
         font: {
-            "family": "Arial",
+            "family": "Roboto, Arial",
             /* "color": "var(--color-text)", */
         },
-        showlegend: true
+        showlegend: true,
+        //responsive: true,
     };
 
     Plotly.react(chart, plotlyData, layout, {
@@ -427,7 +445,7 @@ function showPie() {
             b: 20,
             l: 50,
             r: 0,
-            t: 15,
+            t: 30,
         },
         modebar: {
             // orientation: "v",
@@ -435,6 +453,9 @@ function showPie() {
         legend: {
             x: 1.0,
             y: 0.95,
+        },
+        title: {
+            text: "damage proportion over the simulation time",
         },
         paper_bgcolor: "rgba(0, 0, 0, 0)",
         /* plot_bgcolor: "rgba(0, 0, 0, 0)", */
@@ -691,7 +712,7 @@ function updateModding() {
 
     mods_buffs_cpp = mods.map((mod) => {
         let mod_new = structuredClone(mod);
-        const current_level = mod_new.current_level ?? mod_new.max_level;
+        const current_level = mod_new.current_level ?? mod_new.max_level ?? 0;
         for (let i=0; i < mod_new.buffs.length; i++) {
             const buff = mod_new.buffs[i];
             buff.value = Number(buff.value) * (current_level + 1);
@@ -764,7 +785,7 @@ function saveWeapon() {
 
     //FIXME it gets broken by the parseFloat from the remove% because its text so it gets converted to 0
     weapon.weapon_name = document.getElementById("weapon_name_input").value;
-    weapon.weapon_type = document.getElementById("weapon_subclass").value;
+    weapon.weapon_type = ""; //TODO remove, its just for the C++ to be happy
 
     // Force weapon from the DB instead of parsed from fields
     // loadWeaponStats()
@@ -1060,8 +1081,8 @@ document.getElementById("theme_button").addEventListener("click", () => {
     localStorage.setItem("theme", theme);
 });
 
-document.getElementById("weapon_type").addEventListener("change", (e) => {
-    const boolean = e.target.value === "melee"
+function updateWeaponType(){
+    const boolean = document.getElementById("weapon_type").value === "melee"
 
     document.getElementById("wind_up").classList.toggle("d-none", !boolean);
     document.getElementById("initial_combo").classList.toggle("d-none", !boolean);
@@ -1074,20 +1095,26 @@ document.getElementById("weapon_type").addEventListener("change", (e) => {
 
     const weapon_type_list = document.getElementById("weapon_subclass");
     let list;
-    if(e.target.value === "melee"){
+    if(document.getElementById("weapon_type").value === "melee"){
         list = melee_weapon_types;
-    }else if(e.target.value === "primary"){
+    }else if(document.getElementById("weapon_type").value === "primary"){
         list = primary_weapon_types;
-    }else if(e.target.value === "secondary"){
+    }else if(document.getElementById("weapon_type").value === "secondary"){
         list = secondary_weapon_types;
+    }else if(document.getElementById("weapon_type").value === "archgun"){
+        list = primary_weapon_types;
     }
 
-    while (weapon_type_list.options.length > 1) weapon_type_list.remove(1);
+    weapon_type_list.innerHTML = "";
     Object.keys(list).forEach(function (e) {
         const option = document.createElement('option');
         option.text = e;
         weapon_type_list.appendChild(option);
     });
+}
+
+document.getElementById("weapon_type").addEventListener("change", (e) => {
+    updateWeaponType();
 })
 
 document.getElementById("editEnemy").addEventListener("change", () => scaleEnemy());
@@ -1193,3 +1220,216 @@ function scaleEnemy(){
     const overguard_mult = overguard_f1 * (1 - Soverguard) + overguard_f2 * Soverguard;
     //scale with SP ?
 }
+
+function shareBuild(){
+    document.getElementById("build_share_dialog").showModal();
+}
+
+function removeModDefaultStats(modData){
+    const stat_line_template = document.getElementById("stat-line-template").content;
+
+    for(const stat of modData.buffs){
+        for(let name of [...buff_keys_text_inputs, ...buff_keys_number_inputs]) {
+            if (stat[name] == stat_line_template.querySelector(`[name='${name}']`).value){
+                delete stat[name];
+            }
+        }
+        for(let name of buff_keys_checkboxes) {
+            if (stat[name] == stat_line_template.querySelector(`[name='${name}']`).checked){
+                delete stat[name];
+            }
+        }
+        if (stat.upgrade_chance == 1) delete stat.upgrade_chance;
+        if (stat.upgrade_duration === null || Number.isNaN(stat.upgrade_duration)) delete stat.upgrade_duration;
+        delete stat.loc_path;
+        delete stat.loc_tag;
+        delete stat.display_as;
+    }
+    delete modData.loc_path;
+    delete modData.capacity_after_forma;
+    if (!modData.base_drain) delete modData.base_drain;
+    if (!modData.max_level) delete modData.max_level;
+    if (!modData.current_level) delete modData.current_level;
+    if (!modData.compatibility) delete modData.compatibility;
+    if (modData.type === "none") delete modData.type;
+
+    simplifyNumbersInObject(modData);
+}
+
+function simplifyNumbersInObject(value) {
+    if (typeof value === "number" && !Number.isNaN(value)) {
+        return Number(formatDecimalsMinMax(value, 0, 5));
+    } else if (Array.isArray(value)) {
+        return value.map(simplifyNumbersInObject);
+    } else if (typeof value === "object" && value !== null) {
+        for (const key in value) {
+            value[key] = simplifyNumbersInObject(value[key]);
+        }
+        return value;
+    } else {
+        return value;
+    }
+}
+
+function saveModding() {
+    let modding = {};
+    for(const cell of document.querySelectorAll("#modding > .cell")) {
+        if (!cell.hasChildNodes()) continue;
+        removeModDefaultStats(cell.modData);
+        modding[cell.id] = cell.modData;
+    }
+
+    let buffs = [];
+    for(const cell of document.querySelectorAll("#buffs_wrapper > .cell")) {
+        if (!cell.hasChildNodes()) continue;
+        removeModDefaultStats(cell.modData);
+        buffs.push(cell.modData);
+    }
+    if(buffs.length) modding["buffs_wrapper"] = buffs;
+
+    return modding;
+}
+
+async function gzip(str) {
+    const cs = new CompressionStream('gzip');
+    const writer = cs.writable.getWriter();
+    writer.write(new TextEncoder().encode(str));
+    writer.close();
+    return new Uint8Array(await new Response(cs.readable).arrayBuffer());
+}
+
+async function saveConfig() {
+    let data = {
+        "modding": saveModding(),
+    };
+    if (weapon) {
+        weapon.class = document.getElementById("weapon_type").value;
+        weapon.subclass = document.getElementById("weapon_subclass").value;
+        data.weapon = weapon;
+
+        if (weapon.class === "melee" && Object.keys(stance).length > 0){
+            //just making sure its updated
+            stance.current_combo = document.getElementById("combo_type").value;
+            data.stance = stance;
+        }
+    }
+    if (enemies.length) data.enemies = enemies;
+
+    const json = JSON.stringify(data);
+    const compressed = await gzip(json);
+    const base64 = btoa(String.fromCharCode(...compressed));
+
+    const urlSafe = encodeURIComponent(base64);
+    window.location.hash = `config=${urlSafe}`;
+
+    return urlSafe;
+}
+
+async function decodeConfigFromHash(hash) {
+    const binary = Uint8Array.from(atob(decodeURIComponent(hash)), c => c.charCodeAt(0));
+    const stream = new Response(
+        new ReadableStream({
+            start(controller) {
+                controller.enqueue(binary);
+                controller.close();
+            }
+        }).pipeThrough(new DecompressionStream("gzip"))
+    );
+    return JSON.parse(await stream.text());
+}
+
+function loadConfig(config){
+    console.log("Loading the data:", config);
+
+    const buff_wrapper = document.getElementById("buffs_wrapper");
+
+    //remove all current mods
+    buff_wrapper.innerHTML = "";
+    checkBuffSlots();
+    for (const cell of document.getElementById("modding").children) {
+        if(cell.id !== "buffs_wrapper" && cell.id !== "stance-slot") {
+            deleteMod(cell);
+        }
+    }
+
+    //add new mods
+    for (const key of Object.keys(config.modding)) {
+        if(key === "buffs_wrapper"){
+            for (const buff of config.modding.buffs_wrapper) {
+                updateCell(buff_wrapper.lastElementChild, buff);
+            }
+        }else{
+            updateCell(document.getElementById(key), config.modding[key]);
+        }
+    }
+
+    if(config.weapon){
+        weapon = config.weapon;
+        displayWeaponStats(weapon, 1);
+        document.getElementById("weapon_name_input").value = weapon.weapon_name;
+        document.getElementById("weapon_type").value = weapon.class;
+        updateWeaponType();
+        document.getElementById("weapon_subclass").value = weapon.subclass;
+        updateStancesOptions();
+    }
+    if(config.stance){
+        stance = config.stance;
+        document.getElementById("combo_type").value = stance.current_combo;
+        document.getElementById("weapon_subclass").value = stance.weapon_type;
+        updateStancesOptions();
+        document.getElementById("stance_name").value = stance.name;
+        updateStanceAttackName();
+    }
+    updateModding();
+}
+
+async function saveToClipboard(){
+    await navigator.clipboard.writeText(await saveConfig());
+}
+
+
+async function saveToFile(){
+    const content = await saveConfig();
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    const date = new Date().toISOString().replace(/[:.]/g, '-');
+    a.href = url;
+    a.download = `warframe-melee-dps-save-file${date}.txt`;
+    document.body.appendChild(a);  // Required for Firefox
+
+    a.click();  // Trigger the download
+
+    document.body.removeChild(a);  // Clean up
+    URL.revokeObjectURL(url);  // Free up memory
+}
+
+function loadFromClipboard(){
+    navigator.clipboard.readText().then(async function(text) {
+        const config = await decodeConfigFromHash(text);
+        if (config) loadConfig(config);
+    });
+}
+
+document.getElementById('loadFromFileButton').addEventListener('change', function () {
+    const file = this.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async function (e) {
+        const hash = e.target.result;
+        const config = await decodeConfigFromHash(hash);
+        if (config) loadConfig(config);
+    };
+    reader.readAsText(file);
+
+    document.getElementById('build_share_dialog').close();
+});
+
+document.addEventListener("module_loading_finished", async () => {
+    const hash = new URLSearchParams(location.hash.slice(1)).get("config");
+    if (!hash) return;
+    const config = await decodeConfigFromHash(hash);
+    if (config) loadConfig(config);
+});
