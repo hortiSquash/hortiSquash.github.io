@@ -823,10 +823,37 @@ td.tooltip {
 .cell[type="arcane"]::before{
     background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
 }
-.cell[type="none"]::before{
+.cell[type="mod"]::before{
     background-image: url("mod.png");
     filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
 }
+.cell[type="1999_calendar"]::before{
+    background-image: url("https://browse.wf/Lotus/Interface/Graphics/Retro/EyeGlitch/EyeGlitchA.png");
+}
+.cell[type="invigoration"]::before{
+    background-image: url("https://browse.wf/Lotus/Interface/Icons/HelminthChrysalis.png");
+}
+.cell[type="incarnon_evo"]::before{
+    background-image: url("incarnon.png");
+    filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
+}
+.cell[type="archon_shard"]::before{
+    background-image: url("shard.png");
+    filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
+}
+.cell[type="decree"]::before{
+    background-image: url("decree.png");
+}
+.cell[type="aura"]::before{
+    background-image: url("aura.png");
+}
+
+/*
+.cell[type]::after{
+    content: attr(type);
+    color: red;
+}
+*/
 
 .cell:empty {
     background: none;
