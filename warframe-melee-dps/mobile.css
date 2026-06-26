@@ -119,16 +119,3 @@
         transform: translate(-50%, 24px);
     }
 }
-
-@media only screen and (max-width: 450px) {
-    #other{
-        grid-template-rows: repeat(3, max-content);
-        grid-template-columns: 1fr;
-        #enemy_wrapper{ border-right: none }
-        #extra-parameters{
-            grid-column: unset;
-            grid-row: unset;
-            border-right: var(--border-style);
-        }
-    }
-}

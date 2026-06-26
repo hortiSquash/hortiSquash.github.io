@@ -138,20 +138,30 @@ body[theme="2"] {
     background-color: var(--color-background);
 }
 
+#options_menu_dialog {
+    > div {
+        width: 30rem;
+        height: 15rem;
+        display: flex;
+        margin-bottom: 0.5rem;
+        gap: 1em;
+
+        > fieldset {
+            width: max-content;
+            padding: 10px;
+            border: var(--border-style);
+            border-radius: 15px;
+            box-shadow: var(--box-shadow);
+        }
+    }
+}
+
 #extra-parameters {
-    width: max-content;
-    margin: 0px;
-    padding: 10px;
-    border: var(--border-style);
-    border-radius: 15px;
-    box-shadow: var(--box-shadow);
-
-    grid-row: span 2;
-
     display: grid;
     grid-auto-rows: auto;
-    grid-template-columns: max-content;
+    grid-template-columns: max-content max-content;
     gap: 5px;
+    align-items: center;
 }
 
 fieldset > legend {
@@ -176,6 +186,11 @@ dialog {
     background-color: var(--color-background);
     border-color: var(--color-borders);
     border-radius: 15px;
+
+    &::backdrop {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(1px);
+    }
 }
 
 button {
@@ -383,7 +398,7 @@ input.hidden_input {
 }
 
 #add-enemy > button {
-    padding: 0px 10px;
+    padding: 0 10px;
     margin: 5px;
     margin-left: 50px;
     font-size: larger;
@@ -405,7 +420,7 @@ input.hidden_input {
 
 .pen-button:hover {
     color: var(--color-hovered);
-    text-shadow: 0px 0px 5px white;
+    text-shadow: 0 0 5px white;
 }
 
 #stance_edit_dialog {
@@ -463,6 +478,7 @@ a.modebar-btn {
     justify-content: start;
     justify-items: start;
     grid-template-areas:
+        "weapon_selection modding modding"
         "stats_wrapper modding modding"
         "stats_wrapper plot mod-list"
         "other plot mod-list";
@@ -494,17 +510,10 @@ a.modebar-btn {
     background-color: transparent;
 
     display: grid;
-    grid-auto-flow: column dense;
-    grid-template-columns: 1fr max-content;
-    grid-template-rows: 1fr max-content;
+    grid-auto-flow: row;
     gap: 10px;
 
-    > * {
-        background-color: var(--color-background);
-    }
-
     > #other-buttons {
-        background-color: transparent;
     }
 }
 
@@ -568,20 +577,24 @@ a.modebar-btn {
 
     /* height: 465px; */
     border: var(--border-style);
-    background: #ccc;
+    background: var(--color-background);
 
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
 
-    &:has(> :only-child){
-        background: var(--color-plot-background);
+    text:not(.hovertext text) {
+        fill: var(--color-text) !important;
+    }
+    .bglayer {
+        display: none;
+    }
 
+    &:has(> :only-child){
         > :only-child {
             visibility: hidden;
         }
-
         &::before{
             content: "📊";
             font-size: 64px;
@@ -604,7 +617,7 @@ a.modebar-btn {
     /* max-content + some space for the graph ticks*/
     border: var(--border-style);
     position: relative;
-    left: 0%;
+    left: 0;
 }
 
 .stats_damage_table {
@@ -638,7 +651,7 @@ a.modebar-btn {
 */
 
 .separate > * {
-    padding-top: 15px;
+    padding-top: 0.9em;
 }
 
 tr.indented {
@@ -688,7 +701,8 @@ td.tooltip {
 
     word-break: break-word;
 
-    transform: translate(10px, -5px); /* 5px = padding */
+    margin-left: 10px;
+    transform: translateY(-5px); /* 5px = padding */
     position: absolute;
     z-index: 1;
 }
@@ -740,7 +754,7 @@ td.tooltip {
 
 .graph_bar {
     height: 18px;
-    width: 0%;
+    width: 0;
     white-space: nowrap;
 
     /*
@@ -777,7 +791,7 @@ td.tooltip {
 .cell {
     width: var(--mod-width);
     height: var(--mod-height);
-    border: 2px solid var(--metal-color);
+    border: 2px outset var(--metal-color);
     border-radius: 10px;
     background-color: var(--color-mod-background);
     position: relative;
@@ -1103,7 +1117,7 @@ select[name="condition"] {
     border: none;
 
     &:not(:checked) {
-        filter: grayscale(100%);
+        filter: grayscale(100%) contrast(80%);
     }
 }
 
@@ -1204,35 +1218,29 @@ select[name="condition"] {
 }
 
 #weapon_selection{
-    position: absolute;
-    z-index: 1;
-    left: 280px;
-    top: 25px;
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    grid-area: weapon_selection;
     justify-content: center;
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
 
-    border-left: var(--border-style);
-    border-radius: 15px;
+    border: var(--border-style);
 
     #weapon_name_input{
         width: 14rem;
         font-size: large;
         font-weight: bold;
-        margin: 0 20px 0 20px;
     }
 
     > div {
+        justify-content: space-around;
         display: flex;
-        justify-content: space-evenly;
-        flex-direction: column;
-        height: fit-content;
-        width: fit-content;
-        gap: 0.8em;
-        padding: 0.8em;
-        padding-bottom: 0;
+
+        > div {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5em;
+        }
     }
 }
 

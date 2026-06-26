@@ -414,7 +414,6 @@ function plotData() {
     Plotly.react(chart, plotlyData, layout, {
         // displaylogo: false,
         displayModeBar: true,
-        showEditInChartStudio: true,
         plotlyServerURL: "https://chart-studio.plotly.com",
     });
 }
@@ -467,8 +466,7 @@ function showPie() {
     Plotly.react(chart, data, layout, {
         // displaylogo: false,
         displayModeBar: true,
-            showEditInChartStudio: true,
-            plotlyServerURL: "https://chart-studio.plotly.com",
+        plotlyServerURL: "https://chart-studio.plotly.com",
     });
 }
 
@@ -1219,10 +1217,6 @@ function scaleEnemy(){
     const overguard_f2 = 1 + 260 * Math.pow(level_difference, 0.9);
     const overguard_mult = overguard_f1 * (1 - Soverguard) + overguard_f2 * Soverguard;
     //scale with SP ?
-}
-
-function shareBuild(){
-    document.getElementById("build_share_dialog").showModal();
 }
 
 function removeModDefaultStats(modData){
