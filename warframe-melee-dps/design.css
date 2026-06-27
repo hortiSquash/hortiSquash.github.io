@@ -49,6 +49,7 @@ body {
     --color-mod-empty-background: rgba(0, 0, 0, 0.7);
     --color-hits-background: white;
     --color-plot-background: lightgray;
+    --color-plot-ticks: black;
 
     --color-TR-even: rgba(0, 0, 0, 0.05);
     --color-TR-header: #b1b1b1;
@@ -82,6 +83,7 @@ body[theme="1"] {
     --color-mod-empty-background: rgba(255, 255, 255, 0.7);
     --color-hits-background: #5b5c5c;
     --color-plot-background: #333;
+    --color-plot-ticks: white;
 
     --color-TR-even: rgba(0, 0, 0, 0.05);
     --color-TR-header: #606060;
@@ -115,6 +117,7 @@ body[theme="2"] {
     --color-mod-empty-background: rgba(255, 255, 255, 0.7);
     --color-hits-background: #5b5c5c;
     --color-plot-background: #333;
+    --color-plot-ticks: white;
 
     --color-TR-even: #22212a;
     --color-TR-header: #606060;
@@ -587,8 +590,23 @@ a.modebar-btn {
     text:not(.hovertext text) {
         fill: var(--color-text) !important;
     }
+
+    .hovertext > text.name {
+        fill: #333 !important;
+    }
+
     .bglayer {
-        display: none;
+        opacity: 2%;
+    }
+
+    .zerolinelayer > path {
+        stroke: var(--color-plot-ticks) !important;
+        opacity: 40%;
+    }
+
+    .gridlayer path {
+        stroke: var(--color-plot-ticks) !important;
+        opacity: 15%;
     }
 
     &:has(> :only-child){
@@ -776,7 +794,7 @@ td.tooltip {
     position: absolute;
     bottom: 15px;
     top: 0;
-    border-right: 1px solid rgba(0, 0, 0, 0.15);
+    border-right: 1px solid color-mix(var(--color-plot-ticks) 15%);
     font-size: 12px;
 }
 
