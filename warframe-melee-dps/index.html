@@ -267,7 +267,7 @@
 
     <div id="grid">
         <div id="weapon_selection">
-            <div>
+            <form autocomplete="off">
                 <div>
                     <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
                            placeholder="Weapon select" onblur="loadWeaponStats()">
@@ -307,12 +307,14 @@
                         </label>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
         <div id="modding">
             <div id="stance-slot">
-                <div style="display: flex; justify-content: space-evenly; flex-direction: column; height: 100%; width: 100%;">
-                    <select id="stance_name" onchange="saveStance()" style="font-size: initial; min-width: 20px; !important;"></select>
+                <form autocomplete="off">
+                    <select id="stance_name" onchange="saveStance()" style="font-size: initial; min-width: 20px !important;">
+                        <option>← select a melee subtype</option>
+                    </select>
                     <label>
                         select an attack:
                         <select id="combo_type" required>
@@ -329,10 +331,10 @@
                         </select>
                     </label>
                     <div>
-                        <label for="combo_type" id="combo_name">Rapid Incisions</label>
-                        <button class="pen-button" onclick="editStance()">✎</button>
+                        <label for="combo_type" id="combo_name">N/A</label>
+                        <button class="pen-button" type="button" onclick="editStance()">✎</button>
                     </div>
-                </div>
+                </form>
             </div>
 
             <div class="cell special-slot" id="exilus" data-slot_type="exilus"></div>
@@ -355,43 +357,45 @@
             </div>
         </div>
         <div id="mod-list-wrapper">
-            <input id="mod_list_search" placeholder="filter mods" style="width:13.5em">
-            <select id="mod_list_select_polarity" style="width:6em">
-                <option value="" selected>Any</option>
-                <option>Madurai</option>
-                <option>Naramon</option>
-                <option>Zenurik</option>
-                <option>Vazarin</option>
-                <option>Unairu</option>>
-                <option>Penjaga</option>
-                <option>Umbra</option>
-            </select>
-            <select id="mod_list_select_type" style="width:8.5em">
-                <option value="" selected>Any</option>
-                <option value="mod">Mods</option>
-                <option value="aura">Auras</option>
-                <option value="exilus">Exilus</option>
-                <option value="arcane">Arcanes</option>
-                <option value="ability">Abilities</option>
-                <optgroup label="others">
-                    <option value="archon_shard">Archon shards</option>
-                    <option value="decree">Decrees</option>
-                    <option value="incarnon_evo">Incarnon evo</option>
-                    <option value="invigoration">Invigorations</option>
-                    <option value="1999_calendar">1999 Calendar</option>
-                </optgroup>
-            </select>
-            <select id="mod_list_select_rarity" style="width:7em">
-                <option value="" selected>Any</option>
-                <option value="common">Common</option>
-                <option value="uncommon">Uncommon</option>
-                <option value="rare">Rare</option>
-                <option value="legendary">Legendary</option>
-                <option value="riven">Riven</option>
-                <option value="amalgam">Amalgam</option>
-                <option value="galvanized">Galvanized
-                <option value="archon">Archon</option>
-            </select>
+            <form autocomplete="off">
+                <input id="mod_list_search" placeholder="filter mods" style="width:13.5em">
+                <select id="mod_list_select_polarity" style="width:6em">
+                    <option value="" selected>Any</option>
+                    <option>Madurai</option>
+                    <option>Naramon</option>
+                    <option>Zenurik</option>
+                    <option>Vazarin</option>
+                    <option>Unairu</option>>
+                    <option>Penjaga</option>
+                    <option>Umbra</option>
+                </select>
+                <select id="mod_list_select_type" style="width:8.5em">
+                    <option value="" selected>Any</option>
+                    <option value="mod">Mods</option>
+                    <option value="aura">Auras</option>
+                    <option value="exilus">Exilus</option>
+                    <option value="arcane">Arcanes</option>
+                    <option value="ability">Abilities</option>
+                    <optgroup label="others">
+                        <option value="archon_shard">Archon shards</option>
+                        <option value="decree">Decrees</option>
+                        <option value="incarnon_evo">Incarnon evo</option>
+                        <option value="invigoration">Invigorations</option>
+                        <option value="1999_calendar">1999 Calendar</option>
+                    </optgroup>
+                </select>
+                <select id="mod_list_select_rarity" style="width:7em">
+                    <option value="" selected>Any</option>
+                    <option value="common">Common</option>
+                    <option value="uncommon">Uncommon</option>
+                    <option value="rare">Rare</option>
+                    <option value="legendary">Legendary</option>
+                    <option value="riven">Riven</option>
+                    <option value="amalgam">Amalgam</option>
+                    <option value="galvanized">Galvanized
+                    <option value="archon">Archon</option>
+                </select>
+            </form>
             <div>
                 <div id="mod-list"></div>
             </div>

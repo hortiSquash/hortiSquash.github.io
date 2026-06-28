@@ -986,9 +986,18 @@ td.tooltip {
     height: var(--mod-height);
     width: var(--mod-width);
     padding: 5px;
+    position: relative;
 
-    #stance_name{
-        width: 90%;
+    > form {
+        display: flex;
+        justify-content: space-evenly;
+        flex-direction: column;
+        height: 100%;
+        width: 100%;
+
+        #stance_name{
+            width: 90%;
+        }
     }
 }
 
@@ -1250,7 +1259,7 @@ select[name="condition"] {
         font-weight: bold;
     }
 
-    > div {
+    > form {
         justify-content: space-around;
         display: flex;
 
