@@ -282,7 +282,7 @@
 
     <div id="grid">
         <div id="weapon_selection">
-            <form autocomplete="off">
+            <form autocomplete="off" onsubmit="return false;">
                 <div>
                     <input type="text" list="weapon_list" class="enemy-select" id="weapon_name_input"
                            placeholder="Weapon select" onblur="loadWeaponStats()">
@@ -326,7 +326,7 @@
         </div>
         <div id="modding">
             <div id="stance-slot">
-                <form autocomplete="off">
+                <form autocomplete="off" onsubmit="return false;">
                     <select id="stance_name" onchange="saveStance()" style="font-size: initial; min-width: 20px !important;">
                         <option>← select a melee subtype</option>
                     </select>
@@ -372,7 +372,7 @@
             </div>
         </div>
         <div id="mod-list-wrapper">
-            <form autocomplete="off">
+            <form autocomplete="off" onsubmit="return false;">
                 <input id="mod_list_search" placeholder="filter mods" style="width:13.5em">
                 <select id="mod_list_select_polarity" style="width:6em">
                     <option value="" selected>Any</option>
