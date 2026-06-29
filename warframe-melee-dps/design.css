@@ -358,57 +358,27 @@ input.hidden_input {
     background-color: var(--color-TR-header);
 }
 
-#enemy_wrapper {
-    border: var(--border-style);
-    border-radius: 15px;
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-    box-shadow: var(--box-shadow);
-    background-color: var(--color-background);
-    /* max-height: 190px; */
+#enemy_container {
+    overflow-x: auto;
+    display: flex;
+    flex-direction: row;
+    gap: 2em;
+    position: relative;
+    max-width: 70vw;
 
-    > table {
-        > thead > tr > th{
-            &:nth-child(1) { width: 18px; }
-            /* &:nth-child(2) { width: 230px; } */
-            &:nth-child(3) { width: 50px; }
-            &:nth-child(4) { width: 50px; }
-        }
-
-        tr:nth-child(even) {
-            background-color: var(--color-TR-even);
-        }
-
-        thead > tr {
-            position: sticky;
-            background-color: var(--color-TR-header);
-            top: 0;
-            z-index: 1;
-        }
-
-        tfoot > tr:last-child {
-            > * {
-                z-index: 1;
-                position: sticky;
-                bottom: 0;
-            }
-
-            > :is(td, th) {
-                background-color: var(--color-borders);
-            }
+    &:empty, &.is-empty {
+        &::before {
+            white-space: pre-line;
+            content: "infinite health\a\ano armor, no shield\a\aneutral resistances";
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 278px;
+            height: 289px;
+            border: 2px dashed var(--color-borders);
+            border-radius: 15px;
         }
     }
-}
-
-#add-enemy > button {
-    padding: 0 10px;
-    margin: 5px;
-    margin-left: 50px;
-    font-size: larger;
-}
-
-.TTK_mean, .TTK_std {
-    text-align: right;
 }
 
 .pen-button {
@@ -636,6 +606,7 @@ a.modebar-btn {
     border: var(--border-style);
     position: relative;
     left: 0;
+    height: max-content;
 }
 
 .stats_damage_table {
@@ -1208,18 +1179,29 @@ select[name="condition"] {
     }
 }
 
-#editEnemy{
+.editEnemy{
+    border-radius: 15px;
+    border: var(--border-style);
+    box-shadow: var(--box-shadow);
+    padding: 15px;
+
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-#editEnemyTable {
-    border-spacing: 0;
+.editEnemyTable {
+    border-spacing: 1em 0;
+    margin: 0 -1rem;
 
-    th {
-        width: 4.5rem;
-        text-align: left;
+    > thead > tr > th {
+        text-align: right;
+        padding-right: 1rem;
+    }
+
+    > tbody > tr > td:first-child label {
+        display: flex;
+        justify-content: space-between;
     }
 }
 

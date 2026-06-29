@@ -84,10 +84,6 @@
         gap: 5px;
     }
 
-    #enemy_wrapper {
-        max-height: 180px;
-    }
-
     #plot {
         width: 100%;
         aspect-ratio: 1.2;
@@ -109,7 +105,6 @@
         border-left: none;
         border-right: none;
     }
-    #enemy_wrapper{ border-left: none; }
     #extra-parameters{ border-right: none; }
 
     .tooltip > .tooltiptable {

@@ -87,89 +87,51 @@ const damage_order = [
     "impact",
 ];
 
-let enemies = [];
-let current_enemy_row = 0;
-
 function addEnemy() {
-    enemies.push({});
-
-    const enemy_container = document.getElementById('enemy_container');
-    const rowIndex = enemy_container.children.length;
-
-    const enemyDetails = document.getElementById("templateEnemyRow").content.cloneNode(true);
-    enemy_container.appendChild(enemyDetails);
-
-    //force open the dialog to edit instantly (avoid bugs with empty enemy)
-    editEnemy(rowIndex);
+    const newEnemy = document.getElementById("templateEnemy").content.cloneNode(true);
+    document.getElementById('enemy_container').appendChild(newEnemy);
+    document.getElementById("enemy_container").classList.toggle('is-empty', false);
 }
 
-//TODO remove the ?.
-document.getElementById("enemy_container")?.addEventListener('click', function(event) {
-    if (event.target.className != 'pen-button') return;
-
-    const row = event.target.closest('tr');
-    const index = [...row.parentElement.children].indexOf(row);
-
-    editEnemy(index);
+document.getElementById("enemy_container").addEventListener('click', function(event) {
+    if (event.target.dataset.action !== "delete") return;
+    event.target.closest('.editEnemy').remove();
+    this.classList.toggle('is-empty', !this.children.length);
 });
 
-function editEnemy(rowIndex) {
-    current_enemy_row = rowIndex;
-    const enemy = enemies[current_enemy_row];
-
-    if (Object.keys(enemy).length !== 0) {
-        // load saved fields in the dialog if enemy isnt empty
-        document.getElementById("enemy_name_input").value = enemy.name;
-        document.getElementById("health").value = enemy.health;
-        document.getElementById("armor").value = enemy.armor;
-        document.getElementById("shield").value = enemy.shield;
-        document.getElementById("level_base").value = enemy.level_base;
-        document.getElementById("level_current").value = enemy.level_current;
-        document.getElementById("faction").value = enemy.faction;
-    }
-    else {
-        // reset all fields in the dialog if placeholder (reset from previous edited enemy)
-        document.getElementById("editEnemy").reset()
-    }
-
-    document.getElementById("enemy_edit_dialog").showModal();
-}
-
-function loadEnemyStats() {
-    const data_enemies = window.data_enemies;
-
-    const enemySelect = document.getElementById('enemy_name_input').value; // name
-    document.getElementById('enemy_container').rows[current_enemy_row].cells[1].innerText = enemySelect;
-
+document.getElementById("enemy_container").addEventListener('change', function(event) {
+    if (event.target.dataset.action !== "load_enemy") return;
+    const enemy_page = event.target.closest('.editEnemy');
+    const enemySelect = enemy_page.querySelector(".enemy_name_input").value; // name
     const enemy = data_enemies.find((e) => e.Name === enemySelect);
     if(enemy){
         // read from the JSON
-        document.getElementById("health").value = enemy.Health;
-        document.getElementById("armor").value = enemy.Armor;
-        document.getElementById("shield").value = enemy.Shield;
-        document.getElementById("level_base").value = enemy.BaseLevel;
-        document.getElementById("level_current").value = enemy.BaseLevel; //TODO spawn level
-        document.getElementById("faction").value = enemy.Faction;
+        enemy_page.querySelector(".health").value = enemy.Health;
+        enemy_page.querySelector(".armor").value = enemy.Armor;
+        enemy_page.querySelector(".shield").value = enemy.Shield;
+        enemy_page.querySelector(".level_base").value = enemy.BaseLevel;
+        enemy_page.querySelector(".level_current").value = enemy.BaseLevel; //TODO spawn level
+        enemy_page.querySelector(".faction").value = enemy.Faction;
     }
-    scaleEnemy();
-}
+    scaleEnemy(enemy_page);
+});
 
-function saveEnemy() {
-    enemies[current_enemy_row] = {
-        "name": document.getElementById("enemy_name_input").value,
-        "health": Number(document.getElementById("health").value),
-        "armor": Number(document.getElementById("armor").value),
-        "shield": Number(document.getElementById("shield").value),
-        "level_base": Number(document.getElementById("level_base").value),
-        "level_current": Number(document.getElementById("level_current").value),
-        "faction": document.getElementById("faction").value,
-    };
-}
-
-function deleteEnemy() {
-    enemies.splice(current_enemy_row, 1);
-    document.getElementById("enemy_container").deleteRow(current_enemy_row);
-    document.getElementById("enemy_edit_dialog").close();
+let enemies = [];
+function saveEnemies() {
+    enemies = [];
+    for (let enemy_page of document.getElementById("enemy_container").children){
+        const enemy = {
+            "name": enemy_page.querySelector(".enemy_name_input").value,
+            "health": Number(enemy_page.querySelector(".health_current").innerText),
+            "armor": Number(enemy_page.querySelector(".armor_current").innerText),
+            "shield": Number(enemy_page.querySelector(".shield_current").innerText),
+            "level_base": Number(enemy_page.querySelector(".level_base").value),
+            "level_current": Number(enemy_page.querySelector(".level_current").value),
+            "faction": enemy_page.querySelector(".faction").value,
+        };
+        console.log(enemy);
+        enemies.push(enemy);
+    }
 }
 
 function convertEnemyToWASM(enemy) {
@@ -193,6 +155,7 @@ function convertEnemyToWASM(enemy) {
     return enemy_modified;
 }
 
+// TODO remove
 function updateAverageTTK() {
     let sum_TTK_mean = 0;
     let sum_TTK_std = 0;
@@ -316,6 +279,8 @@ function changeStats() {
     const time = data.time;
     delete data.time;
     filtered_data = filterData(data, time);
+
+    console.log(filtered_data[5].data[0])
 
     //for the mod +% it might be useful?
     total_each_damage = Object.fromEntries(
@@ -1115,7 +1080,9 @@ document.getElementById("weapon_type").addEventListener("change", (e) => {
     updateWeaponType();
 })
 
-document.getElementById("editEnemy").addEventListener("change", () => scaleEnemy());
+document.getElementById("enemy_container").addEventListener("change", (e) => {
+    scaleEnemy(e.target.closest('.editEnemy'));
+});
 
 function Tfunc(x, mult) {
     return Math.max(0, Math.min(1, x/mult - 7));
@@ -1173,16 +1140,16 @@ function Sfunc(x) {
     return 3 * Math.pow(x, 2) - 2 * Math.pow(x,3);
 }
 
-function scaleEnemy(){
-    const level_current = document.getElementById("level_current").value;
-    const level_base = document.getElementById("level_base").value;
-    const enemy_scaling_multiplier = document.getElementById("enemy_scaling_multiplier").value;
+function scaleEnemy(enemy_page){
+    const level_current = enemy_page.querySelector(".level_current").value;
+    const level_base = enemy_page.querySelector(".level_base").value;
+    const enemy_scaling_multiplier = enemy_page.querySelector(".enemy_scaling_multiplier").value;
 
     const level_difference = level_current - level_base;
 
     const S = Sfunc(Tfunc(level_difference, 10));
 
-    let faction = document.getElementById("faction").value;
+    let faction = enemy_page.querySelector(".faction").value;
     if(faction === "Kuva Grineer" || faction === "Grineer"){ faction = "Grineer"; }
     else if(faction === "Corpus Amalgam" || faction === "Corpus"){ faction = "Corpus"; }
     else if(faction === "Infested Deimos" || faction === "Infested"){ faction = "Infested"; }
@@ -1192,24 +1159,24 @@ function scaleEnemy(){
     const health_f1 = 1 + health_mul_array[0] * Math.pow(level_difference, health_mul_array[1]);
     const health_f2 = 1 + health_mul_array[2] * Math.pow(level_difference, health_mul_array[3]);
     const health_mult = health_f1 * (1 - S) + health_f2 * S;
-    const health = document.getElementById("health").value;
+    const health = enemy_page.querySelector(".health").value;
     const health_final = health * health_mult * enemy_scaling_multiplier;
-    document.getElementById("health_current").innerText = formatDecimalsMinMax(health_final, 0, 1);
+    enemy_page.querySelector(".health_current").innerText = formatDecimalsMinMax(health_final, 0, 1);
 
     const shield_mul_array = enemy_faction_shield_multipliers[faction] ?? enemy_faction_shield_multipliers["Neutral"];
     const shield_f1 = 1 + shield_mul_array[0] * Math.pow(level_difference, shield_mul_array[1]);
     const shield_f2 = 1 + shield_mul_array[2] * Math.pow(level_difference, shield_mul_array[3]);
     const shield_mult = shield_f1 * (1 - S) + shield_f2 * S;
-    const shield = document.getElementById("shield").value;
+    const shield = enemy_page.querySelector(".shield").value;
     const shield_final = shield * shield_mult * enemy_scaling_multiplier;
-    document.getElementById("shield_current").innerText = formatDecimalsMinMax(shield_final, 0, 1);
+    enemy_page.querySelector(".shield_current").innerText = formatDecimalsMinMax(shield_final, 0, 1);
 
     const armor_f1 = 1 + 0.005 * Math.pow(level_difference, 1.75);
     const armor_f2 = 1 + 0.4 * Math.pow(level_difference, 0.75);
     const armor_mult = armor_f1 * (1 - S) + armor_f2 * S;
-    const armor = document.getElementById("armor").value;
+    const armor = enemy_page.querySelector(".armor").value;
     const armor_final = Math.min(2700, armor * armor_mult); //cap at 2700 //doesnt scale with SP
-    document.getElementById("armor_current").innerText = formatDecimalsMinMax(armor_final, 0, 1);
+    enemy_page.querySelector(".armor_current").innerText = formatDecimalsMinMax(armor_final, 0, 1);
 
     //TODO need testing and output
     const Soverguard = Sfunc(Tfunc(level_difference, 5));

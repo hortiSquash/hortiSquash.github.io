@@ -86,13 +86,86 @@
     <datalist id="weapon_list"></datalist>
     <datalist id="stances_list"></datalist>
 
-    <template id="templateEnemyRow">
-        <tr>
-            <td><button class="pen-button">✎</button></td>
-            <td class="enemy_name"></td>
-            <td class="TTK_mean">0</td>
-            <td class="TTK_std">0</td>
-        </tr>
+    <template id="templateEnemy">
+        <div class="editEnemy">
+            <input type="text" list="enemy_list" class="enemy_name_input" data-action="load_enemy" placeholder="enemy name" required style="margin-bottom: 10px; font-size: medium; width: 15rem">
+            <label>
+                Faction:
+                <select class="faction">
+                    <option selected value="Neutral">Neutral</option>
+                    <option style="background: lightgoldenrodyellow" value="Grineer">Grineer</option>
+                    <option style="background: lightgoldenrodyellow" value="Kuva Grineer">Kuva Grineer</option>
+                    <option style="background: lightblue" value="Corpus">Corpus</option>
+                    <option style="background: lightblue" value="Corpus Amalgam">Corpus Amalgam</option>
+                    <option style="background: lightcoral" value="Infested">Infested</option>
+                    <option style="background: lightcoral" value="Infested Deimos">Infested Deimos</option>
+
+                    <option value="Orokin">Orokin</option>
+                    <option value="Sentient">Sentient</option>
+                    <option value="Narmer">Narmer</option>
+                    <option value="Murmur">Murmur</option>
+                    <option value="Zariman">Zariman</option>
+                </select>
+            </label>
+            <label>
+                Scaling:
+                <select class="enemy_scaling_multiplier">
+                    <option value="1.0" selected>Normal</option>
+                    <option value="2.5">Steel Path</option>
+                    <option value="2.5">Archimedea - 1 player</option>
+                    <option value="3.0">Archimedea - 2 players</option>
+                    <option value="3.5">Archimedea - 3 players</option>
+                    <option value="4.0">Archimedea - 4 players</option>
+                </select>
+            </label>
+            <table class="editEnemyTable">
+                <thead>
+                    <tr>
+                        <th>Base</th>
+                        <th>Current</th>
+                    </tr>
+                </thead>
+                <tr>
+                    <td>
+                        <label>
+                            <span>Level:</span>
+                            <input type="number" class="level_base" value="1" min="1" max="9999" style="width: 3.5rem">
+                        </label>
+                    </td>
+                    <td><input type="number" class="level_current" value="1" min="1" max="9999" style="width: 3.5rem"></td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Health:
+                            <input type="number" class="health" value="100" min="0" max="2147483647" style="width: 3.5rem">
+                        </label>
+                    </td>
+                    <td class="health_current">0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Armor:
+                            <input type="number" class="armor" value="0" min="0" max="2147483647" style="width: 3.5rem">
+                        </label>
+                    </td>
+                    <td class="armor_current">0</td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>
+                            Shield:
+                            <input type="number" class="shield" value="0" min="0" max="2147483647" style="width: 3.5rem">
+                        </label>
+                    </td>
+                    <td class="shield_current">0</td>
+                </tr>
+            </table>
+            <div>
+                <button class="button-stylized" data-action="delete" type="button" style="float: left;">Delete 🗑️</button>
+            </div>
+        </div>
     </template>
 
     <svg id="patternSvg" xmlns="http://www.w3.org/2000/svg"
@@ -195,69 +268,11 @@
     </dialog>
 
     <dialog id="enemy_edit_dialog">
-        <form id="editEnemy" method="dialog">
-            <input type="text" list="enemy_list" id="enemy_name_input" onchange="loadEnemyStats()" placeholder="enemy name" required style="margin-bottom: 10px; font-size: medium; width: 15rem">
-            <label>
-                Faction:
-                <select id="faction">
-                    <option selected value="Neutral">Neutral</option>
-                    <option style="background: lightgoldenrodyellow" value="Grineer">Grineer</option>
-                    <option style="background: lightgoldenrodyellow" value="Kuva Grineer">Kuva Grineer</option>
-                    <option style="background: lightblue" value="Corpus">Corpus</option>
-                    <option style="background: lightblue" value="Corpus Amalgam">Corpus Amalgam</option>
-                    <option style="background: lightcoral" value="Infested">Infested</option>
-                    <option style="background: lightcoral" value="Infested Deimos">Infested Deimos</option>
-
-                    <option value="Orokin">Orokin</option>
-                    <option value="Sentient">Sentient</option>
-                    <option value="Narmer">Narmer</option>
-                    <option value="Murmur">Murmur</option>
-                    <option value="Zariman">Zariman</option>
-                </select>
-            </label>
-            <label>
-                Scaling:
-                <select id="enemy_scaling_multiplier">
-                    <option value="1.0" selected>Normal</option>
-                    <option value="2.5">Steel Path</option>
-                    <option value="2.5">Archimedea - 1 player</option>
-                    <option value="3.0">Archimedea - 2 players</option>
-                    <option value="3.5">Archimedea - 3 players</option>
-                    <option value="4.0">Archimedea - 4 players</option>
-                </select>
-            </label>
-            <table id="editEnemyTable">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Base</th>
-                        <th>Current</th>
-                    </tr>
-                </thead>
-                <tr>
-                    <td><label for="level_base">Level:</label></td>
-                    <td><input type="number" id="level_base" value="1" min="1" max="9999" style="width: 3.5rem"></td>
-                    <td><input type="number" id="level_current" value="1" min="1" max="9999" style="width: 3.5rem"></td>
-                </tr>
-                <tr>
-                    <td><label for="health">Health:</label></td>
-                    <td><input type="number" id="health" value="100" min="0" max="2147483647" style="width: 3.5rem"></td>
-                    <td id="health_current">0</td>
-                </tr>
-                <tr>
-                    <td><label for="armor">Armor:</label></td>
-                    <td><input type="number" id="armor" value="0" min="0" max="2147483647" style="width: 3.5rem"></td>
-                    <td id="armor_current">0</td>
-                </tr>
-                <tr>
-                    <td><label for="shield">Shield:</label></td>
-                    <td><input type="number" id="shield" value="0" min="0" max="2147483647" style="width: 3.5rem"></td>
-                    <td id="shield_current">0</td>
-                </tr>
-            </table>
-            <div>
-                <input class="button-stylized" type="button" onclick="deleteEnemy()" style="float:left;" value="Delete 🗑️">
-                <input class="button-stylized" type="submit" onclick="saveEnemy()" style="float:right;" value="Save">
+        <form method="dialog">
+            <div id="enemy_container"></div>
+            <div style="padding-top: 0.5em">
+                <button class="button-stylized" onclick="addEnemy()" style="margin-left: auto;">Add enemy</button>
+                <input class="button-stylized" type="submit" onclick="saveEnemies()" style="float:right;" value="Save">
             </div>
         </form>
     </dialog>
@@ -738,30 +753,15 @@
         </div>
 
         <div id="other">
-            <div id="enemy_wrapper">
-                <table style="width: 100%; border-collapse: collapse;">
-                    <thead style="position: sticky;">
-                        <tr>
-                            <th></th>
-                            <th>Enemy</th>
-                            <th>Mean</th>
-                            <th>SD</th>
-                        </tr>
-                    </thead>
-                    <tbody id="enemy_container"></tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan=4 class="container" id="add-enemy">
-                                <button onclick="addEnemy()">+</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th colspan=2 style="text-align: right;">Average</th>
-                            <td class="TTK_mean" id="TTK_average_mean">0</td>
-                            <td class="TTK_std" id="TTK_average_std">0</td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <div style="
+                    border: var(--border-style);
+                    border-radius: 15px;
+                    box-shadow: var(--box-shadow);
+                    background-color: var(--color-background);
+                    display: flex;
+                    justify-content: center;
+                ">
+                <button class="button-stylized" onclick="document.getElementById('enemy_edit_dialog').showModal()">Select Enemies</button>
             </div>
             <div id="other-buttons">
                 <button class="button-stylized" id="simulate_button" onclick="changeStats()">Simulate</button>
