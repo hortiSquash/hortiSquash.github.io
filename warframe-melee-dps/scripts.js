@@ -122,9 +122,9 @@ function saveEnemies() {
     for (let enemy_page of document.getElementById("enemy_container").children){
         const enemy = {
             "name": enemy_page.querySelector(".enemy_name_input").value,
-            "health": Number(enemy_page.querySelector(".health_current").innerText),
-            "armor": Number(enemy_page.querySelector(".armor_current").innerText),
-            "shield": Number(enemy_page.querySelector(".shield_current").innerText),
+            "health": Number(enemy_page.querySelector(".health_current").innerText.replace(/,/g, "")),
+            "armor": Number(enemy_page.querySelector(".armor_current").innerText.replace(/,/g, "")),
+            "shield": Number(enemy_page.querySelector(".shield_current").innerText.replace(/,/g, "")),
             "level_base": Number(enemy_page.querySelector(".level_base").value),
             "level_current": Number(enemy_page.querySelector(".level_current").value),
             "faction": enemy_page.querySelector(".faction").value,
@@ -305,7 +305,7 @@ function plotData() {
         xbins: { size: 1.0 },
         //fill: 'none', //tonexty //tozerox
         //stackgroup: 'one',
-        hovertemplate: '%{x:.3f}s - %{y:.3s}',
+        hovertemplate: '%{x:.3f}s - %{y}',
         name: labels[data2.name] ?? data2.name, //if not found, use the header
         marker: { color: colors[data2.name] },
         /*
