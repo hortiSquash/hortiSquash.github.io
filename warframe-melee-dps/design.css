@@ -897,6 +897,23 @@ tr.indented {
     ) 1;
     */
 
+    --diamond-count: 0;
+    &::after {
+        --diamond-gap: 0.2em;
+        --diamond-size: 0.5em;
+        content: "";
+        position: absolute;
+        top: calc(var(--diamond-size) * -0.4);
+        left: 50%;
+        transform: translateX(-50%);
+
+        mask-size: calc(var(--diamond-size) + var(--diamond-gap)) 100%;
+        width: calc(var(--diamond-count) * (var(--diamond-size) + var(--diamond-gap)));
+        height: var(--diamond-size);
+        background-color: var(--metal-color);
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M5 0 L10 5 L5 10 L0 5 Z'/%3E%3C/svg%3E");
+    }
+
     &:not(:empty)::before {
         content: "";
         position: absolute;
@@ -940,14 +957,13 @@ tr.indented {
         background-color: rgba(0, 0, 0, 0.05);
     }
 
-    /*
-    &.special-slot[data-slot_type="arcane"]{
-        padding-top: 20px;
-        border-radius: 75px 75px 10px 10px;
+    &[type="arcane"]{
+        /* padding-top: 20px; */
+        /* border-radius: 75px 75px 10px 10px; */
+        border-radius: 40px 40px 10px 10px;
     }
-    */
     &.special-slot[data-slot_type="arcane"]:empty {
-        /* border-radius: 100px 100px 10px 10px; */
+        border-radius: 100px 100px 10px 10px;
         &::before {
             /* background-image: url("https://wiki.warframe.com/images/CosmeticEnhancer.png?6d4d8"); */
             background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
@@ -1050,27 +1066,35 @@ tr.indented {
     /* TODO better colors with unified contrast */
     &[rarity="common"] {
         --metal-color: #a67c68;
+        --diamond-count: 1;
     }
     &[rarity="uncommon"] {
         --metal-color: silver;
+        --diamond-count: 2;
     }
     &[rarity="rare"] {
         --metal-color: gold;
+        --diamond-count: 3;
     }
     &[rarity="legendary"] {
         --metal-color: lightblue;
+        --diamond-count: 4;
     }
     &[rarity="archon"] {
         --metal-color: orange;
+        --diamond-count: 5;
     }
     &[rarity="galvanized"] {
         --metal-color: slategray;
+        --diamond-count: 3;
     }
     &[rarity="riven"] {
         --metal-color: darkorchid;
+        --diamond-count: 5;
     }
     &[rarity="amalgam"] {
         --metal-color: peachpuff;
+        --diamond-count: 3;
     }
 
     /* TODO i think its useless */
