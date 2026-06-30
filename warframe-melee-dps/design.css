@@ -40,7 +40,6 @@ body {
     --color-button-text: black;
     --color-button-background: white;
     --color-mod-background: #c6c6c6;
-    --color-weapon-background: rgba(0, 0, 0, 0.1);
     --color-indented: color-mix(in srgb, var(--color-text) 50%, white);
     --color-hovered: #5a86d5;
     --color-modbuff: green;
@@ -48,7 +47,6 @@ body {
     --mod-empty-background-filter: invert() opacity(30%);
     --color-mod-empty-background: rgba(0, 0, 0, 0.7);
     --color-hits-background: white;
-    --color-plot-background: lightgray;
     --color-plot-ticks: black;
 
     --color-TR-even: rgba(0, 0, 0, 0.05);
@@ -74,7 +72,6 @@ body[theme="1"] {
     --color-button-text: black;
     --color-button-background: white;
     --color-mod-background: #3c3c3c;
-    --color-weapon-background: rgba(0, 0, 0, 0.1);
     --color-indented: color-mix(in srgb, var(--color-text) 70%, black);
     --color-hovered: #69b5fb;
     --color-modbuff: #62c162;
@@ -82,7 +79,6 @@ body[theme="1"] {
     --mod-empty-background-filter: opacity(30%);
     --color-mod-empty-background: rgba(255, 255, 255, 0.7);
     --color-hits-background: #5b5c5c;
-    --color-plot-background: #333;
     --color-plot-ticks: white;
 
     --color-TR-even: rgba(0, 0, 0, 0.05);
@@ -108,7 +104,6 @@ body[theme="2"] {
     --color-button-text: black;
     --color-button-background: white;
     --color-mod-background: #3c3c3c;
-    --color-weapon-background: rgba(0, 0, 0, 0.1);
     --color-indented: color-mix(in srgb, var(--color-text) 70%, black);
     --color-hovered: #f5e3ad;
     --color-modbuff: #3c9309;
@@ -116,7 +111,6 @@ body[theme="2"] {
     --mod-empty-background-filter: opacity(30%);
     --color-mod-empty-background: rgba(255, 255, 255, 0.7);
     --color-hits-background: #5b5c5c;
-    --color-plot-background: #333;
     --color-plot-ticks: white;
 
     --color-TR-even: #22212a;
@@ -133,82 +127,6 @@ body[theme="2"] {
     color: #343019;
     color: #193430;
     color: #231934;
-}
-
-#grid > * {
-    border-radius: 15px;
-    box-shadow: var(--box-shadow);
-    background-color: var(--color-background);
-}
-
-#options_menu_dialog {
-    > div {
-        width: 30rem;
-        height: 15rem;
-        display: flex;
-        margin-bottom: 0.5rem;
-        gap: 1em;
-
-        > fieldset {
-            width: max-content;
-            padding: 10px;
-            border: var(--border-style);
-            border-radius: 15px;
-            box-shadow: var(--box-shadow);
-        }
-    }
-}
-
-#extra-parameters {
-    display: grid;
-    grid-auto-rows: auto;
-    grid-template-columns: max-content max-content;
-    gap: 5px;
-    align-items: center;
-}
-
-fieldset > legend {
-    pointer-events: none;
-    user-select: none;
-}
-
-#build_share_dialog fieldset {
-    margin: 0;
-    padding: 10px;
-    border: var(--border-style);
-    border-radius: 15px;
-    box-shadow: var(--box-shadow);
-
-    display: flex;
-    justify-content: space-between;
-    gap: 1em;
-}
-
-dialog {
-    color: inherit;
-    background-color: var(--color-background);
-    border-color: var(--color-borders);
-    border-radius: 15px;
-
-    &::backdrop {
-        background: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(1px);
-    }
-}
-
-button {
-    color: var(--color-button-text);
-    /*
-    border-radius: 5px;
-    border: 1px solid #8f8f9d;
-    background-color: #e9e9ed;
-    padding: 2px 5px;
-
-    &:hover {
-        background-color: #d0d0d7;
-        border-color: #676774;
-    }
-    */
 }
 
 select {
@@ -231,6 +149,51 @@ input {
 
     &:disabled {
         /* TODO */
+    }
+}
+
+button.pen-button {
+    color: inherit;
+    cursor: pointer;
+    padding: 0;
+    border: none;
+    background-color: transparent;
+    font-size: 20px;
+    line-height: 1;
+
+    &:hover {
+        color: var(--color-hovered);
+        text-shadow: 0 0 5px white;
+    }
+}
+
+.button-stylized, .hidden-radio {
+    font-size: small;
+    font-family: inherit;
+    background: var(--color-input-background);
+    color: var(--color-text);
+    border: 1px solid transparent;
+    border-bottom: 3px solid color-mix(in srgb, var(--color-text) 40%, black);
+    padding: 0 0.5rem;
+    min-height: 2rem;
+    min-width: 1.5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    vertical-align: middle;
+    cursor: pointer;
+
+    > input[type="radio"] { display: none; }
+
+    &:hover, &:has(:checked) {
+        border: 1px solid color-mix(in srgb, var(--color-hovered) 30%, black);
+        border-bottom: 3px solid var(--color-hovered);
+        color: var(--color-hovered);
+        background: radial-gradient(
+                ellipse at bottom center,
+                color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background)),
+                var(--color-input-background) 70%
+        );
     }
 }
 
@@ -350,93 +313,186 @@ input.hidden_input {
     }
 }
 
-#mod-dialog > form {
-    overflow: auto;
+fieldset > legend {
+    pointer-events: none;
+    user-select: none;
 }
 
-#mod-dialog table > thead > tr > th {
-    background-color: var(--color-TR-header);
+dialog {
+    color: inherit;
+    background-color: var(--color-background);
+    border-color: var(--color-borders);
+    border-radius: 15px;
+
+    &::backdrop {
+        background: rgba(0, 0, 0, 0.4);
+        backdrop-filter: blur(1px);
+    }
 }
 
-#enemy_container {
-    overflow-x: auto;
-    display: flex;
-    flex-direction: row;
-    gap: 2em;
-    position: relative;
-    max-width: 70vw;
+#options_menu_dialog {
+    > div {
+        width: 30rem;
+        height: 15rem;
+        display: flex;
+        margin-bottom: 0.5rem;
+        gap: 1em;
 
-    &:empty, &.is-empty {
-        &::before {
-            white-space: pre-line;
-            content: "infinite health\a\ano armor, no shield\a\aneutral resistances";
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 278px;
-            height: 289px;
-            border: 2px dashed var(--color-borders);
+        > fieldset {
+            width: max-content;
+            padding: 10px;
+            border: var(--border-style);
             border-radius: 15px;
+            box-shadow: var(--box-shadow);
+        }
+    }
+
+    #extra-parameters {
+        display: grid;
+        grid-auto-rows: auto;
+        grid-template-columns: max-content max-content;
+        gap: 5px;
+        align-items: center;
+    }
+}
+
+#build_share_dialog fieldset {
+    margin: 0;
+    padding: 10px;
+    border: var(--border-style);
+    border-radius: 15px;
+    box-shadow: var(--box-shadow);
+
+    display: flex;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+#mod-dialog {
+    > form {
+        overflow: auto;
+
+        table > thead > tr > th {
+            background-color: var(--color-TR-header);
+        }
+
+        #stats-tbody input[type="checkbox"] {
+            margin: 0;
+        }
+
+        select[name="buff"] {
+            max-width: 170px;
+        }
+
+        select[name="condition"] {
+            max-width: 130px;
         }
     }
 }
 
-.pen-button {
-    color: inherit;
-    cursor: pointer;
-    padding: 0;
-    border: none;
-    background-color: transparent;
-    font-size: 20px;
-    line-height: 1;
-}
+#enemy_edit_dialog {
+    #enemy_container {
+        overflow-x: auto;
+        display: flex;
+        flex-direction: row;
+        gap: 2em;
+        position: relative;
+        max-width: 70vw;
 
-.pen-button:hover {
-    color: var(--color-hovered);
-    text-shadow: 0 0 5px white;
+        &:empty, &.is-empty {
+            &::before {
+                white-space: pre-line;
+                content: "infinite health\a\ano armor, no shield\a\aneutral resistances";
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                width: 278px;
+                height: 290px;
+                border: 2px dashed var(--color-borders);
+                border-radius: 15px;
+            }
+        }
+
+        .editEnemy {
+            border-radius: 15px;
+            border: var(--border-style);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+
+            .editEnemyTable {
+                border-spacing: 1em 0;
+                margin: 0 -1rem;
+
+                > thead > tr > th {
+                    text-align: right;
+                    padding-right: 1rem;
+                }
+
+                > tbody > tr > td:first-child label {
+                    display: flex;
+                    justify-content: space-between;
+                }
+            }
+        }
+    }
 }
 
 #stance_edit_dialog {
-    background-color: var(--color-background);
     padding-right: 0;
-}
 
-#stance_wrapper {
-    max-height: 80lvh;
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-}
-
-#hits_table {
-    border-spacing: 3px 15px;
-    margin-top: -20px; /* slightly more than the vertical border spacing because i want to */
-    text-align: center;
-
-    > tfoot > tr:last-child > * {
-        z-index: 1;
-        position: sticky;
-        bottom: 0;
-        background-color: var(--color-background);
+    #stance_wrapper {
+        max-height: 80lvh;
+        overflow-y: auto;
+        scrollbar-gutter: stable;
     }
-    > thead > tr:first-child > * {
-        z-index: 1;
-        position: sticky;
-        top: 0;
-        background-color: inherit;
+
+    #hits_table {
+        border-spacing: 3px 15px;
+        margin-top: -20px; /* slightly more than the vertical border spacing because i want to */
+        text-align: center;
+
+        > tfoot > tr:last-child > * {
+            z-index: 1;
+            position: sticky;
+            bottom: 0;
+            background-color: var(--color-background);
+        }
+        > thead > tr:first-child > * {
+            z-index: 1;
+            position: sticky;
+            top: 0;
+            background-color: inherit;
+        }
+
+        #hits_wrapper {
+            background-color: var(--color-hits-background);
+        }
     }
 }
 
-#hits_wrapper {
-    background-color: var(--color-hits-background);
+/*
+#loading_spinner {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+    margin: -25px 0 0 -25px;
+    border: 8px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #3498db;
+    border-radius: 50%;
+    z-index: 99;
+    animation: spin 1s linear infinite;
 }
-
-.containerAddStat {
-    text-align: center;
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
-
-a.modebar-btn {
-    font-size: 30px;
-}
+*/
 
 #grid {
     margin: auto;
@@ -455,24 +511,12 @@ a.modebar-btn {
         "stats_wrapper modding modding"
         "stats_wrapper plot mod-list"
         "other plot mod-list";
-}
 
-#loading_spinner {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: 50px;
-    height: 50px;
-    margin: -25px 0 0 -25px;
-    border: 8px solid rgba(0, 0, 0, 0.1);
-    border-left-color: #3498db;
-    border-radius: 50%;
-    z-index: 99;
-    animation: spin 1s linear infinite;
-}
-@keyframes spin {
-    to { transform: rotate(360deg); }
+    > * {
+        border-radius: 15px;
+        box-shadow: var(--box-shadow);
+        background-color: var(--color-background);
+    }
 }
 
 #other {
@@ -488,12 +532,12 @@ a.modebar-btn {
 
     > #other-buttons {
     }
-}
 
-#simulate_button {
-    font-size: 32px;
-    color: darkred;
-    margin: 0 5px;
+    #simulate_button {
+        font-size: 32px;
+        color: darkred;
+        margin: 0 5px;
+    }
 }
 
 #modding {
@@ -508,38 +552,82 @@ a.modebar-btn {
     border: var(--border-style);
     padding: 10px;
 
-    perspective: none;
+    perspective: none; /* TODO can probably be removed */
+
+    #arcane1 { grid-column: 5; grid-row: 2; }
+    #arcane2 { grid-column: 5; grid-row: 3; }
+
+    #buffs_wrapper {
+        grid-column: 3 / span 3; grid-row: 1;
+        /* width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal)); */
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+        display: flex;
+        gap: var(--mod-gap);
+
+        > .cell:empty {
+            &::before {
+                content: "buff";
+                /*
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-color: rgba(0, 0, 0, 0.05);
+                background-image: url("https://browse.wf/Lotus/Interface/Icons/MarketBundleUpgradeIcon.png");
+                background-size: 55%;
+                filter: var(--mod-empty-background-filter);
+                */
+            }
+        }
+
+        /*
+        background: repeating-linear-gradient(30deg,
+            rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 20px,
+            rgba(0, 0, 0, 0) 20px, rgba(0, 0, 0, 0) 40px
+        );
+
+        > .cell:empty {
+            background: var(--color-background);
+        }
+        */
+
+        .buff-slot {
+            /* flex: 0 0 auto; */
+            flex-shrink: 0;
+        }
+    }
 }
-#arcane1 { grid-column: 5; grid-row: 2; }
-#arcane2 { grid-column: 5; grid-row: 3; }
-#buffs_wrapper { grid-column: 3 / span 3; grid-row: 1; }
 
 #mod-list-wrapper{
     grid-area: mod-list;
     border: var(--border-style);
     width: fit-content;
     padding: 10px;
-}
 
-#mod-list {
-    --mod_count_x: 2;
-    display: grid;
-    gap: var(--mod-gap);
-    grid-auto-flow: column;
-    grid-template-rows: 1fr 1fr 1fr;
-    justify-content: start;
+    #mod-list {
+        --mod_count_x: 2;
+        display: grid;
+        gap: var(--mod-gap);
+        grid-auto-flow: column;
+        grid-template-rows: 1fr 1fr 1fr;
+        justify-content: start;
 
-    margin-top: 10px;
-    overflow-x: scroll;
-    scroll-snap-type: x mandatory;
-    width: calc(var(--mod_count_x) * var(--mod-width) + (var(--mod_count_x) - 1) * 2 * var(--mod-margin-horizontal));
-    /* 3 mods + 2 gaps + 6 borders = 3*240 + 2*10 + 6*2 = 752 */
-    /* height: calc(var(--mod_count_y) * var(--mod-height) + (var(--mod_count_y) - 1) * 2 * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
-    /* 3*120 + 2*2*8 + 3*2 * 2px = 409px */
-    height: max-content;
+        margin-top: 10px;
+        overflow-x: scroll;
+        scroll-snap-type: x mandatory;
+        width: calc(var(--mod_count_x) * var(--mod-width) + (var(--mod_count_x) - 1) * 2 * var(--mod-margin-horizontal));
+        /* 3 mods + 2 gaps + 6 borders = 3*240 + 2*10 + 6*2 = 752 */
+        /* height: calc(var(--mod_count_y) * var(--mod-height) + (var(--mod_count_y) - 1) * 2 * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
+        /* 3*120 + 2*2*8 + 3*2 * 2px = 409px */
+        height: max-content;
 
-    /* TODO darkmode
-        scrollbar-color: blue red; */
+        /* TODO darkmode
+            scrollbar-color: blue red; */
+    }
 }
 
 #plot {
@@ -607,37 +695,48 @@ a.modebar-btn {
     position: relative;
     left: 0;
     height: max-content;
-}
 
-.stats_damage_table {
-    position: relative; /* to crop the stacks count graph bars inside the damage table */
-}
+    > table {
+        > thead > tr > th{
+            &:nth-child(1) { width: 100px; background: inherit }
+            &:nth-child(2) { width: 65px; }
+            &:nth-child(3) { width: 65px; }
+            &:nth-child(4) { width: 40px; background: inherit }
 
-.stats_damage_table tr:nth-child(even) {
-    background-color: var(--color-TR-even);
-}
+            position: sticky;
+            background-color: var(--color-background);
+            top: 0;
+            z-index: 1;
+        }
 
-#stats_wrapper th {
-    font-weight: normal;
-}
+        th {
+            font-weight: normal;
+        }
 
-#stats_wrapper thead th {
-    position: sticky;
-    background-color: var(--color-background);
-    top: 0;
-    z-index: 1;
-    font-weight: normal;
-}
+        td:nth-child(2):not(table td td),
+        td:nth-child(3):not(table td td) {
+            text-align: right;
+        }
 
-/*
-#stats_wrapper tfoot tr:nth-child(even) {
-    position: sticky;
-    background-color: var(--color-TR-header);
-    bottom: 0;
-    z-index: 1;
-    background-color: red;
+        .stats_damage_table {
+            position: relative; /* to crop the stacks count graph bars inside the damage table */
+
+            tr:nth-child(even) {
+                background-color: var(--color-TR-even);
+            }
+        }
+
+        /*
+        tfoot tr:nth-child(even) {
+            position: sticky;
+            background-color: var(--color-TR-header);
+            bottom: 0;
+            z-index: 1;
+            background-color: red;
+        }
+        */
+    }
 }
-*/
 
 .separate > * {
     padding-top: 0.9em;
@@ -666,64 +765,61 @@ tr.indented {
     }
 }
 
-div.tooltip {
-    color: var(--color-tooltip);
-    display: inline-block;
+.tooltip {
+    &:is(div) {
+        color: var(--color-tooltip);
+        display: inline-block;
 
-    &::before {
-        content: "🛈";
+        &::before {
+            content: "🛈";
+        }
     }
-}
 
-td.tooltip {
-    background-color: var(--color-background);
-    padding: 0;
-}
+    &:is(td) {
+        background-color: var(--color-background);
+        padding: 0;
+    }
 
-.tooltip .tooltiptext {
-    visibility: hidden;
-    background: var(--color-tooltip-background);
-    color: var(--color-tooltip-text);
-    text-align: left;
-    border-radius: 3px;
-    padding: 5px;
+    .tooltiptext {
+        visibility: hidden;
+        background: var(--color-tooltip-background);
+        color: var(--color-tooltip-text);
+        text-align: left;
+        border-radius: 3px;
+        padding: 5px;
 
-    word-break: break-word;
+        word-break: break-word;
 
-    margin-left: 10px;
-    transform: translateY(-5px); /* 5px = padding */
-    position: absolute;
-    z-index: 1;
-}
+        margin-left: 10px;
+        transform: translateY(-5px); /* 5px = padding */
+        position: absolute;
+        z-index: 1;
+    }
 
-.tooltip > .tooltiptable {
-    visibility: hidden;
-    background: var(--color-tooltip-background);
-    color: var(--color-tooltip-text);
-    text-align: left;
-    border-radius: 3px;
-    padding: 5px;
+    > .tooltiptable {
+        visibility: hidden;
+        background: var(--color-tooltip-background);
+        color: var(--color-tooltip-text);
+        text-align: left;
+        border-radius: 3px;
+        padding: 5px;
 
-    transform: translate(24px, -50%);
-    position: absolute;
-    z-index: 1;
-    width: max-content;
-}
+        transform: translate(24px, -50%);
+        position: absolute;
+        z-index: 1;
+        width: max-content;
 
-.tooltiptable th{
-    width: 6.5rem;
-}
-.tooltiptable td{
-    width: 6ch;
-}
+        th {
+            width: 6.5rem;
+        }
+        td {
+            width: 6ch;
+        }
+    }
 
-.tooltip:hover * {
-    visibility: visible;
-}
-
-#stats_wrapper td:nth-child(2):not(table td td),
-#stats_wrapper td:nth-child(3):not(table td td) {
-    text-align: right;
+    &:hover * {
+        visibility: visible;
+    }
 }
 
 .mod_buff, .less_is_more.mod_nerf {
@@ -736,9 +832,9 @@ td.tooltip {
 .row_hide {
     display: none;
 }
-
 .row_show {
     display: table-row;
+    /* display: unset; TODO probably works? */
 }
 
 .graph_bar {
@@ -767,14 +863,14 @@ td.tooltip {
     top: 0;
     border-right: 1px solid color-mix(var(--color-plot-ticks) 15%);
     font-size: 12px;
-}
 
-.tick::after {
-    content: attr(data-value);
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 15px);
-    bottom: 0;
+    &::after {
+        content: attr(data-value);
+        position: absolute;
+        left: 50%;
+        transform: translate(-50%, 15px);
+        bottom: 0;
+    }
 }
 
 .cell {
@@ -815,135 +911,176 @@ td.tooltip {
         background-color: rgba(0, 0, 0, 0.05);
         filter: var(--mod-empty-background-filter) opacity(50%);
     }
-}
 
-.cell[type="ability"]::before{
-    background-image: url("https://browse.wf/Lotus/Interface/Icons/Categories/IconWarframe_256.png");
-}
-.cell[type="exilus"]::before{
-    background-image: url("https://static.overframe.gg/static/images/icon-exilus.png");
-}
-.cell[type="arcane"]::before{
-    background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
-}
-.cell[type="mod"]::before{
-    background-image: url("mod.png");
-    filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
-}
-.cell[type="1999_calendar"]::before{
-    background-image: url("https://browse.wf/Lotus/Interface/Graphics/Retro/EyeGlitch/EyeGlitchA.png");
-}
-.cell[type="invigoration"]::before{
-    background-image: url("https://browse.wf/Lotus/Interface/Icons/HelminthChrysalis.png");
-}
-.cell[type="incarnon_evo"]::before{
-    background-image: url("incarnon.png");
-    filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
-}
-.cell[type="archon_shard"]::before{
-    background-image: url("shard.png");
-    filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
-}
-.cell[type="decree"]::before{
-    background-image: url("decree.png");
-}
-.cell[type="aura"]::before{
-    background-image: url("aura.png");
-}
+    &:empty {
+        background: none;
+        border: 2px dashed var(--color-borders);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: default;
+        box-shadow: none;
 
-/*
-.cell[type]::after{
-    content: attr(type);
-    color: red;
-}
-*/
-
-.cell:empty {
-    background: none;
-    border: 2px dashed var(--color-borders);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: default;
-    box-shadow: none;
-}
-.cell:empty::after {
-    content: "+";
-    position: absolute;
-    font-size: 28px;
-    color: var(--color-mod-empty-background);
-}
-
-.cell.special-slot:empty::after {
-    content: attr(data-slot_type);
-    /* font-size: 18px; */
-}
-
-.cell.special-slot:empty::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-
-    background-position: center;
-    background-repeat: no-repeat;
-    background-color: rgba(0, 0, 0, 0.05);
-}
-
-/*
-.cell.special-slot[data-slot_type="arcane"]{
-    padding-top: 20px;
-    border-radius: 75px 75px 10px 10px;
-}
-*/
-.cell.special-slot[data-slot_type="arcane"]:empty {
-    /* border-radius: 100px 100px 10px 10px; */
-    &::after {
-        content: "";
+        &::before {
+            content: "+";
+            position: absolute;
+            font-size: 28px;
+            color: var(--color-mod-empty-background);
+        }
     }
-    &::before {
-        /* background-image: url("https://wiki.warframe.com/images/CosmeticEnhancer.png?6d4d8"); */
-        background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
-        background-size: 55%;
-        filter: var(--mod-empty-background-filter);
-    }
-}
-.cell.special-slot[data-slot_type="exilus"]:empty { /* #exilus */
-    &::after {
-        content: "";
-    }
-    &::before {
-        background-image: url("https://static.overframe.gg/static/images/icon-exilus.png");
-        background-size: 55%;
-        filter: var(--mod-empty-background-filter);
-    }
-}
 
-#buffs_wrapper > .cell:empty {
-    &::after {
-        content: "buff";
+    &.special-slot:empty::before {
+        /* content: attr(data-slot_type); */
         /* font-size: 18px; */
-    }
-    /*
-    &::before {
         content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
         width: 100%;
         height: 100%;
-
         background-position: center;
         background-repeat: no-repeat;
         background-color: rgba(0, 0, 0, 0.05);
+    }
 
-        background-image: url("https://browse.wf/Lotus/Interface/Icons/MarketBundleUpgradeIcon.png");
-        background-size: 55%;
-        filter: var(--mod-empty-background-filter);
+    /*
+    &.special-slot[data-slot_type="arcane"]{
+        padding-top: 20px;
+        border-radius: 75px 75px 10px 10px;
     }
     */
+    &.special-slot[data-slot_type="arcane"]:empty {
+        /* border-radius: 100px 100px 10px 10px; */
+        &::before {
+            /* background-image: url("https://wiki.warframe.com/images/CosmeticEnhancer.png?6d4d8"); */
+            background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
+            background-size: 55%;
+            filter: var(--mod-empty-background-filter);
+        }
+    }
+
+    &.special-slot[data-slot_type="exilus"]:empty {
+        &::before {
+            background-image: url("https://static.overframe.gg/static/images/icon-exilus.png");
+            background-size: 55%;
+            filter: var(--mod-empty-background-filter);
+        }
+    }
+
+    .dragging {
+        opacity: 0.5;
+    }
+
+    .mod-name {
+        /* background: #ddd; */
+        font-weight: bold;
+        min-height: 30px;
+        text-align: center;
+        align-content: center;
+        position: relative;
+    }
+
+    .mod-stats {
+        width: 100%;
+        /* height: calc(100% - 30px); */
+        /* overflow-y: auto; */
+        border-collapse: collapse;
+        text-wrap: nowrap;
+
+        td {
+            /* border: 1px solid #ddd; */
+            padding: 2px 4px;
+            font-size: 12px;
+        }
+    }
+
+    .remove {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        font-size: 12px;
+        cursor: pointer;
+        color: white;
+        background: rgba(226,74,74,0.6);
+        /* border-radius: 50%; */
+        display: none;
+
+        &:hover {
+            background: rgba(226,74,74,0.8);
+        }
+    }
+}
+#modding .mod-name:hover .remove { display: block; }
+
+.cell {
+    &[type="ability"]::before {
+        background-image: url("https://browse.wf/Lotus/Interface/Icons/Categories/IconWarframe_256.png");
+    }
+    &[type="exilus"]::before {
+        background-image: url("https://static.overframe.gg/static/images/icon-exilus.png");
+    }
+    &[type="arcane"]::before {
+        background-image: url("https://browse.wf/Lotus/Interface/Icons/GenericCosmeticEnhancerIcon.png");
+    }
+    &[type="mod"]::before {
+        background-image: url("mod.png");
+        filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
+    }
+    &[type="1999_calendar"]::before {
+        background-image: url("https://browse.wf/Lotus/Interface/Graphics/Retro/EyeGlitch/EyeGlitchA.png");
+    }
+    &[type="invigoration"]::before {
+        background-image: url("https://browse.wf/Lotus/Interface/Icons/HelminthChrysalis.png");
+    }
+    &[type="incarnon_evo"]::before {
+        background-image: url("incarnon.png");
+        filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
+    }
+    &[type="archon_shard"]::before {
+        background-image: url("shard.png");
+        filter: grayscale(100%) brightness(3) contrast(200%) opacity(60%) var(--mod-empty-background-filter);
+    }
+    &[type="decree"]::before {
+        background-image: url("decree.png");
+    }
+    &[type="aura"]::before {
+        background-image: url("aura.png");
+    }
+
+    /* TODO better colors with unified contrast */
+    &[rarity="common"] {
+        --metal-color: #a67c68;
+    }
+    &[rarity="uncommon"] {
+        --metal-color: silver;
+    }
+    &[rarity="rare"] {
+        --metal-color: gold;
+    }
+    &[rarity="legendary"] {
+        --metal-color: lightblue;
+    }
+    &[rarity="archon"] {
+        --metal-color: orange;
+    }
+    &[rarity="galvanized"] {
+        --metal-color: slategray;
+    }
+    &[rarity="riven"] {
+        --metal-color: darkorchid;
+    }
+    &[rarity="amalgam"] {
+        --metal-color: peachpuff;
+    }
+
+    /* TODO i think its useless */
+    &.Madurai:empty::after { content: "\ea02" }
+    &.Vazarin:empty::after { content: "\ea03" }
+    &.Zenurik:empty::after { content: "\ea04" }
+    &.Penjaga:empty::after { content: "\ea05" }
+    &.Naramon:empty::after { content: "\ea06" }
+    &.Umbra:empty::after { content: "\ea07" }
+    &.Unairu:empty::after { content: "\ea08" }
 }
 
 #stance-slot {
@@ -972,25 +1109,6 @@ td.tooltip {
     }
 }
 
-#buffs_wrapper {
-    /* width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal)); */
-    overflow-x: scroll;
-    scroll-snap-type: x mandatory;
-    display: flex;
-    gap: var(--mod-gap);
-
-    /*
-    background: repeating-linear-gradient(30deg,
-        rgba(255, 255, 255, 0.05) 0px, rgba(255, 255, 255, 0.05) 20px,
-        rgba(0, 0, 0, 0) 20px, rgba(0, 0, 0, 0) 40px
-    );
-
-    > .cell:empty {
-        background: var(--color-background);
-    }
-    */
-}
-
 /* FIXME inputs/selects are not reset on refresh on firefox */
 #grid:has(#weapon_type option:not([value="melee"]):checked) > #modding {
     #stance-slot {
@@ -1001,101 +1119,9 @@ td.tooltip {
     }
 }
 
-/* Buff slots inherit the same fixed cell size */
-.buff-slot {
-    flex: 0 0 auto;
-}
-
-/* Mod inner structure */
-.mod-name {
-    /* background: #ddd; */
-    font-weight: bold;
-    min-height: 30px;
-    text-align: center;
-    align-content: center;
-    position: relative;
-}
-.remove {
-    position: absolute;
-    top: 5px;
-    right: 5px;
-    width: 18px;
-    height: 18px;
-    line-height: 18px;
-    font-size: 12px;
-    cursor: pointer;
-    color: white;
-    background: rgba(226,74,74,0.6);
-    /* border-radius: 50%; */
-    display: none;
-}
-#modding .mod-name:hover .remove { display: block; }
-.remove:hover { background: rgba(226,74,74,0.8); }
-.cell.dragging { opacity: 0.5; }
-
-/* Mod cell stats table */
-.mod-stats {
-    width: 100%;
-    /* height: calc(100% - 30px); */
-    /* overflow-y: auto; */
-    border-collapse: collapse;
-    text-wrap: nowrap;
-}
-.mod-stats td {
-    /* border: 1px solid #ddd; */
-    padding: 2px 4px;
-    font-size: 12px;
-}
-
 .d-none {
     display: none;
 }
-
-#stats-tbody input[type="checkbox"]{
-    margin: 0;
-}
-
-select[name="buff"] {
-    max-width: 170px;
-}
-
-select[name="condition"] {
-    max-width: 130px;
-}
-
-/* TODO better colors with unified contrast */
-.cell[rarity="common"] {
-    --metal-color: #a67c68;
-}
-.cell[rarity="uncommon"] {
-    --metal-color: silver;
-}
-.cell[rarity="rare"] {
-    --metal-color: gold;
-}
-.cell[rarity="legendary"] {
-    --metal-color: lightblue;
-}
-.cell[rarity="archon"] {
-    --metal-color: orange;
-}
-.cell[rarity="galvanized"] {
-    --metal-color: slategray;
-}
-.cell[rarity="riven"] {
-    --metal-color: darkorchid;
-}
-.cell[rarity="amalgam"] {
-    --metal-color: peachpuff;
-}
-
-.cell.Madurai:empty::after { content: "\ea02" }
-.cell.Vazarin:empty::after { content: "\ea03" }
-.cell.Zenurik:empty::after { content: "\ea04" }
-.cell.Penjaga:empty::after { content: "\ea05" }
-.cell.Naramon:empty::after { content: "\ea06" }
-.cell.Umbra:empty::after { content: "\ea07" }
-.cell.Unairu:empty::after { content: "\ea08" }
 
 .checkbox_grey_image {
     background-image: url("https://wiki.warframe.com/images/thumb/Forma.png/32px-Forma.png");
@@ -1107,9 +1133,9 @@ select[name="condition"] {
     background-repeat: no-repeat;
     height: 2.5em;
     aspect-ratio: 1;
-    vertical-align: middle; /* Align with surrounding text */
+    vertical-align: middle;
     display: inline-block;
-    line-height: 0;         /* Prevent affecting line height */
+    line-height: 0;
     margin: -0.5em 0 -0.5em 0;
     padding: 0;
     border: none;
@@ -1149,62 +1175,6 @@ select[name="condition"] {
     margin: -1px;
 }
 
-.button-stylized, .hidden-radio {
-    font-size: small;
-    font-family: inherit;
-    background: var(--color-input-background);
-    color: var(--color-text);
-    border: 1px solid transparent;
-    border-bottom: 3px solid color-mix(in srgb, var(--color-text) 40%, black);
-    padding: 0 0.5rem;
-    min-height: 2rem;
-    min-width: 1.5rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    vertical-align: middle;
-    cursor: pointer;
-
-    > input[type="radio"] { display: none; }
-
-    &:hover, &:has(:checked) {
-        border: 1px solid color-mix(in srgb, var(--color-hovered) 30%, black);
-        border-bottom: 3px solid var(--color-hovered);
-        color: var(--color-hovered);
-        background: radial-gradient(
-                ellipse at bottom center,
-                color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background)),
-                var(--color-input-background) 70%
-        );
-    }
-}
-
-.editEnemy{
-    border-radius: 15px;
-    border: var(--border-style);
-    box-shadow: var(--box-shadow);
-    padding: 15px;
-
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.editEnemyTable {
-    border-spacing: 1em 0;
-    margin: 0 -1rem;
-
-    > thead > tr > th {
-        text-align: right;
-        padding-right: 1rem;
-    }
-
-    > tbody > tr > td:first-child label {
-        display: flex;
-        justify-content: space-between;
-    }
-}
-
 .pulse {
     animation: pulse 1.2s infinite;
     --color-pulse: rgb(246, 143, 133);
@@ -1213,17 +1183,6 @@ select[name="condition"] {
     0%   { box-shadow: 0 0 0 0 var(--color-pulse); }
     70%  { box-shadow: 0 0 0 10px transparent; }
     100% { box-shadow: 0 0 0 0 transparent; }
-}
-
-#stats_wrapper{
-    > table {
-        > thead > tr > th{
-            &:nth-child(1) { width: 100px; background: inherit }
-            &:nth-child(2) { width: 65px; }
-            &:nth-child(3) { width: 65px; }
-            &:nth-child(4) { width: 40px; background: inherit }
-        }
-    }
 }
 
 #weapon_selection{
