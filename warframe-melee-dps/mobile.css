@@ -39,7 +39,7 @@
 
     #stats_wrapper {
         width: 100%;
-        max-width: 575px;
+        /* max-width: 575px; */
 
         box-sizing: border-box;
 
@@ -63,17 +63,17 @@
 
         padding-left: 0;
         padding-right: 0;
+        #arcane1 { grid-column: unset; grid-row: unset; }
+        #arcane2 { grid-column: unset; grid-row: unset; }
+        #buffs_wrapper { grid-column: 1 / -1; grid-row: unset; }
     }
-    #arcane1 { grid-column: unset; grid-row: unset; }
-    #arcane2 { grid-column: unset; grid-row: unset; }
-    #buffs_wrapper { grid-column: 1 / -1; grid-row: unset; }
 
     #mod-list-wrapper {
         width: 100%;
         overflow-x: auto;
         box-sizing: border-box;
 
-        > #mod-list {
+        #mod-list {
             width: 100%;
         }
     }
@@ -87,7 +87,8 @@
     #plot {
         width: 100%;
         aspect-ratio: 1.2;
-        min-height: 25rem;
+        min-height: 400px;
+        max-height: 600px;
         box-sizing: border-box;
         overflow: hidden;
     }
@@ -108,9 +109,9 @@
     #extra-parameters{ border-right: none; }
 
     .tooltip > .tooltiptable {
-        transform: translate(-42%, 200%) rotate(90deg);
+        transform: translate(-42%, 250%) rotate(90deg);
     }
     .tooltip .tooltiptext {
-        transform: translate(-50%, 24px);
+        transform: translate(-50%, 1.5em);
     }
 }
