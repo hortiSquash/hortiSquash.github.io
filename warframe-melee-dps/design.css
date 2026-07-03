@@ -138,13 +138,20 @@ select {
     }
 }
 
-input {
+input[type=text].input-stylized{
     /* TODO it looks like shit with borders (default browser shit)
         background-color: var(--color-input-background); */
     /* color: var(--color-input-text); */
+    background-color: var(--color-input-background);
+    color: var(--color-text);
+    font-size: small;
+    font-family: inherit;
+    border: 1px solid transparent;
+    border-bottom: 3px solid color-mix(in srgb, var(--color-text) 40%, black);
+    min-height: 1.238em;
 
     &::placeholder {
-        color: var(--color-input-text-placeholder);
+        color: color-mix(var(--color-text) 40%, grey);
     }
 
     &:disabled {
@@ -194,6 +201,40 @@ button.pen-button {
                 color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background)),
                 var(--color-input-background) 70%
         );
+    }
+}
+
+.select-stylized {
+    font-size: small;
+    font-family: inherit;
+    background-color: var(--color-input-background);
+    color: var(--color-text);
+    border: 1px solid transparent;
+    border-bottom: 3px solid color-mix(in srgb, var(--color-text) 40%, black);
+    padding: 0;
+    min-height: 1.7em;
+    min-width: 1.5rem;
+    cursor: pointer;
+    -moz-padding-start: 0.3em;
+
+    &:disabled {
+        cursor: default;
+    }
+
+    &:not(:disabled) { &:hover, &:focus {
+        border: 1px solid color-mix(in srgb, var(--color-hovered) 30%, black);
+        border-bottom: 3px solid var(--color-hovered);
+        color: var(--color-hovered);
+    }}
+
+    optgroup, option {
+        color: var(--color-text);
+        background-color: var(--color-input-background);
+
+        &:hover {
+            background-color: color-mix(in srgb, var(--color-hovered) 30%, var(--color-input-background));
+            color: var(--color-hovered);
+        }
     }
 }
 

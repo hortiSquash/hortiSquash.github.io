@@ -253,7 +253,11 @@ function changeStats() {
         };
     }
 
-    iterations = Number(document.getElementById("iterations").value);
+    if (document.getElementById("iterations1x").checked) {
+        iterations = 1;
+    }else{
+        iterations = Number(document.getElementById("iterations").value);
+    }
     time_max = Number(document.getElementById("max_time").value);
     tickrate = Number(document.getElementById("tickrate").value);
 
@@ -1037,9 +1041,10 @@ async function loadJson(path) {
 
 let theme = localStorage.getItem("theme") ?? (window.matchMedia("(prefers-color-scheme: dark)").matches ? "1" : "0");
 document.body.setAttribute("theme", theme);
+document.getElementById("theme_select").value = theme;
 
-document.getElementById("theme_button").addEventListener("click", () => {
-    theme = (theme + 1) % 3;
+document.getElementById("theme_select").addEventListener("change", (e) => {
+    theme = e.target.value;
     document.body.setAttribute("theme", theme);
     localStorage.setItem("theme", theme);
 });

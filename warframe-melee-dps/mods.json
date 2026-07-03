@@ -74,7 +74,7 @@
         "base_drain": 0,
         "buffs": [
             {
-                "buff": "(bugged) damage_multiplicative",
+                "buff": "WEAPON_DAMAGE_AMOUNT",
                 "damage_type": "DT_ANY",
                 "display_as": "x",
                 "operation": "MULTIPLY",

@@ -168,6 +168,7 @@ function updateStancesOptions(){
     //(cant use sword stances on a staff)
     const type = document.getElementById("weapon_subclass").value;
     const stances_list = document.getElementById('stance_name');
+    stances_list.disabled = false;
     stances_list.innerHTML = "";
     for(let stances of [...Object.values(data_stances[type] ?? []), { "name": `Custom ${type} stance` }]){
         const option = document.createElement('option');
