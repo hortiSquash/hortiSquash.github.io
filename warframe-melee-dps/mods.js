@@ -470,7 +470,7 @@ function openEditModal(cell) {
 
         const polarity = modData.polarity;
         Object.entries(polarity_unicode).forEach(([key, _]) => { cell.classList.remove(key) });
-        cell.classList.toggle(polarity, document.getElementById("forma").checked);
+        if(polarity) cell.classList.toggle(polarity, document.getElementById("forma").checked);
 
         modData.buffs.length = statsTbody.children.length;
         for(let i=0; i < statsTbody.children.length; i++){
