@@ -1018,6 +1018,10 @@ document.getElementById("help_button").addEventListener("click", function() {
     document.getElementById("help_svg").style.display = "";
 })
 
+if (!window.matchMedia("(any-pointer: fine)").matches) {
+    alert("Touchscreen detected. To move mods, press and hold a mod for 1–2 seconds, then drag it to a slot\n\nSome browsers might not fully support drag and drop on touch devices, in which case try another browser, or use a mouse or trackpad instead.");
+}
+
 async function loadJsonGzip(path) {
     try {
         const ds = new DecompressionStream("gzip");
