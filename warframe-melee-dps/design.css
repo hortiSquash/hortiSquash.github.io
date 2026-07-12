@@ -17,12 +17,11 @@ body {
 }
 
 :root {
-    --mod-width: clamp(160px, calc((100vw - 2 * var(--mod-margin-horizontal)) / 2), 240px);
+    --mod-width: clamp(160px, calc((100vw - var(--mod-margin-horizontal)) / 2), 240px);
     --mod-height: 120px;
-    --buff-count: 3;
-    --mod-margin-horizontal: 5px;
-    --mod-margin-vertical: 5px;
-    --mod-gap: calc(2 * var(--mod-margin-vertical)) calc(2 * var(--mod-margin-horizontal));
+    --mod-margin-horizontal: 10px;
+    --mod-margin-vertical: 10px;
+    --mod-gap: calc(var(--mod-margin-vertical)) calc(var(--mod-margin-horizontal));
 
     --unit-size: 0.8rem;
 
@@ -600,7 +599,6 @@ dialog {
 
     #buffs_wrapper {
         grid-column: 3 / span 3; grid-row: 1;
-        /* width: calc(var(--buff-count) * var(--mod-width) + (var(--buff-count) - 1) * 2 * var(--mod-margin-horizontal)); */
         overflow-x: scroll;
         scroll-snap-type: x mandatory;
         display: flex;
@@ -660,9 +658,9 @@ dialog {
         margin-top: 10px;
         overflow-x: scroll;
         scroll-snap-type: x mandatory;
-        width: calc(var(--mod_count_x) * var(--mod-width) + (var(--mod_count_x) - 1) * 2 * var(--mod-margin-horizontal));
+        width: calc(var(--mod_count_x) * var(--mod-width) + (var(--mod_count_x) - 1) * var(--mod-margin-horizontal));
         /* 3 mods + 2 gaps + 6 borders = 3*240 + 2*10 + 6*2 = 752 */
-        /* height: calc(var(--mod_count_y) * var(--mod-height) + (var(--mod_count_y) - 1) * 2 * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
+        /* height: calc(var(--mod_count_y) * var(--mod-height) + (var(--mod_count_y) - 1) * var(--mod-margin-vertical) + 17px); /* scrollbar = 17px */
         /* 3*120 + 2*2*8 + 3*2 * 2px = 409px */
         height: max-content;
 
@@ -673,9 +671,9 @@ dialog {
 
 #plot {
     grid-area: plot;
-    /* MODDING = (5 * var(--mod-width) + (5 - 1) * 2 * var(--mod-margin-horizontal) + 2*10px) */
-    /* MODLIST = (2 * var(--mod-width) + (2 - 1) * 2 * var(--mod-margin-horizontal) + 2*10px) */
-    width: calc(3 * var(--mod-width) + (4 - 1) * 2 * var(--mod-margin-horizontal) - 10px /* grid gap */ - 2*2px /* plot's own border */);
+    /* MODDING = (5 * var(--mod-width) + (5 - 1) * var(--mod-margin-horizontal) + 2*10px) */
+    /* MODLIST = (2 * var(--mod-width) + (2 - 1) * var(--mod-margin-horizontal) + 2*10px) */
+    width: calc(3 * var(--mod-width) + (4 - 1) * var(--mod-margin-horizontal) - 10px /* grid gap */ - 2*2px /* plot's own border */);
 
     /* height: 465px; */
     border: var(--border-style);
@@ -1158,7 +1156,6 @@ tr.indented {
     justify-content: center;
     height: var(--mod-height);
     width: var(--mod-width);
-    padding: 5px;
     position: relative;
 
     > form {
@@ -1166,7 +1163,6 @@ tr.indented {
         justify-content: space-evenly;
         flex-direction: column;
         height: 100%;
-        width: 100%;
 
         #stance_name{
             width: 90%;

@@ -1022,19 +1022,8 @@ if (!window.matchMedia("(any-pointer: fine)").matches) {
     alert("Touchscreen detected. To move mods, press and hold a mod for 1–2 seconds, then drag it to a slot\n\nSome browsers might not fully support drag and drop on touch devices, in which case try another browser, or use a mouse or trackpad instead.");
 }
 
-async function loadJsonGzip(path) {
-    try {
-        const ds = new DecompressionStream("gzip");
-        const response = await fetch(path);
-        const decompressedStream = response.body.pipeThrough(ds);
-        const text = await new Response(decompressedStream).text();
-        return JSON.parse(text);
-    } catch (error) {
-        console.error("Error loading JSON:", error);
-    }
-}
-
 async function loadJson(path) {
+    //the server automatically sends compressed files, no need for manual gzip
     try {
         const response = await fetch(path);
         return await response.json();
