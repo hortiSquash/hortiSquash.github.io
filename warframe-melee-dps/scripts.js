@@ -1269,23 +1269,31 @@ async function saveConfig() {
         if (weapon.class === "melee" && Object.keys(stance).length > 0){
             //just making sure its updated
             stance.current_combo = document.getElementById("combo_type").value;
-            data.stance = stance;
+            //data.stance = stance;
+            data.stance = {
+                current_combo: stance.current_combo,
+                name: stance.name,
+                weapon_type: stance.weapon_type
+            }
+            data.stance[stance.current_combo] = stance[stance.current_combo];
         }
     }
     if (enemies.length) data.enemies = enemies;
 
     const json = JSON.stringify(data);
     const compressed = await gzip(json);
-    const base64 = btoa(String.fromCharCode(...compressed));
+    const urlSafe = compressed.toBase64({alphabet: 'base64url', omitPadding: true});
 
-    const urlSafe = encodeURIComponent(base64);
+    const base64 = encodeURIComponent(btoa(String.fromCharCode(...compressed)));
+    alert(`uncompressed: ${json.length}\nold: ${base64.length} ${base64.length / json.length}\nnew: ${urlSafe.length} ${urlSafe.length / json.length}`);
+
     window.location.hash = `config=${urlSafe}`;
 
     return urlSafe;
 }
 
 async function decodeConfigFromHash(hash) {
-    const binary = Uint8Array.from(atob(decodeURIComponent(hash)), c => c.charCodeAt(0));
+    const binary = Uint8Array.fromBase64(hash, {alphabet: 'base64url'});
     const stream = new Response(
         new ReadableStream({
             start(controller) {
