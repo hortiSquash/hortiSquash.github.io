@@ -565,6 +565,7 @@ dialog {
     align-self: stretch;
     box-shadow: none;
     background-color: transparent;
+    position: relative;
 
     display: grid;
     grid-auto-flow: row;
@@ -706,8 +707,8 @@ dialog {
         opacity: 15%;
     }
 
-    &:has(> :only-child){
-        > :only-child {
+    &:not(:has(> .plotly)){
+        > :first-child {
             visibility: hidden;
         }
         &::before{
@@ -1252,6 +1253,7 @@ tr.indented {
     width: 100%;
     padding: 10px;
     box-sizing: border-box;
+    position: relative;
 
     border: var(--border-style);
 
@@ -1273,13 +1275,101 @@ tr.indented {
     }
 }
 
-#help_svg{
+#overlay {
     position: absolute;
-    margin: auto;
-    left: 0;
-    right: 0;
+    width: 100vw;
+    height: 100vh;
+    inset: 0;
+    pointer-events: none;
     z-index: 999;
-    backdrop-filter: blur(1px);
+}
+#arrowLayer {
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 998;
+}
+
+body.tour-active {
+    #overlay {
+        pointer-events: auto;
+        cursor: pointer;
+        backdrop-filter: blur(1px);
+    }
+    #skipBtn {
+        display: block;
+        background: #ea62a9;
+        color: white;
+        font-size: xxx-large;
+        opacity: 0.8;
+        border-style: inset;
+        border-width: 0.2em;
+        border-radius: 0 1em;
+        padding: 0 0.5em;
+        position: absolute;
+        right: 1em;
+        bottom: 1em;
+
+        &:hover {
+            background: #9f4474;
+        }
+    }
+}
+
+#skipBtn {
+    display: none;
+    user-select: none;
+}
+
+.circle {
+    box-sizing: border-box;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    height: 2em;
+    min-width: 2em;
+    padding: 0 0.5em;
+    border-radius: 1em;
+    background: #dd8448;
+    color: #fff;
+    font-weight: 700;
+    font-size: 4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translate(-50%, -50%) scale(0.8);
+    z-index: 998;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+}
+.circle.is-focused {
+    transform: translate(-50%, -50%) scale(1);
+}
+.is-grey {
+    opacity: 0.8 !important;
+    filter: grayscale(0.4) !important;
+}
+.is-focused {
+    opacity: 0.9 !important;
+}
+
+.optional {
+    background: #3f3fb7;
+    font-size: x-large;
+}
+
+.arrow {
+    stroke: #dd8448dd;
+    stroke-width: 1em;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+.arrowhead-fill {
+    fill: #dd8448dd;
 }
 
 /* big ass screens be like */

@@ -24,7 +24,7 @@
     <script src="mods.js" defer></script>
     <script src="Warframe_Melee_DPS.js" defer></script>
 
-    <script src="https://cdn.plot.ly/plotly-3.6.0.min.js" charset="utf-8" defer fetchpriority="low"></script>
+    <script src="https://cdn.plot.ly/plotly-4.0.0.min.js" charset="utf-8" defer fetchpriority="low"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> -->
 
     <script type="module">
@@ -208,7 +208,6 @@
 </head>
 
 <body>
-    <img src="help.svg" id="help_svg"/>
     <dialog id="build_share_dialog">
         <form method="dialog" style="display: flex; flex-direction: column; gap: 1em;">
             <fieldset>
@@ -429,16 +428,24 @@
         <div id="plot">
             <div style="display: flex; flex-direction: column; width: max-content; gap: 0.2em; position: absolute ; right: 0.5em; bottom: 3em">
                 <label class="hidden-radio">
-                    <input type="radio" name="plotType" onclick="showHistogram()" checked>
-                    Histogram
+                    <input type="radio" name="plotType" onclick="showMovingSum()" checked>
+                    DPS curve
+                </label>
+                <label class="hidden-radio">
+                    <input type="radio" name="plotType" onclick="showHistogram()">
+                    DPS hist
                 </label>
                 <label class="hidden-radio">
                     <input type="radio" name="plotType" onclick="showScatter()">
-                    Scatter
+                    Hits
                 </label>
                 <label class="hidden-radio">
                     <input type="radio" name="plotType" onclick="showPie()">
-                    Pie Chart
+                    Damage %
+                </label>
+                <label class="hidden-radio">
+                    <input type="radio" name="plotType" onclick="showTTKs()">
+                    TTKs
                 </label>
             </div>
         </div>
@@ -795,9 +802,20 @@
     <div id="footer" style="display: flex; width: 100%; align-items: center; justify-content: space-evenly;">
         <label>
             Request features or Report a bug:
-            <a href="https://github.com/hortiSquash/hortiSquash.github.io/issues/new/choose" style="color:dodgerblue">GitHub Issues</a>
+            <a href="https://github.com/hortiSquash/hortiSquash.github.io/issues" style="color:dodgerblue">GitHub Issues</a>
             - or contact me on Discord @hortiSquash
         </label>
+    </div>
+
+    <svg id="arrowLayer">
+        <defs>
+            <marker id="arrowhead" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M0,0 L10,5 L0,10 z" class="arrowhead-fill"></path>
+            </marker>
+        </defs>
+    </svg>
+    <div id="overlay">
+        <button id="skipBtn" type="button">Skip tour ⏭</button>
     </div>
 
     <template id="damage_template">

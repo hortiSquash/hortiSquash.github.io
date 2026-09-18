@@ -187,6 +187,7 @@ const labels = {
 function CppToColumnar(dataraw) {
     //convert to JS array
     const data = new Array(dataraw.size()).fill(0).map((_, id) => dataraw.get(id))
+    dataraw.delete();
 
     //transpose into a dictionnary with arrays on each key
     const header_cols = ["time", "damage", "slash", "heat", "electricity", "toxin", "gas"];
@@ -195,6 +196,16 @@ function CppToColumnar(dataraw) {
         ret[header_cols[i]] = data.map(row => row[i]);
     }
     return ret;
+}
+
+function vecToArray(vec) {
+    //technically its laggy but its barely 10ms for 100k iterations of ttk
+    const arr = new Array(vec.size());
+    for (let i = 0; i < arr.length; i++) {
+        arr[i] = vec.get(i);
+    }
+    vec.delete();
+    return arr;
 }
 
 function filterData(obj, timeArray) {
@@ -218,6 +229,8 @@ let conditionals = true;
 let mods_buffs_cpp;
 let filtered_data;
 let total_each_damage;
+let ttks;
+let raw_data;
 
 function changeStats() {
     if(weapon == null){
@@ -268,13 +281,16 @@ function changeStats() {
     //document.body.style.cursor = "wait";
 
     // TODO why only first enemy?
-    const data = CppToColumnar(Module.stats(
+    const result = Module.stats(
         weapon,
         convertStance(is_melee),
         enemy,
         mods_buffs_cpp,
         iterations, time_max, tickrate, quantization, conditionals
-    ));
+    );
+
+    const data = CppToColumnar(result.damage_types_per_tick);
+    ttks = vecToArray(result.ttks);
 
     for (const key in data) {
         data[key] = data[key].map(datum => Number(datum));// || undefined);
@@ -283,6 +299,14 @@ function changeStats() {
     const time = data.time;
     delete data.time;
     filtered_data = filterData(data, time);
+    raw_data = Object.entries(data).map(([key, values]) => {
+        return {
+            name: key,
+            time: time,
+            data: values,
+        };
+    });
+    delete raw_data.time;
 
     console.log(filtered_data[5].data[0])
 
@@ -383,7 +407,6 @@ function plotData() {
     Plotly.react(chart, plotlyData, layout, {
         // displaylogo: false,
         displayModeBar: true,
-        plotlyServerURL: "https://chart-studio.plotly.com",
     });
 }
 
@@ -397,6 +420,101 @@ function showScatter() {
     plotData();
     Plotly.restyle(chart, {
         type: 'scatter',
+    });
+}
+function showMovingSum() {
+    function centeredMovingSumFast(data, windowSize) {
+        const result = new Array(data.length).fill(null);
+        const half = Math.floor(windowSize / 2);
+        let sum = 0;
+
+        for (let i = 0; i < data.length; i++) {
+            sum += data[i];
+            if (i >= windowSize) {
+                sum -= data[i - windowSize];
+            }
+            if (i >= windowSize - 1 && (i - half) >= 0) {
+                result[i - half] = sum;
+            }
+        }
+        return result;
+    }
+
+    const windowSize = tickrate + 1;
+    const plotlyData = raw_data
+        .filter(data2 => Array.isArray(data2.data) && data2.data.some(v => v !== 0))
+        .map(data2 => ({
+            y: centeredMovingSumFast(data2.data, windowSize),
+            x: data2.time,
+            mode: 'lines',
+            hovertemplate: '%{x:.3f}s - %{y}',
+            name: labels[data2.name] ?? data2.name,
+            marker: { color: colors[data2.name] },
+            //fill: 'tozeroy',
+    }));
+
+    const layout = {
+        xaxis: {
+            //type: 'log',
+            autorange: true,
+            //range: [0, 9.5],
+            autorangeoptions:{
+                minallowed: -1,
+                // maxallowed: 50,
+            },
+            ticksuffix: "s",
+        },
+        yaxis: {
+            // range: [0, 10],
+            // type: 'log',
+            autorange: true,
+            autorangeoptions:{
+                minallowed: -1,
+            },
+            title: {
+                text: "damage"
+            }
+        },
+        barmode: "stack",
+        margin: {
+            b: 20,
+            l: 50,
+            r: 0,
+            t: 15,
+        },
+        modebar: { //the plotly top right menu bar
+            // orientation: "v",
+
+        },
+        legend: {
+            x: 1.0,
+            y: 0.95,
+        },
+        annotations: [
+            {
+                xref: 'paper',
+                yref: 'paper',
+                xanchor: 'left',
+                yanchor: 'top',
+                x: 1.01,
+                y: 0.01,
+                text: 'time',
+                showarrow: false
+            }
+        ],
+        paper_bgcolor: "rgba(0, 0, 0, 0)",
+        /* plot_bgcolor: "rgba(0, 0, 0, 0)", */
+        font: {
+            "family": "Roboto, Arial",
+            /* "color": "var(--color-text)", */
+        },
+        showlegend: true,
+        //responsive: true,
+    };
+
+    Plotly.react(chart, plotlyData, layout, {
+        // displaylogo: false,
+        displayModeBar: true,
     });
 }
 function showPie() {
@@ -435,7 +553,99 @@ function showPie() {
     Plotly.react(chart, data, layout, {
         // displaylogo: false,
         displayModeBar: true,
-        plotlyServerURL: "https://chart-studio.plotly.com",
+    });
+}
+function showTTKs() {
+    const data = [{
+        type: 'histogram',
+        x: ttks,
+        name: "Enemy 1",
+        histnorm: 'percent',
+        //xbins: { size: 0.25 },
+        nbinsx: 10,
+        //hovertemplate: '%{x:.3f}s - %{y}',
+    }];
+    const mean = ttks.reduce((a, b) => a + b, 0) / ttks.length;
+    const layout = {
+        xaxis: {
+            //type: 'log',
+            autorange: true,
+            //range: [0, 9.5],
+            autorangeoptions:{
+                // minallowed: 0,
+                // maxallowed: 50,
+            },
+            ticksuffix: "s",
+        },
+        yaxis: {
+            ticksuffix: "%",
+            title: "%",
+        },
+        barmode: "stack",
+        margin: {
+            b: 20,
+            l: 50,
+            r: 0,
+            t: 15,
+        },
+        modebar: { //the plotly top right menu bar
+            // orientation: "v",
+        },
+        legend: {
+            x: 1.0,
+            y: 0.95,
+        },
+        shapes: [
+            {
+                type: 'line',
+                xref: 'x',
+                yref: 'paper', // spans the full plot height regardless of y-scale
+                x0: mean,
+                x1: mean,
+                y0: 0,
+                y1: 1,
+                line: {
+                    color: 'red',
+                    width: 2,
+                    dash: 'dot',
+                },
+            },
+        ],
+        annotations: [
+            {
+                xref: 'paper',
+                yref: 'paper',
+                xanchor: 'left',
+                yanchor: 'top',
+                x: 1.01,
+                y: 0.01,
+                text: 'time',
+                showarrow: false
+            },
+            {
+                xref: 'x',
+                yref: 'paper',
+                x: mean,
+                y: 0.92,
+                xanchor: 'left',
+                yanchor: 'bottom',
+                text: `mean: ${mean.toFixed(2)}s`,
+                showarrow: false,
+                font: { color: 'red' },
+            },
+        ],
+        paper_bgcolor: "rgba(0, 0, 0, 0)",
+        /* plot_bgcolor: "rgba(0, 0, 0, 0)", */
+        font: {
+            "family": "Roboto, Arial",
+            /* "color": "var(--color-text)", */
+        },
+        showlegend: true,
+        //responsive: true,
+    };
+    Plotly.react(chart, data, layout, {
+        // displaylogo: false,
+        displayModeBar: true,
     });
 }
 
@@ -1006,17 +1216,129 @@ function status_proportion_graph() {
         tick.setAttribute('data-value', formatLargeNumbers(tickValue));
         axis.appendChild(tick);
     });
-};
+}
 
 // TODO on table resize instead
 //window.addEventListener('resize', status_proportion_graph);
 
-document.getElementById("help_svg").addEventListener("click", function(event) {
-    event.target.style.display = "none";
-})
-document.getElementById("help_button").addEventListener("click", function() {
-    document.getElementById("help_svg").style.display = "";
-})
+(function () {
+    'use strict';
+
+    const help_button = document.getElementById('help_button');
+    const skipBtn = document.getElementById('skipBtn');
+    const overlay = document.getElementById('overlay');
+    const arrowLayer = document.getElementById('arrowLayer');
+
+    const steps = [
+        {box: document.getElementById('weapon_selection')},
+        {from: document.getElementById('mod-list-wrapper'), to: document.getElementById('modding')},
+        {box: document.getElementById('other')},
+        {box: document.getElementById('plot'), text: 'result'},
+        {box: document.querySelector('.weapon_stats_base'), text: 'can edit base stats', optional: true},
+        {box: document.getElementById('mod6'), text: 'click to edit mods/buffs', optional: true},
+        {box: document.getElementById('buffs_wrapper'), text: 'list of buffs, abilities, passives...', optional: true},
+        {box: document.getElementById('stance-slot'), text: 'edit melee stance', optional: true},
+    ];
+
+    function centerOf(el) {
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+    }
+
+    function buildMarker(step, text) {
+        if (step.text) {
+            text = step.text;
+        }
+        if (step.box) {
+            const circle = document.createElement('div');
+            circle.className = 'circle';
+            circle.classList.toggle('optional', step.optional ?? false)
+            circle.textContent = text;
+            overlay.appendChild(circle);
+            function update() {
+                const c = centerOf(step.box);
+                circle.style.left = c.x + 'px';
+                circle.style.top = c.y + 'px';
+            }
+            update();
+            return { els: [circle], update: update };
+        } else {
+            const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+            line.setAttribute('marker-end', 'url(#arrowhead)');
+            line.setAttribute('class', 'arrow');
+            arrowLayer.appendChild(line);
+
+            const mid = document.createElement('div');
+            mid.className = 'circle circle--fixed';
+            mid.classList.toggle('optional', step.optional ?? false)
+            mid.textContent = text;
+            overlay.appendChild(mid);
+
+            function update() {
+                const a = centerOf(step.from), b = centerOf(step.to);
+                line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
+                line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
+                mid.style.left = (a.x + b.x) / 2 + 'px';
+                mid.style.top = (a.y + b.y) / 2 + 'px';
+            }
+            update();
+
+            return { els: [line, mid], update: update };
+        }
+    }
+
+    const markers = steps.map(function (step, i) { return buildMarker(step, i + 1); });
+    let stepIndex = 0;
+
+    function resetMarkers() {
+        markers.forEach(function (m) {
+            m.els.forEach(function (el) { el.classList.remove('is-focused', 'is-grey'); });
+        });
+    }
+
+    function revealNext() {
+        if (stepIndex >= steps.length) {
+            endTour();
+            return;
+        }
+
+        if (stepIndex > 0) {
+            markers[stepIndex - 1].els.forEach(function (el) {
+                el.classList.remove('is-focused');
+                el.classList.add('is-grey');
+            });
+        }
+        markers[stepIndex].els.forEach(function (el) { el.classList.add('is-focused'); });
+
+        stepIndex++;
+    }
+
+    function startTour() {
+        resetMarkers();
+        stepIndex = 0;
+        document.body.classList.add('tour-active');
+        revealNext();
+    }
+
+    function endTour() {
+        document.body.classList.remove('tour-active');
+        resetMarkers();
+        stepIndex = 0;
+    }
+
+    help_button.addEventListener('click', startTour);
+    skipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        endTour();
+    });
+    overlay.addEventListener('click', revealNext);
+
+    window.addEventListener('resize', function () {
+        markers.forEach(function (m) { if (m.update) m.update(); });
+    });
+
+    startTour();
+})();
 
 if (!window.matchMedia("(any-pointer: fine)").matches) {
     alert("Touchscreen detected. To move mods, press and hold a mod for 1–2 seconds, then drag it to a slot\n\nSome browsers might not fully support drag and drop on touch devices, in which case try another browser, or use a mouse or trackpad instead.");
