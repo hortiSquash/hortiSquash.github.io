@@ -1277,8 +1277,6 @@ tr.indented {
 
 #overlay {
     position: absolute;
-    width: 100vw;
-    height: 100vh;
     inset: 0;
     pointer-events: none;
     z-index: 999;
@@ -1286,17 +1284,13 @@ tr.indented {
 #arrowLayer {
     position: absolute;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
     pointer-events: none;
-    z-index: 998;
 }
 
 body.tour-active {
     #overlay {
         pointer-events: auto;
         cursor: pointer;
-        backdrop-filter: blur(1px);
     }
     #skipBtn {
         display: block;
@@ -1323,53 +1317,70 @@ body.tour-active {
     user-select: none;
 }
 
-.circle {
-    box-sizing: border-box;
+.anchored {
     position: absolute;
-    top: 50%;
-    left: 50%;
-    height: 2em;
-    min-width: 2em;
-    padding: 0 0.5em;
-    border-radius: 1em;
-    background: #dd8448;
-    color: #fff;
-    font-weight: 700;
-    font-size: 4rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform: translate(-50%, -50%) scale(0.8);
-    z-index: 998;
-    opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
-}
-.circle.is-focused {
-    transform: translate(-50%, -50%) scale(1);
-}
-.is-grey {
-    opacity: 0.8 !important;
-    filter: grayscale(0.4) !important;
-}
-.is-focused {
-    opacity: 0.9 !important;
+    position-area: center;
+
+    > .circle {
+        box-sizing: border-box;
+        height: 2em;
+        min-width: 2em;
+        padding: 0 0.5em;
+        border-radius: 1em;
+        background: #dd8448;
+        color: #fff;
+        font-weight: 700;
+        font-size: 4rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: scale(0.8);
+        z-index: 998;
+        opacity: 0;
+        transition: opacity 0.3s ease, transform 0.3s ease, filter 0.3s ease;
+    }
+
+    &:has(> svg > .arrow) {
+        position-area: unset;
+
+        & > .circle{
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
+    &.is-focused > * {
+        opacity: 0.9 !important;
+
+        &.circle {
+            transform: scale(1);
+        }
+    }
+    &.is-grey > * {
+        opacity: 0.8 !important;
+        filter: grayscale(0.4) !important;
+    }
+    &.optional > * {
+        background: #3f3fb7;
+        font-size: x-large;
+    }
 }
 
-.optional {
-    background: #3f3fb7;
-    font-size: x-large;
-}
-
-.arrow {
-    stroke: #dd8448dd;
-    stroke-width: 1em;
+svg:has( > .arrow) {
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease, filter 0.3s ease;
+
+    .arrow {
+        stroke: #dd8448;
+        stroke-width: 1em;
+        pointer-events: none;
+        transition: opacity 0.3s ease, filter 0.3s ease;
+    }
 }
 .arrowhead-fill {
-    fill: #dd8448dd;
+    fill: #dd8448;
 }
 
 /* big ass screens be like */

@@ -1234,9 +1234,9 @@ function status_proportion_graph() {
         {from: document.getElementById('mod-list-wrapper'), to: document.getElementById('modding')},
         {box: document.getElementById('other')},
         {box: document.getElementById('plot'), text: 'result'},
-        {box: document.querySelector('.weapon_stats_base'), text: 'can edit base stats', optional: true},
+        {box: document.getElementById('stats_middle_separation'), text: 'can edit base stats', optional: true},
         {box: document.getElementById('mod6'), text: 'click to edit mods/buffs', optional: true},
-        {box: document.getElementById('buffs_wrapper'), text: 'list of buffs, abilities, passives...', optional: true},
+        {box: document.getElementById('buffs_wrapper'), text: 'list of external buffs (auras, abilities, passives, etc...)', optional: true},
         {box: document.getElementById('stance-slot'), text: 'edit melee stance', optional: true},
     ];
 
@@ -1245,45 +1245,81 @@ function status_proportion_graph() {
         return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
     }
 
+    const overlay2 = document.createElement('div');
+    document.body.appendChild(overlay2);
+
+    let current_id = 0;
     function buildMarker(step, text) {
         if (step.text) {
             text = step.text;
         }
         if (step.box) {
-            const circle = document.createElement('div');
-            circle.className = 'circle';
-            circle.classList.toggle('optional', step.optional ?? false)
-            circle.textContent = text;
-            overlay.appendChild(circle);
-            function update() {
-                const c = centerOf(step.box);
-                circle.style.left = c.x + 'px';
-                circle.style.top = c.y + 'px';
-            }
-            update();
-            return { els: [circle], update: update };
+            const anchored = document.createElement('div');
+            anchored.classList.add('anchored');
+            anchored.classList.toggle('optional', step.optional ?? false);
+
+            const mid = document.createElement('div');
+            mid.className = 'circle';
+            mid.textContent = text;
+            anchored.appendChild(mid);
+
+            const anchor_name = `--anchor${current_id++}`;
+            anchored.style.positionAnchor = anchor_name;
+            step.box.style.anchorName = anchor_name;
+
+            overlay2.appendChild(anchored);
+            return { els: [anchored] };
         } else {
+            const anchored = document.createElement('div');
+            anchored.classList.add('anchored');
+            anchored.classList.toggle('optional', step.optional ?? false);
+            const anchor_start_name = `--anchor_start${current_id}`;
+            const anchor_end_name = `--anchor_end${current_id++}`;
+            step.from.style.anchorName = anchor_start_name;
+            step.to.style.anchorName = anchor_end_name;
+            anchored.style.inset = `min(anchor(${anchor_start_name} 50%), anchor(${anchor_end_name} 50%))`;
+
+            const to = step.to.getBoundingClientRect();
+            const from = step.from.getBoundingClientRect();
+            const dx = to.left - from.left;
+            const dy = to.top - from.top;
+
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.style.width = '100%';
+            svg.style.height = '100%';
+            svg.setAttribute('viewBox', '0 0 100 100');
+            svg.setAttribute('preserveAspectRatio', 'none');
+            svg.style.objectFit = 'fill';
             const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
             line.setAttribute('marker-end', 'url(#arrowhead)');
             line.setAttribute('class', 'arrow');
-            arrowLayer.appendChild(line);
+            line.style.strokeWidth = '3';
+
+            if (dx > 0){
+                line.setAttribute('x1', "0");
+                line.setAttribute('x2', "100%");
+            }else{
+                line.setAttribute('x1', "100%");
+                line.setAttribute('x2', "0");
+            }
+            if (dy > 0){
+                line.setAttribute('y1', "0");
+                line.setAttribute('y2', "100%");
+            }else{
+                line.setAttribute('y1', "100%");
+                line.setAttribute('y2', "0");
+            }
 
             const mid = document.createElement('div');
-            mid.className = 'circle circle--fixed';
-            mid.classList.toggle('optional', step.optional ?? false)
+            mid.className = 'circle';
+            mid.classList.toggle('optional', step.optional ?? false);
             mid.textContent = text;
-            overlay.appendChild(mid);
 
-            function update() {
-                const a = centerOf(step.from), b = centerOf(step.to);
-                line.setAttribute('x1', a.x); line.setAttribute('y1', a.y);
-                line.setAttribute('x2', b.x); line.setAttribute('y2', b.y);
-                mid.style.left = (a.x + b.x) / 2 + 'px';
-                mid.style.top = (a.y + b.y) / 2 + 'px';
-            }
-            update();
-
-            return { els: [line, mid], update: update };
+            svg.appendChild(line);
+            anchored.appendChild(svg);
+            anchored.appendChild(mid);
+            overlay2.appendChild(anchored);
+            return { els: [anchored] };
         }
     }
 
