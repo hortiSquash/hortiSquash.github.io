@@ -44,7 +44,6 @@ body {
     --color-modbuff: green;
     --color-modnerf: red;
     --mod-empty-background-filter: invert() opacity(30%);
-    --color-mod-empty-background: rgba(0, 0, 0, 0.7);
     --color-hits-background: white;
     --color-plot-ticks: black;
 
@@ -76,7 +75,6 @@ body[theme="1"] {
     --color-modbuff: #62c162;
     --color-modnerf: #f63939;
     --mod-empty-background-filter: opacity(30%);
-    --color-mod-empty-background: rgba(255, 255, 255, 0.7);
     --color-hits-background: #5b5c5c;
     --color-plot-ticks: white;
 
@@ -108,7 +106,6 @@ body[theme="2"] {
     --color-modbuff: #3c9309;
     --color-modnerf: #db1f1f;
     --mod-empty-background-filter: opacity(30%);
-    --color-mod-empty-background: rgba(255, 255, 255, 0.7);
     --color-hits-background: #5b5c5c;
     --color-plot-ticks: white;
 
@@ -981,8 +978,9 @@ tr.indented {
         &::before {
             content: "+";
             position: absolute;
-            font-size: 28px;
-            color: var(--color-mod-empty-background);
+            font-size: 32px;
+            color: white;
+            filter: var(--mod-empty-background-filter);
         }
     }
 
