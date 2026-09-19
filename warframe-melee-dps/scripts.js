@@ -255,8 +255,6 @@ function changeStats() {
         //TODO convert the enemies to scale their stats with their level
         // since there is no level calculation in the C++
     }else{
-        //alert("Select an enemy to fight against");
-        //throw "missing enemies";
         enemy = {
             "name": "",
             "health": 2147483647, //2 billion //TODO signed INT max, maybe change the C++ to be unsigned or even 64b ints
@@ -1643,7 +1641,7 @@ async function saveConfig() {
     const urlSafe = compressed.toBase64({alphabet: 'base64url', omitPadding: true});
 
     const base64 = encodeURIComponent(btoa(String.fromCharCode(...compressed)));
-    alert(`uncompressed: ${json.length}\nold: ${base64.length} ${base64.length / json.length}\nnew: ${urlSafe.length} ${urlSafe.length / json.length}`);
+    console.log(`uncompressed: ${json.length}\nold: ${base64.length} ${base64.length / json.length}\nnew: ${urlSafe.length} ${urlSafe.length / json.length}`);
 
     window.location.hash = `config=${urlSafe}`;
 

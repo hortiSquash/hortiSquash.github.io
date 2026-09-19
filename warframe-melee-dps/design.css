@@ -1319,6 +1319,7 @@ body.tour-active {
     position: absolute;
     pointer-events: none;
     position-area: center;
+    position-visibility: anchors-valid anchors-visible;
 
     > .circle {
         box-sizing: border-box;
