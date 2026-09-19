@@ -438,7 +438,7 @@ function showMovingSum() {
         return result;
     }
 
-    const windowSize = tickrate + 1;
+    const windowSize = tickrate;
     const plotlyData = raw_data
         .filter(data2 => Array.isArray(data2.data) && data2.data.some(v => v !== 0))
         .map(data2 => ({

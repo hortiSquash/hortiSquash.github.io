@@ -129,7 +129,7 @@ document.getElementById("hits_wrapper").addEventListener('click', function (even
 });
 
 document.getElementById("hits_wrapper").addEventListener('change', function (event) {
-    if (event.target.value === 0) {
+    if (event.target.value == 0) { //cannot put === because we need the type coercion since it might be a string
         if (event.target.name === 'inputForcedProc') {
             event.target.closest('tr').remove();
         }
