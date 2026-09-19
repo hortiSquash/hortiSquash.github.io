@@ -682,7 +682,7 @@ dialog {
     align-items: center;
     justify-content: center;
 
-    text:not(.hovertext text) {
+    text:not(.hovertext text, .annotation-text, .slicetext) {
         fill: var(--color-text) !important;
     }
 
