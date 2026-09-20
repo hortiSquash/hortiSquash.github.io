@@ -1227,7 +1227,6 @@ function status_proportion_graph() {
     const help_button = document.getElementById('help_button');
     const skipBtn = document.getElementById('skipBtn');
     const overlay = document.getElementById('overlay');
-    const arrowLayer = document.getElementById('arrowLayer');
 
     const steps = [
         {box: document.getElementById('weapon_selection')},
@@ -1239,11 +1238,6 @@ function status_proportion_graph() {
         {box: document.getElementById('buffs_wrapper'), text: 'list of external buffs (auras, abilities, passives, etc...)', optional: true},
         {box: document.getElementById('stance-slot'), text: 'edit melee stance', optional: true},
     ];
-
-    function centerOf(el) {
-        const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-    }
 
     const overlay2 = document.createElement('div');
     document.body.appendChild(overlay2);
@@ -1345,6 +1339,11 @@ function status_proportion_graph() {
             });
         }
         markers[stepIndex].els.forEach(function (el) { el.classList.add('is-focused'); });
+        markers[stepIndex].els.forEach(function (el) { el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+            inline: 'center'
+        })});
 
         stepIndex++;
     }
