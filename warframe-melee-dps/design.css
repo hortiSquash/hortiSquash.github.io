@@ -1274,7 +1274,7 @@ tr.indented {
 }
 
 #overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 999;
